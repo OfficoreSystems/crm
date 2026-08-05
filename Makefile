@@ -1,13 +1,16 @@
 DC   := docker compose
 EXEC := $(DC) exec -T php
 
+# Mindest-Zeilenabdeckung. Wird nie gesenkt, um einen Build gruen zu bekommen.
+COVERAGE_MIN := 80
+
 # Bewusst ohne grep/awk/printf und ohne Anfuehrungszeichen in den Rezepten:
 # GNU Make nimmt unter Windows cmd.exe, wenn keine sh im PATH liegt. Dort gibt
 # es kein grep, und Anfuehrungszeichen wuerden mit ausgegeben statt entfernt.
 # Alles hier laeuft deshalb sowohl unter sh als auch unter cmd.exe.
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build sh install migrate seed test stan arch ci fresh logs reset
+.PHONY: help up down build sh install migrate seed test coverage stan arch ci fresh logs reset
 
 help:
 	@echo ------------------------------------------------------------------
@@ -26,6 +29,7 @@ help:
 	@echo ------------------------------------------------------------------
 	@echo Gates
 	@echo   make test ...... PHPUnit ueber alle Modul-Suites
+	@echo   make coverage .. PHPUnit mit Coverage, failt unter COVERAGE_MIN Prozent
 	@echo   make stan ...... PHPStan Level 8
 	@echo   make arch ...... Deptrac: Modulgrenzen und Schichtung
 	@echo   make ci ........ Alle Gates in CI-Reihenfolge
@@ -81,6 +85,10 @@ test:
 	$(EXEC) bin/console doctrine:migrations:migrate -n --env=test
 	$(EXEC) vendor/bin/phpunit
 
+coverage:
+	$(DC) exec -T -e XDEBUG_MODE=coverage php vendor/bin/phpunit --coverage-clover=var/clover.xml --coverage-text
+	$(EXEC) php tools/coverage-gate.php var/clover.xml $(COVERAGE_MIN)
+
 stan:
 	$(EXEC) bin/console cache:warmup --env=dev
 	$(EXEC) vendor/bin/phpstan analyse --memory-limit=1G
@@ -92,7 +100,7 @@ ci:
 	$(EXEC) composer validate --strict
 	$(MAKE) stan
 	$(MAKE) arch
-	$(MAKE) test
+	$(MAKE) coverage
 
 # ------------------------------------------------------------------- Reset
 
