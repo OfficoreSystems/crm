@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crm\Contact\Domain;
 
-use Crm\Contact\Infrastructure\Doctrine\DoctrineContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -70,11 +69,6 @@ class Contact
             $company,
             $createdAt ?? new \DateTimeImmutable(),
         );
-    }
-
-    public function repositoryClass(): string
-    {
-        return DoctrineContactRepository::class;
     }
 
     public function id(): Uuid
