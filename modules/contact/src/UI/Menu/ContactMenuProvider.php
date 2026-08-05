@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crm\Contact\UI\Menu;
 
+use Crm\Billing\Domain\Invoice;
 use Crm\SharedKernel\Menu\MenuItem;
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 
@@ -15,6 +16,11 @@ use Crm\SharedKernel\Menu\MenuProviderInterface;
  */
 final class ContactMenuProvider implements MenuProviderInterface
 {
+    public function probe(): string
+    {
+        return (new Invoice('RE-1'))->number;
+    }
+
     public function getMenuItems(): iterable
     {
         yield new MenuItem(
