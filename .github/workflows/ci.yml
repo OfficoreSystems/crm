@@ -57,6 +57,13 @@ jobs:
           # pcov statt xdebug: gleiche Zeilenabdeckung, ein Bruchteil der
           # Laufzeit. Xdebug braucht der Job nicht, hier wird nicht debuggt.
           coverage: pcov
+          # pcov instrumentiert nur unterhalb von pcov.directory, und
+          # setup-php setzt das auf das erkannte Quellverzeichnis - hier also
+          # src/. Die Module liegen darunter nicht und waeren komplett
+          # ungemessen: der erste Lauf meldete 3.11 Prozent statt 98.76.
+          # Deshalb explizit das Projektwurzelverzeichnis, ohne vendor/ und
+          # var/, die sonst nur Zeit und Speicher kosten.
+          ini-values: pcov.directory=., pcov.exclude="~(vendor|var)~"
           tools: composer:v2
 
       - name: Composer-Cache-Verzeichnis ermitteln
