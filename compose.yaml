@@ -1,25 +1,64 @@
-
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+  php:
+    build:
+      context: .
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "8080:80"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+      APP_ENV: dev
+      APP_DEBUG: "1"
+      # Zum Debuggen auf "debug" setzen und `make up` erneut ausfuehren.
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - .:/app
+      # Diese beiden liegen bewusst als benannte Volumes ueber dem Bind-Mount.
+      # Ohne sie laeuft jeder Dateizugriff auf vendor/ (zehntausende Dateien)
+      # ueber die Windows/macOS-Dateisystembruecke und ein Request dauert
+      # Sekunden statt Millisekunden.
+      - vendor:/app/vendor
+      - var:/app/var
+    depends_on:
+      db:
+        # Ohne diese Bedingung startet php schneller als Postgres und der
+        # erste Request stirbt an "connection refused".
+        condition: service_healthy
+    extra_hosts:
+      # Damit Xdebug den Host erreicht (Linux hat das nicht von selbst).
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crm
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      # Nur an Localhost gebunden - die Datenbank soll nicht im LAN haengen.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  mailpit:
+    image: axllent/mailpit:v1.30
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
 
 volumes:
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
+  db_data:
+  vendor:
+  var:

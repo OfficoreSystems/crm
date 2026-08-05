@@ -62,17 +62,32 @@ Modul anlegt und vergisst, es in `deptrac.yaml` einzutragen.
 
 ## Befehle
 
-| Befehl         | Wirkung                                            |
-| -------------- | -------------------------------------------------- |
-| `make fresh`   | up + install + migrate + seed, gibt die URLs aus    |
-| `make up/down` | Container starten / stoppen                         |
-| `make sh`      | Shell im PHP-Container                              |
-| `make install` | `composer install`                                  |
-| `make migrate` | Migrationen anwenden                                |
-| `make test`    | PHPUnit über alle Modul-Suites                      |
-| `make stan`    | PHPStan Level 8                                     |
-| `make arch`    | Deptrac                                             |
-| `make ci`      | alle Gates in CI-Reihenfolge                        |
+`make` ohne Argument zeigt die Liste.
+
+| Befehl         | Wirkung                                                  |
+| -------------- | -------------------------------------------------------- |
+| `make fresh`   | up + install + migrate + seed, gibt die URLs aus          |
+| `make up/down` | Container starten / stoppen                               |
+| `make build`   | Images neu bauen                                          |
+| `make sh`      | Shell im PHP-Container                                    |
+| `make logs`    | Logs folgen                                               |
+| `make install` | `composer install` im Container                           |
+| `make migrate` | Migrationen anwenden                                      |
+| `make seed`    | Beispielkontakte anlegen                                  |
+| `make test`    | PHPUnit über alle Modul-Suites (legt die Test-DB mit an)  |
+| `make stan`    | PHPStan Level 8                                           |
+| `make arch`    | Deptrac                                                   |
+| `make ci`      | alle Gates in CI-Reihenfolge                              |
+| `make reset`   | Container **und** DB-Volume löschen — Daten sind dann weg |
+
+### Debuggen
+
+Xdebug ist im Dev-Image installiert, aber aus (`XDEBUG_MODE=off`), weil es
+sonst jeden Request bremst. Anschalten:
+
+```bash
+XDEBUG_MODE=debug make up
+```
 
 ## Stack
 

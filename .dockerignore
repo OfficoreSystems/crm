@@ -1,0 +1,29 @@
+# Wird im Container neu erzeugt. Ohne diesen Ausschluss wandert ein unter
+# Windows aufgeloestes vendor/ ins Image - inklusive falscher Plattform.
+/vendor/
+/modules/*/vendor/
+/var/
+/public/assets/
+/assets/vendor/
+
+/.git/
+/.github/
+/.idea/
+/.vscode/
+
+/.env.local
+/.env.*.local
+
+/.phpunit.cache/
+/.deptrac.cache
+/phpunit.xml
+
+# Build-Kontext klein halten: nichts davon wird im Image gebraucht.
+/compose.yaml
+/compose.override.yaml
+/Makefile
+/README.md
+/deptrac.yaml
+/phpstan.neon
+/phpunit.xml.dist
+/tests/
