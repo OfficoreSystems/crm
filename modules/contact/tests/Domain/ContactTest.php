@@ -82,4 +82,56 @@ final class ContactTest extends TestCase
 
         self::assertSame('Anna Berger-Vogel', $contact->fullName());
     }
+
+    #[Test]
+    public function renaming_rejects_a_blank_value(): void
+    {
+        $contact = Contact::create('Anna', 'Berger');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $contact->rename('Anna', '  ');
+    }
+
+    #[Test]
+    public function it_can_change_its_email(): void
+    {
+        $contact = Contact::create('Anna', 'Berger', 'alt@example.test');
+
+        $contact->changeEmail('  neu@example.test  ');
+
+        self::assertSame('neu@example.test', $contact->email());
+    }
+
+    #[Test]
+    public function clearing_the_email_stores_null_not_an_empty_string(): void
+    {
+        $contact = Contact::create('Anna', 'Berger', 'alt@example.test');
+
+        $contact->changeEmail('');
+
+        self::assertNull($contact->email());
+    }
+
+    #[Test]
+    public function it_can_change_its_company(): void
+    {
+        $contact = Contact::create('Anna', 'Berger');
+
+        $contact->changeCompany(' Nordwind Logistik ');
+        self::assertSame('Nordwind Logistik', $contact->company());
+
+        $contact->changeCompany(null);
+        self::assertNull($contact->company());
+    }
+
+    #[Test]
+    public function it_keeps_the_creation_timestamp_it_was_given(): void
+    {
+        $moment = new \DateTimeImmutable('2026-03-01 09:15:00');
+
+        $contact = Contact::create('Anna', 'Berger', createdAt: $moment);
+
+        self::assertSame($moment, $contact->createdAt());
+    }
 }

@@ -51,6 +51,20 @@ Der Lauf muss **0 Violations und 0 Uncovered** melden. `--fail-on-uncovered`
 ist der wichtigere Schalter: er fängt auch den Fall ab, dass jemand ein neues
 Modul anlegt und vergisst, es in `deptrac.yaml` einzutragen.
 
+### Coverage-Gate
+
+Mindestens **80 % Zeilenabdeckung**, erzwungen in der CI durch
+[`tools/coverage-gate.php`](tools/coverage-gate.php). PHPUnit selbst kennt kein
+„fail under" — das Skript liest den Clover-Report und bricht ab, wenn die
+Schwelle gerissen ist. Bei rotem Gate listet es die schwächsten Dateien auf.
+
+Die Schwelle steht an zwei Stellen und muss zusammen gepflegt werden:
+`COVERAGE_MIN` im [Makefile](Makefile) und in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+**Die Schwelle wird nie gesenkt, um einen Build grün zu bekommen.** Wer sie
+reißt, schreibt Tests.
+
 ### Schichten innerhalb eines Moduls
 
 | Schicht          | darf sehen                              |
@@ -75,6 +89,7 @@ Modul anlegt und vergisst, es in `deptrac.yaml` einzutragen.
 | `make migrate` | Migrationen anwenden                                      |
 | `make seed`    | Beispielkontakte anlegen                                  |
 | `make test`    | PHPUnit über alle Modul-Suites (legt die Test-DB mit an)  |
+| `make coverage`| PHPUnit mit Coverage, failt unter `COVERAGE_MIN` Prozent   |
 | `make stan`    | PHPStan Level 8                                           |
 | `make arch`    | Deptrac                                                   |
 | `make ci`      | alle Gates in CI-Reihenfolge                              |

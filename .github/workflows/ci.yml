@@ -19,6 +19,10 @@ env:
   # Doctrine beim Start eine Extra-Abfrage fuer die Version schickt.
   DATABASE_URL: postgresql://app:app@127.0.0.1:5432/crm?serverVersion=17&charset=utf8
 
+  # Mindest-Zeilenabdeckung. Spiegelt COVERAGE_MIN im Makefile - wer den einen
+  # Wert aendert, muss den anderen mitziehen.
+  COVERAGE_MIN: "80"
+
 jobs:
   # Der Job-Name ist der Status-Check-Kontext, den das Ruleset auf main
   # verlangt. Wer ihn umbenennt, macht main unmergebar.
@@ -50,7 +54,9 @@ jobs:
         with:
           php-version: '8.4'
           extensions: pdo_pgsql, intl, zip, opcache
-          coverage: none
+          # pcov statt xdebug: gleiche Zeilenabdeckung, ein Bruchteil der
+          # Laufzeit. Xdebug braucht der Job nicht, hier wird nicht debuggt.
+          coverage: pcov
           tools: composer:v2
 
       - name: Composer-Cache-Verzeichnis ermitteln
@@ -103,5 +109,10 @@ jobs:
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:migrations:migrate -n --env=test
 
-      - name: PHPUnit
-        run: vendor/bin/phpunit
+      - name: PHPUnit mit Coverage
+        run: vendor/bin/phpunit --coverage-clover=var/clover.xml
+
+      - name: Coverage-Gate
+        # Eigener Schritt, damit im roten Fall sofort sichtbar ist, ob Tests
+        # fehlgeschlagen sind oder ob die Abdeckung zu niedrig war.
+        run: php tools/coverage-gate.php var/clover.xml "${{ env.COVERAGE_MIN }}"
