@@ -1,0 +1,73 @@
+version: 2
+
+updates:
+  # --- PHP-Abhaengigkeiten -------------------------------------------------
+  # Nur das Root-Manifest: die Module haengen ueber path-Repositories daran und
+  # werden gemeinsam ueber die Root-composer.lock aufgeloest.
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    labels:
+      - "type:chore"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      # Minor/Patch in einen PR buendeln - sonst ertrinkt man montags in PRs.
+      composer-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Symfony bleibt auf 7.4 LTS. Ein Major-Sprung ist eine bewusste
+      # Entscheidung, kein Dependabot-PR.
+      - dependency-name: "symfony/*"
+        update-types: ["version-update:semver-major"]
+
+  # --- Container -----------------------------------------------------------
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 3
+    labels:
+      - "type:chore"
+      - "area:infra"
+    commit-message:
+      prefix: "chore(docker)"
+    groups:
+      docker-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+
+  # --- GitHub Actions ------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 3
+    labels:
+      - "type:chore"
+      - "area:ci"
+    commit-message:
+      prefix: "chore(actions)"
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
