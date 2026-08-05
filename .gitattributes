@@ -1,0 +1,24 @@
+# Zeilenenden im Repo immer LF. Ohne das checkt Git unter Windows CRLF aus und
+# die Shell-Skripte, bin/console und das Makefile brechen im Linux-Container
+# mit "bad interpreter: no such file or directory".
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.svg  text eol=lf
+
+# Nicht mit ins Distributionsarchiv (composer archive / dist-Downloads).
+/.github          export-ignore
+/tests            export-ignore
+/.editorconfig    export-ignore
+/.gitattributes   export-ignore
+/.gitignore       export-ignore
+/compose.yaml     export-ignore
+/compose.override.yaml export-ignore
+/deptrac.yaml     export-ignore
+/phpstan.neon     export-ignore
+/phpunit.xml.dist export-ignore

@@ -1,0 +1,30 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> deptrac/deptrac ###
+/.deptrac.cache
+###< deptrac/deptrac ###
+
+# Module werden ueber path-Repositories eingebunden und in das Root-vendor/
+# gesymlinkt. Ein eigenes vendor/ im Modul entsteht nur, wenn man dort
+# versehentlich `composer install` aufruft - und gehoert nie ins Repo.
+/modules/*/vendor/
+/modules/*/composer.lock

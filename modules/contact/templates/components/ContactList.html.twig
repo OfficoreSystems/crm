@@ -1,0 +1,66 @@
+{# Live-Component: jede Aenderung an `query` rendert nur diesen Block neu. #}
+<div {{ attributes }} class="contact-list">
+
+    <div class="contact-list__toolbar">
+        <input
+            type="search"
+            value="{{ this.query }}"
+            data-model="debounce(200)|query"
+            placeholder="Nach Name, E-Mail oder Firma suchen …"
+            autocomplete="off"
+            aria-label="Kontakte durchsuchen"
+            class="contact-list__search"
+        >
+        <span class="contact-list__count" data-loading="addClass(is-busy)">
+            {% if this.isFiltered %}
+                {{ this.contacts|length }} von {{ this.total }}
+            {% else %}
+                {{ this.total }} {{ this.total == 1 ? 'Kontakt' : 'Kontakte' }}
+            {% endif %}
+        </span>
+    </div>
+
+    {% if this.contacts is empty %}
+        <p class="contact-list__empty">
+            {% if this.isFiltered %}
+                Kein Treffer für <strong>{{ this.query }}</strong>.
+            {% else %}
+                Noch keine Kontakte angelegt.
+                Leg welche an mit <code>bin/console contact:seed</code>.
+            {% endif %}
+        </p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">E-Mail</th>
+                    <th scope="col">Firma</th>
+                    <th scope="col">Angelegt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in this.contacts %}
+                    <tr>
+                        <td>{{ contact.fullName }}</td>
+                        <td>
+                            {% if contact.email %}
+                                <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                            {% else %}
+                                <span class="muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ contact.company ?? '—' }}</td>
+                        <td><time datetime="{{ contact.createdAt|date('c') }}">{{ contact.createdAt|date('d.m.Y') }}</time></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if this.isTruncated %}
+            <p class="contact-list__note">
+                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
+            </p>
+        {% endif %}
+    {% endif %}
+</div>

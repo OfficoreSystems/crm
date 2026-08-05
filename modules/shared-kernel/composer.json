@@ -1,0 +1,30 @@
+{
+    "name": "crm/shared-kernel",
+    "description": "Vertragsschicht zwischen Core und Modulen. Haengt von keinem Modul ab.",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "version": "0.1.0",
+    "require": {
+        "php": ">=8.2",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/http-kernel": "^7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crm\\SharedKernel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Crm\\SharedKernel\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}

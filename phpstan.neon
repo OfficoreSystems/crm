@@ -1,0 +1,16 @@
+parameters:
+    level: 8
+
+    paths:
+        - src
+        - modules/shared-kernel/src
+        - modules/contact/src
+
+    # Der Symfony-Extension den kompilierten Container zeigen. Ohne das haelt
+    # PHPStan jeden Service-Zugriff fuer untypisiert und Level 8 wird zu Laerm.
+    # Der Cache muss dafuer warm sein - siehe `make stan` und die CI.
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+
+    doctrine:
+        objectManagerLoader: tests/object-manager.php

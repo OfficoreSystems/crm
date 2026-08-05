@@ -1,0 +1,157 @@
+## Architektur-Schranke.
+##
+## Zwei Regelebenen:
+##   1. Modul-Isolation - ein Modul sieht nur den shared-kernel, nie ein
+##      anderes Modul.
+##   2. Schichtung innerhalb eines Moduls - Domain haengt an nichts,
+##      Application an Domain, Infrastructure und UI an Domain+Application.
+##
+## Ausgeschlossen ist bewusst `config/`: DI-Wiring und die Bundle-Liste duerfen
+## Schichten verbinden, das ist ihre Aufgabe. Der Code darf es nicht.
+##
+## Die Vendor-Layer unten sind kein Beiwerk: ohne sie meldet
+## `--fail-on-uncovered` jeden Framework-Aufruf als ungedeckt. Sie sind eng
+## geschnitten, damit "Domain haengt an nichts" nicht heimlich zu "Domain darf
+## ganz Symfony" wird.
+
+deptrac:
+  paths:
+    - ./src
+    - ./modules
+
+  # Die Zeichenklasse [\\/] ist Absicht: Deptrac matcht gegen den absoluten
+  # Pfad, und der nutzt unter Windows Backslashes. Mit '.*/tests/.*' greift
+  # der Ausschluss dort nicht und PHPUnit-Attribute schlagen als "uncovered"
+  # auf.
+  exclude_files:
+    - '#.*[\\/]tests[\\/].*#'
+    - '#.*[\\/]config[\\/].*#'
+
+  # Die Layer werden ueber Namespaces geschnitten, nicht ueber Verzeichnisse.
+  # Grund: der `directory`-Collector matcht gegen den *absoluten* Pfad. Ein
+  # unverankertes `src/.*` sammelt damit auch modules/*/src/ ein, ein
+  # verankertes `^src/.*` matcht dagegen nie. Der Namespace ist hier ohnehin
+  # die Grenze, die wir meinen.
+  layers:
+    # ------------------------------------------------------------------ Core
+    - name: Core
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\#'
+
+    # --------------------------------------------------------- Vertragsschicht
+    - name: SharedKernel
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\SharedKernel\\#'
+
+    # ------------------------------------------------------------ Modul: contact
+    # Das Bundle selbst. Darf den shared-kernel und Symfony sehen, weil es sich
+    # beim Framework anmeldet - aber nichts aus anderen Modulen.
+    - name: ContactBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Contact\\ContactModule$#'
+
+    - name: ContactDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Contact\\Domain\\#'
+
+    - name: ContactApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Contact\\Application\\#'
+
+    - name: ContactInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Contact\\Infrastructure\\#'
+
+    - name: ContactUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Contact\\UI\\#'
+
+    # ------------------------------------------------------------------ Fremdcode
+    # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
+    # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
+    # jeweils breiteren Layer mit.
+    - name: DoctrineMapping
+      collectors:
+        - type: classNameRegex
+          value: '#^Doctrine\\ORM\\Mapping\\#'
+
+    - name: Doctrine
+      collectors:
+        - type: bool
+          must:
+            - type: classNameRegex
+              value: '#^Doctrine\\#'
+          must_not:
+            - type: classNameRegex
+              value: '#^Doctrine\\ORM\\Mapping\\#'
+
+    - name: SymfonyUid
+      collectors:
+        - type: classNameRegex
+          value: '#^Symfony\\Component\\Uid\\#'
+
+    - name: Symfony
+      collectors:
+        - type: bool
+          must:
+            - type: classNameRegex
+              value: '#^Symfony\\#'
+          must_not:
+            - type: classNameRegex
+              value: '#^Symfony\\Component\\Uid\\#'
+
+    - name: Twig
+      collectors:
+        - type: classNameRegex
+          value: '#^Twig\\#'
+
+    - name: Psr
+      collectors:
+        - type: classNameRegex
+          value: '#^Psr\\#'
+
+  ruleset:
+    # Der Core kennt die Vertragsschicht - und kein einziges Modul.
+    Core:
+      - SharedKernel
+      - Symfony
+      - Twig
+
+    # Die Vertragsschicht kennt niemanden ausser dem Framework.
+    SharedKernel:
+      - Symfony
+
+    ContactBundle:
+      - SharedKernel
+      - Symfony
+
+    # Domain haengt an nichts Eigenem. Erlaubt sind nur Mapping-Attribute und
+    # der Uuid-Wertetyp - beides Metadaten, keine Infrastruktur.
+    ContactDomain:
+      - DoctrineMapping
+      - SymfonyUid
+
+    ContactApplication:
+      - ContactDomain
+
+    ContactInfrastructure:
+      - ContactDomain
+      - ContactApplication
+      - Doctrine
+      - DoctrineMapping
+      - SymfonyUid
+
+    ContactUI:
+      - ContactDomain
+      - ContactApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig

@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
+
+# Routen des Cores (src/Controller/).
+controllers:
+    resource: routing.controllers
+
+# Routen der Module.
+#
+# Bewusst ein Glob: der Core kennt die Konvention "jedes Modul liefert
+# config/routes.php", aber kein einzelnes Modul. Ein neues Modul ist damit
+# ohne Aenderung an dieser Datei geroutet.
+modules:
+    resource: '../modules/*/config/routes.php'

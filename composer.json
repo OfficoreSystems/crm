@@ -1,0 +1,119 @@
+{
+    "name": "crm/app",
+    "description": "Modulares CRM. Der Core wired nur - die Fachlichkeit steckt in modules/.",
+    "type": "project",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "modules/*"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "crm/contact-module": "^0.1",
+        "crm/shared-kernel": "^0.1",
+        "doctrine/doctrine-bundle": "^2.19",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/orm": "^3.6",
+        "symfony/asset-mapper": "7.4.*",
+        "symfony/console": "7.4.*",
+        "symfony/dotenv": "7.4.*",
+        "symfony/flex": "^2",
+        "symfony/framework-bundle": "7.4.*",
+        "symfony/property-access": "7.4.*",
+        "symfony/runtime": "7.4.*",
+        "symfony/stimulus-bundle": "^2.36",
+        "symfony/twig-bundle": "7.4.*",
+        "symfony/uid": "7.4.*",
+        "symfony/ux-live-component": "^2.36",
+        "symfony/yaml": "7.4.*"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/flex": true,
+            "symfony/runtime": true,
+            "phpstan/extension-installer": true
+        },
+        "bump-after-update": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/",
+            "Crm\\SharedKernel\\Tests\\": "modules/shared-kernel/tests/",
+            "Crm\\Contact\\Tests\\": "modules/contact/tests/"
+        }
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ],
+        "stan": "phpstan analyse --memory-limit=1G",
+        "arch": "deptrac analyse --report-uncovered --fail-on-uncovered",
+        "test": "phpunit",
+        "ci": [
+            "@stan",
+            "@arch",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "stan": "PHPStan Level 8 ueber src/ und modules/",
+        "arch": "Deptrac: Modulgrenzen und Schichtung pruefen",
+        "test": "PHPUnit",
+        "ci": "Alle Qualitaets-Gates lokal, in derselben Reihenfolge wie in der CI"
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "7.4.*"
+        }
+    },
+    "require-dev": {
+        "deptrac/deptrac": "^4.7",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^12.5",
+        "symfony/browser-kit": "7.4.*",
+        "symfony/css-selector": "7.4.*",
+        "symfony/debug-bundle": "7.4.*",
+        "symfony/maker-bundle": "^1.67",
+        "symfony/stopwatch": "7.4.*",
+        "symfony/web-profiler-bundle": "7.4.*"
+    }
+}
