@@ -46,6 +46,48 @@ Kommunikation läuft ausschließlich über Interfaces im `shared-kernel` und üb
 Messenger Events. Nur zwei Dateien nennen Modulnamen, und beide sind
 Registrierung statt Kopplung: `config/bundles.php` und `deptrac.yaml`.
 
+### Wie Modulrouten geladen werden
+
+Über die Liste der **registrierten Bundles** in
+[`src/Kernel.php`](src/Kernel.php), nicht über einen Glob auf `modules/`:
+
+```php
+foreach ($this->getBundles() as $bundle) {
+    if (!$bundle instanceof CrmModuleInterface) {
+        continue;
+    }
+    // ... <bundle-pfad>/config/routes.php importieren
+}
+```
+
+Ein Glob läse das Dateisystem, während die Registrierung über
+`config/bundles.php` läuft — beides kann auseinanderlaufen. Ein deregistriertes
+Modul behielte seine Routen und der erste Aufruf endete mit
+*„has no container set"*, also **500 statt 404**.
+
+Der Filter auf `CrmModuleInterface` ist nicht optional: Fremdbundles bringen
+ebenfalls `config/routes.php` mit. `LiveComponentBundle` etwa wird von
+`config/routes/ux_live_component.yaml` bereits mit dem Präfix `/_components`
+importiert; ein zweiter Import ohne Präfix erzeugt
+`/{_live_component}/{_live_action}` — eine Route, die **jeden einteiligen Pfad
+schluckt**. Abgesichert durch
+[`tests/Smoke/RoutingTest.php`](tests/Smoke/RoutingTest.php).
+
+### Modularitätstest
+
+Ein Modul muss sich entfernen lassen, ohne dass die Anwendung bricht:
+
+```bash
+# 1. Aus config/bundles.php austragen
+# 2. composer remove crm/user-module
+make fresh
+```
+
+Erwartung: Die Anwendung **degradiert, sie crasht nicht**. `/contacts` liefert
+weiter 200, `/login` und `/users` liefern **404** (nicht 500), das Menü zeigt
+den Eintrag des Moduls nicht mehr, und `UserFinderInterface` fällt auf
+`NullUserFinder` zurück.
+
 ### Optionale Extension-Points
 
 Ein Modul, das `UserFinderInterface` injiziert, darf dadurch nicht das
