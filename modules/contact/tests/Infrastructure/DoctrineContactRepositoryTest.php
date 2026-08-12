@@ -45,7 +45,8 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
     #[Test]
     public function it_persists_and_finds_a_contact(): void
     {
-        $contact = Contact::create('Anna', 'Berger', 'anna@example.test', 'Nordwind');
+        $companyId = Uuid::v7();
+        $contact = Contact::create('Anna', 'Berger', 'anna@example.test', $companyId);
         $this->repository->save($contact);
 
         $this->entityManager->clear();
@@ -54,7 +55,75 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
         self::assertNotNull($found);
         self::assertSame('Anna Berger', $found->fullName());
         self::assertSame('anna@example.test', $found->email());
-        self::assertSame('Nordwind', $found->company());
+        self::assertTrue($companyId->equals($found->companyId()));
+    }
+
+    #[Test]
+    public function a_company_id_pointing_nowhere_is_stored_without_complaint(): void
+    {
+        // Es gibt keinen Fremdschluessel auf company_companies - und genau
+        // das ist Absicht. Die Datenbank kann die Gueltigkeit ueber die
+        // Modulgrenze hinweg nicht kennen.
+        $contact = Contact::create('Anna', 'Berger', companyId: Uuid::v7());
+
+        $this->repository->save($contact);
+        $this->entityManager->clear();
+
+        self::assertNotNull($this->repository->find($contact->id())?->companyId());
+    }
+
+    #[Test]
+    public function it_finds_contacts_by_company_id(): void
+    {
+        $nordwind = Uuid::v7();
+        $atlas = Uuid::v7();
+        $this->repository->save(Contact::create('Anna', 'Berger', companyId: $nordwind));
+        $this->repository->save(Contact::create('Deniz', 'Yilmaz', companyId: $nordwind));
+        $this->repository->save(Contact::create('Clara', 'Dupont', companyId: $atlas));
+        $this->repository->save(Contact::create('Erik', 'Lindqvist'));
+
+        self::assertCount(2, $this->repository->findByCompanyIds([(string) $nordwind]));
+        self::assertCount(3, $this->repository->findByCompanyIds([(string) $nordwind, (string) $atlas]));
+        self::assertSame([], $this->repository->findByCompanyIds([]));
+    }
+
+    #[Test]
+    public function it_counts_contacts_per_company(): void
+    {
+        $nordwind = Uuid::v7();
+        $this->repository->save(Contact::create('Anna', 'Berger', companyId: $nordwind));
+        $this->repository->save(Contact::create('Deniz', 'Yilmaz', companyId: $nordwind));
+        $this->repository->save(Contact::create('Erik', 'Lindqvist'));
+
+        self::assertSame(2, $this->repository->countByCompanyId((string) $nordwind));
+        self::assertSame(0, $this->repository->countByCompanyId((string) Uuid::v7()));
+        self::assertSame(0, $this->repository->countByCompanyId('keine-uuid'), 'Muell darf keine Ausnahme ausloesen');
+    }
+
+    #[Test]
+    public function the_search_widens_to_the_given_companies(): void
+    {
+        // Der Kern der modulübergreifenden Suche: "Nordwind" steht nirgends
+        // in dieser Tabelle. Der Aufrufer hat den Namen vorher ueber den
+        // CompanyFinder zu IDs aufgeloest und reicht sie hier herein.
+        $nordwind = Uuid::v7();
+        $this->repository->save(Contact::create('Anna', 'Berger', companyId: $nordwind));
+        $this->repository->save(Contact::create('Erik', 'Lindqvist'));
+
+        self::assertCount(0, $this->repository->search('Nordwind'), 'ohne IDs kein Treffer');
+        self::assertCount(1, $this->repository->search('Nordwind', [(string) $nordwind]));
+    }
+
+    #[Test]
+    public function the_search_combines_own_fields_and_companies_with_or(): void
+    {
+        // ODER, nicht UND: wer nach einer Firma sucht, will deren Kontakte
+        // sehen, auch wenn keiner von ihnen so heisst.
+        $nordwind = Uuid::v7();
+        $this->repository->save(Contact::create('Anna', 'Berger', companyId: $nordwind));
+        $this->repository->save(Contact::create('Nordwind', 'Mustermann'));
+
+        self::assertCount(2, $this->repository->search('Nordwind', [(string) $nordwind]));
     }
 
     #[Test]
@@ -100,14 +169,23 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function it_searches_across_all_four_fields(): void
+    public function it_searches_its_own_three_fields(): void
     {
         $this->givenContacts();
 
         self::assertCount(1, $this->repository->search('Anna'), 'Vorname');
         self::assertCount(1, $this->repository->search('Yilmaz'), 'Nachname');
         self::assertCount(1, $this->repository->search('anna@example.test'), 'E-Mail');
-        self::assertCount(2, $this->repository->search('Atlas Bau'), 'Firma');
+    }
+
+    #[Test]
+    public function a_company_name_alone_finds_nothing(): void
+    {
+        // Firmennamen stehen nicht in dieser Tabelle - nur IDs. Das Repository
+        // weiss nicht, was "Atlas Bau" ist, und das soll auch so bleiben.
+        $this->givenContacts();
+
+        self::assertCount(0, $this->repository->search('Atlas Bau'));
     }
 
     #[Test]
@@ -123,7 +201,8 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
     {
         $this->givenContacts();
 
-        self::assertCount(2, $this->repository->search('tlas'));
+        self::assertCount(1, $this->repository->search('owak'));
+        self::assertCount(1, $this->repository->search('ilmaz'));
     }
 
     #[Test]
@@ -152,7 +231,7 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
     {
         $this->givenContacts();
 
-        self::assertCount(2, $this->repository->search('', 2));
+        self::assertCount(2, $this->repository->search('', [], 2));
     }
 
     #[Test]
@@ -162,13 +241,16 @@ final class DoctrineContactRepositoryTest extends KernelTestCase
         // leere Liste liefern und wie "keine Treffer" aussehen.
         $this->givenContacts();
 
-        self::assertCount(1, $this->repository->search('', 0));
+        self::assertCount(1, $this->repository->search('', [], 0));
     }
 
     private function givenContacts(): void
     {
-        $this->repository->save(Contact::create('Anna', 'Berger', 'anna@example.test', 'Nordwind Logistik'));
-        $this->repository->save(Contact::create('Grzegorz', 'Nowak', 'g.nowak@atlas.test', 'Atlas Bau'));
-        $this->repository->save(Contact::create('Deniz', 'Yilmaz', null, 'Atlas Bau'));
+        $nordwind = Uuid::v7();
+        $atlas = Uuid::v7();
+
+        $this->repository->save(Contact::create('Anna', 'Berger', 'anna@example.test', $nordwind));
+        $this->repository->save(Contact::create('Grzegorz', 'Nowak', 'g.nowak@atlas.test', $atlas));
+        $this->repository->save(Contact::create('Deniz', 'Yilmaz', null, $atlas));
     }
 }

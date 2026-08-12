@@ -30,6 +30,20 @@ interface CompanyFinderInterface
     public function findAll(): array;
 
     /**
+     * Firmen nach Namen suchen.
+     *
+     * Der Grund, warum das hier steht: ein Modul, das Firmen-IDs skalar
+     * speichert, kann "zeig mir alles zur Firma Nordwind" nicht selbst
+     * beantworten - ein Join ueber die Modulgrenze ist ausgeschlossen.
+     * Stattdessen loest es den Namen hier zu IDs auf und filtert damit seine
+     * eigene Tabelle. Zwei Abfragen statt eines Joins, dafuer bleibt die
+     * Grenze intakt.
+     *
+     * @return list<CompanySummary>
+     */
+    public function searchByName(string $query, int $limit = 25): array;
+
+    /**
      * Sagt, ob eine ID auf eine existierende Firma zeigt.
      *
      * Gedacht fuer Module, die eine Firmen-ID skalar speichern und beim

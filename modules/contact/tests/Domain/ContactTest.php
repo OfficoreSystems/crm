@@ -7,6 +7,7 @@ namespace Crm\Contact\Tests\Domain;
 use Crm\Contact\Domain\Contact;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV7;
 
 final class ContactTest extends TestCase
@@ -29,14 +30,61 @@ final class ContactTest extends TestCase
     }
 
     #[Test]
-    public function it_normalises_blank_optionals_to_null(): void
+    public function it_normalises_a_blank_email_to_null(): void
     {
         // Sonst stehen '' und null nebeneinander in der Spalte und jede
         // Abfrage muss beide Faelle kennen.
-        $contact = Contact::create('Anna', 'Berger', '   ', '');
+        $contact = Contact::create('Anna', 'Berger', '   ');
 
         self::assertNull($contact->email());
-        self::assertNull($contact->company());
+    }
+
+    #[Test]
+    public function it_starts_without_a_company(): void
+    {
+        $contact = Contact::create('Anna', 'Berger');
+
+        self::assertNull($contact->companyId());
+        self::assertFalse($contact->belongsToACompany());
+    }
+
+    #[Test]
+    public function it_holds_the_company_as_a_scalar_id(): void
+    {
+        // Keine Doctrine-Association: die Firma lebt im company-Modul, und
+        // eine Beziehung dorthin wuerde beide Module aneinanderketten.
+        $companyId = Uuid::v7();
+
+        $contact = Contact::create('Anna', 'Berger', companyId: $companyId);
+
+        self::assertTrue($companyId->equals($contact->companyId()));
+        self::assertTrue($contact->belongsToACompany());
+    }
+
+    #[Test]
+    public function it_can_be_assigned_to_a_company_and_released_again(): void
+    {
+        $contact = Contact::create('Anna', 'Berger');
+        $companyId = Uuid::v7();
+
+        $contact->assignToCompany($companyId);
+        self::assertTrue($companyId->equals($contact->companyId()));
+
+        $contact->assignToCompany(null);
+        self::assertNull($contact->companyId());
+    }
+
+    #[Test]
+    public function the_domain_accepts_any_company_id_without_checking(): void
+    {
+        // Absicht: pruefen kann nur, wer den CompanyFinder kennt - und den
+        // kennt die Domain nicht. Die Pruefung sitzt in
+        // AssignContactToCompany.
+        $contact = Contact::create('Anna', 'Berger');
+
+        $contact->assignToCompany($unknown = Uuid::v7());
+
+        self::assertTrue($unknown->equals($contact->companyId()));
     }
 
     #[Test]
@@ -111,18 +159,6 @@ final class ContactTest extends TestCase
         $contact->changeEmail('');
 
         self::assertNull($contact->email());
-    }
-
-    #[Test]
-    public function it_can_change_its_company(): void
-    {
-        $contact = Contact::create('Anna', 'Berger');
-
-        $contact->changeCompany(' Nordwind Logistik ');
-        self::assertSame('Nordwind Logistik', $contact->company());
-
-        $contact->changeCompany(null);
-        self::assertNull($contact->company());
     }
 
     #[Test]

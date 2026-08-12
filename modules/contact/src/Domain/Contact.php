@@ -17,6 +17,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity]
 #[ORM\Table(name: 'contact_contacts')]
 #[ORM\Index(name: 'idx_contact_last_name', columns: ['last_name'])]
+#[ORM\Index(name: 'idx_contact_company', columns: ['company_id'])]
 class Contact
 {
     #[ORM\Id]
@@ -32,8 +33,19 @@ class Contact
     #[ORM\Column(length: 180, nullable: true)]
     private ?string $email;
 
-    #[ORM\Column(length: 180, nullable: true)]
-    private ?string $company;
+    /**
+     * Verweis auf eine Firma im company-Modul.
+     *
+     * Bewusst eine skalare UUID ohne Doctrine-Association und ohne
+     * Fremdschluessel: eine Beziehung ueber die Modulgrenze wuerde dieses
+     * Modul an das company-Modul ketten und beide unentfernbar machen. Der
+     * Preis ist, dass die Datenbank die Gueltigkeit nicht garantiert - der
+     * Wert kann auf eine geloeschte Firma zeigen. Aufloesen laesst er sich
+     * nur ueber CompanyFinderInterface aus dem Shared Kernel, und der
+     * liefert dann eben null.
+     */
+    #[ORM\Column(name: 'company_id', type: 'uuid', nullable: true)]
+    private ?Uuid $companyId;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -43,14 +55,14 @@ class Contact
         string $firstName,
         string $lastName,
         ?string $email,
-        ?string $company,
+        ?Uuid $companyId,
         \DateTimeImmutable $createdAt,
     ) {
         $this->id = $id;
         $this->firstName = self::requireNonBlank($firstName, 'firstName');
         $this->lastName = self::requireNonBlank($lastName, 'lastName');
         $this->email = self::normalizeOptional($email);
-        $this->company = self::normalizeOptional($company);
+        $this->companyId = $companyId;
         $this->createdAt = $createdAt;
     }
 
@@ -58,7 +70,7 @@ class Contact
         string $firstName,
         string $lastName,
         ?string $email = null,
-        ?string $company = null,
+        ?Uuid $companyId = null,
         ?\DateTimeImmutable $createdAt = null,
     ): self {
         return new self(
@@ -66,7 +78,7 @@ class Contact
             $firstName,
             $lastName,
             $email,
-            $company,
+            $companyId,
             $createdAt ?? new \DateTimeImmutable(),
         );
     }
@@ -96,9 +108,14 @@ class Contact
         return $this->email;
     }
 
-    public function company(): ?string
+    public function companyId(): ?Uuid
     {
-        return $this->company;
+        return $this->companyId;
+    }
+
+    public function belongsToACompany(): bool
+    {
+        return null !== $this->companyId;
     }
 
     public function createdAt(): \DateTimeImmutable
@@ -117,9 +134,16 @@ class Contact
         $this->email = self::normalizeOptional($email);
     }
 
-    public function changeCompany(?string $company): void
+    /**
+     * Ordnet den Kontakt einer Firma zu, oder loest die Zuordnung mit null.
+     *
+     * Die Domain prueft *nicht*, ob die ID existiert - dafuer muesste sie das
+     * company-Modul kennen. Wer die Zuordnung setzt, prueft vorher ueber
+     * CompanyFinderInterface::exists().
+     */
+    public function assignToCompany(?Uuid $companyId): void
     {
-        $this->company = self::normalizeOptional($company);
+        $this->companyId = $companyId;
     }
 
     private static function requireNonBlank(string $value, string $field): string

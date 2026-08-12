@@ -33,31 +33,78 @@ final readonly class DoctrineContactRepository implements ContactRepositoryInter
         return $this->entityManager->find(Contact::class, $id);
     }
 
-    public function search(string $query, int $limit = 50): array
+    public function search(string $query, array $companyIds = [], int $limit = 50): array
     {
-        $builder = $this->entityManager->createQueryBuilder()
+        $builder = $this->baseQuery($limit);
+
+        $needle = trim($query);
+
+        if ('' === $needle) {
+            return $builder->getQuery()->getResult();
+        }
+
+        $matchesOwnFields = $builder->expr()->orX(
+            'LOWER(c.firstName) LIKE :needle',
+            'LOWER(c.lastName) LIKE :needle',
+            'LOWER(c.email) LIKE :needle',
+        );
+
+        if ([] === $companyIds) {
+            $builder->andWhere($matchesOwnFields);
+        } else {
+            // ODER, nicht UND: wer "Nordwind" tippt, will die Kontakte dieser
+            // Firma sehen - auch wenn keiner von ihnen so heisst.
+            $builder
+                ->andWhere($builder->expr()->orX($matchesOwnFields, 'c.companyId IN (:companyIds)'))
+                ->setParameter('companyIds', $companyIds);
+        }
+
+        // Wildcards im Suchbegriff escapen, sonst wird "%" zur Volltextsuche
+        // und "_" zum Einzelzeichen-Joker.
+        $builder->setParameter('needle', '%'.addcslashes(mb_strtolower($needle), '%_\\').'%');
+
+        return $builder->getQuery()->getResult();
+    }
+
+    public function findByCompanyIds(array $companyIds, int $limit = 50): array
+    {
+        if ([] === $companyIds) {
+            return [];
+        }
+
+        return $this->baseQuery($limit)
+            ->andWhere('c.companyId IN (:companyIds)')
+            ->setParameter('companyIds', $companyIds)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByCompanyId(string $companyId): int
+    {
+        if (!Uuid::isValid($companyId)) {
+            return 0;
+        }
+
+        /** @var int|string $count */
+        $count = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(c.id)')
+            ->from(Contact::class, 'c')
+            ->andWhere('c.companyId = :companyId')
+            ->setParameter('companyId', Uuid::fromString($companyId), 'uuid')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $count;
+    }
+
+    private function baseQuery(int $limit): \Doctrine\ORM\QueryBuilder
+    {
+        return $this->entityManager->createQueryBuilder()
             ->select('c')
             ->from(Contact::class, 'c')
             ->orderBy('c.lastName', 'ASC')
             ->addOrderBy('c.firstName', 'ASC')
             ->setMaxResults(max(1, $limit));
-
-        $needle = trim($query);
-
-        if ('' !== $needle) {
-            $builder
-                ->andWhere($builder->expr()->orX(
-                    'LOWER(c.firstName) LIKE :needle',
-                    'LOWER(c.lastName) LIKE :needle',
-                    'LOWER(c.email) LIKE :needle',
-                    'LOWER(c.company) LIKE :needle',
-                ))
-                // Wildcards im Suchbegriff escapen, sonst wird "%" zur Volltextsuche
-                // und "_" zum Einzelzeichen-Joker.
-                ->setParameter('needle', '%'.addcslashes(mb_strtolower($needle), '%_\\').'%');
-        }
-
-        return $builder->getQuery()->getResult();
     }
 
     public function countAll(): int

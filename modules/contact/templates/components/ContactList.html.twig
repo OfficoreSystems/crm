@@ -1,4 +1,7 @@
-{# Live-Component: jede Aenderung an `query` rendert nur diesen Block neu. #}
+{# Live-Component: jede Aenderung an `query` rendert nur diesen Block neu.
+
+   "Firma" ist keine Spalte dieser Tabelle - der Suchbegriff wird ueber den
+   CompanyFinder aus dem Shared Kernel zu IDs aufgeloest und damit gefiltert. #}
 <div {{ attributes }} class="contact-list">
 
     <div class="contact-list__toolbar">
@@ -50,7 +53,11 @@
                                 <span class="muted">&mdash;</span>
                             {% endif %}
                         </td>
-                        <td>{{ contact.company ?? '—' }}</td>
+                        <td>
+                            {# Kann leer sein: kein Firmenbezug, geloeschte Firma
+                               oder company-Modul nicht installiert. #}
+                            {{ this.companyNameFor(contact) ?? '—' }}
+                        </td>
                         <td><time datetime="{{ contact.createdAt|date('c') }}">{{ contact.createdAt|date('d.m.Y') }}</time></td>
                     </tr>
                 {% endfor %}
