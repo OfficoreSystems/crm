@@ -10,7 +10,7 @@ COVERAGE_MIN := 80
 # Alles hier laeuft deshalb sowohl unter sh als auch unter cmd.exe.
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build sh install migrate seed test coverage stan arch ci fresh logs reset
+.PHONY: help up down build sh install migrate seed test test-db coverage stan arch ci fresh logs reset
 
 help:
 	@echo ------------------------------------------------------------------
@@ -89,12 +89,18 @@ fresh:
 
 # ------------------------------------------------------------------- Gates
 
-test:
+# Eigenes Ziel, weil beide Testlaeufe es brauchen. Stand es nur in test,
+# scheiterte make ci auf einer frischen Installation mit "database crm_test
+# does not exist" - sichtbar erst beim ersten Lauf nach make fresh, weil
+# danach jede Umgebung die Datenbank schon hat.
+test-db:
 	$(EXEC) bin/console doctrine:database:create --if-not-exists --env=test
 	$(EXEC) bin/console doctrine:migrations:migrate -n --env=test
+
+test: test-db
 	$(EXEC) vendor/bin/phpunit
 
-coverage:
+coverage: test-db
 	$(DC) exec -T -e XDEBUG_MODE=coverage php vendor/bin/phpunit --coverage-clover=var/clover.xml --coverage-text
 	$(EXEC) php tools/coverage-gate.php var/clover.xml $(COVERAGE_MIN)
 
