@@ -151,6 +151,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Deal\\UI\\#'
 
+    # ----------------------------------------------------------- Modul: activity
+    - name: ActivityBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Activity\\ActivityModule$#'
+
+    - name: ActivityDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Activity\\Domain\\#'
+
+    - name: ActivityApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Activity\\Application\\#'
+
+    - name: ActivityInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Activity\\Infrastructure\\#'
+
+    - name: ActivityUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Activity\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -316,9 +342,13 @@ deptrac:
       - DealDomain
       - SymfonyUid
 
+    # SharedKernel, weil hier der DealSubjectResolver liegt - ueber ihn
+    # koennen Aktivitaeten und spaeter Dokumente an einer Verkaufschance
+    # haengen, ohne dass jene dieses Modul kennen.
     DealInfrastructure:
       - DealDomain
       - DealApplication
+      - SharedKernel
       - Doctrine
       - DoctrineMapping
       - SymfonyUid
@@ -329,6 +359,41 @@ deptrac:
     DealUI:
       - DealDomain
       - DealApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    ActivityBundle:
+      - SharedKernel
+      - Symfony
+
+    # Die einzige Domain, die den Shared Kernel sehen darf - und nur wegen
+    # SubjectRef. Das ist ein reines Wertobjekt aus zwei Zeichenketten, kein
+    # Dienst und keine Infrastruktur. Die Alternative waere ein zweites,
+    # identisches SubjectRef im Modul plus Umwandlung an jeder Grenze; das
+    # waere mehr Code fuer weniger Klarheit.
+    ActivityDomain:
+      - SharedKernel
+      - DoctrineMapping
+      - SymfonyUid
+
+    ActivityApplication:
+      - ActivityDomain
+      - SharedKernel
+      - SymfonyUid
+
+    ActivityInfrastructure:
+      - ActivityDomain
+      - ActivityApplication
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - SymfonyUid
+
+    ActivityUI:
+      - ActivityDomain
+      - ActivityApplication
       - SharedKernel
       - Symfony
       - SymfonyUid

@@ -6,6 +6,7 @@ namespace Crm\SharedKernel;
 
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 use Crm\SharedKernel\Module\CrmModuleInterface;
+use Crm\SharedKernel\Subject\SubjectResolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -29,6 +30,11 @@ final class CrmSharedKernelBundle extends AbstractBundle
 
         $container->registerForAutoconfiguration(CrmModuleInterface::class)
             ->addTag('crm.module');
+
+        // Macht die Datensaetze eines Moduls als polymorphes Subjekt
+        // verweisbar - fuer Aktivitaeten, spaeter Dokumente und E-Mails.
+        $container->registerForAutoconfiguration(SubjectResolverInterface::class)
+            ->addTag('crm.subject_resolver');
     }
 
     /**

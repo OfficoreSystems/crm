@@ -46,6 +46,41 @@ Kommunikation läuft ausschließlich über Interfaces im `shared-kernel` und üb
 Messenger Events. Nur zwei Dateien nennen Modulnamen, und beide sind
 Registrierung statt Kopplung: `config/bundles.php` und `deptrac.yaml`.
 
+### Polymorphe Verweise
+
+Eine Aktivität hängt mal an einem Kontakt, mal an einer Firma, mal an einer
+Verkaufschance. Ein Fremdschlüssel scheidet hier schon technisch aus,
+unabhängig von der Modulgrenze. Stattdessen `SubjectRef` — **Typ + ID als zwei
+Skalare** — plus `SubjectResolverInterface` im Shared Kernel.
+
+Der Typ ist eine Zeichenkette und **kein Enum**: ein Enum müsste alle Typen
+kennen und läge damit im Shared Kernel, sodass jedes neue Modul eine Änderung
+daran wäre. Genau das soll der Extension-Point vermeiden.
+
+Ein Modul macht seine Datensätze verweisbar, indem es das Interface
+implementiert — mehr nicht. Die Autoconfiguration übernimmt den Rest:
+
+```php
+final class ContactSubjectResolver implements SubjectResolverInterface
+{
+    public function type(): string { return 'contact'; }
+    public function resolve(array $ids): array { /* ... */ }
+    public function search(string $query, int $limit = 10): array { /* ... */ }
+}
+```
+
+**`resolve()` nimmt eine Liste, keine einzelne ID.** Die `SubjectResolverRegistry`
+gruppiert nach Typ und ruft jeden Resolver **genau einmal** auf — eine Timeline
+mit 50 Einträgen über drei Module kostet drei Aufrufe, nicht 50.
+
+**`search()` gehört dazu**, obwohl es nach „auflösen" klingt: wer etwas an ein
+Subjekt hängen will, muss vorher eines auswählen können. Ohne diese Methode
+müsste jedes solche Modul die konkreten Finder von `contact`, `company` und
+`deal` kennen — der Extension-Point wäre nur halb.
+
+Fehlt ein Resolver, fehlt der Eintrag im Ergebnis. Die Timeline zeigt dann
+„Bezug nicht auflösbar" — die Historie bleibt, nur der Name fehlt.
+
 ### Wie Modulrouten geladen werden
 
 Über die Liste der **registrierten Bundles** in
