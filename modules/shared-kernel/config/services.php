@@ -9,6 +9,7 @@ use Crm\SharedKernel\Contact\NullContactFinder;
 use Crm\SharedKernel\Menu\MenuRegistry;
 use Crm\SharedKernel\Module\ModuleRegistry;
 use Crm\SharedKernel\Security\NullUserProvider;
+use Crm\SharedKernel\Subject\SubjectResolverRegistry;
 use Crm\SharedKernel\User\NullUserFinder;
 use Crm\SharedKernel\User\UserFinderInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -26,6 +27,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(ModuleRegistry::class)
         ->args([tagged_iterator('crm.module')]);
+
+    $services->set(SubjectResolverRegistry::class)
+        ->args([tagged_iterator('crm.subject_resolver')]);
 
     // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
     // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem

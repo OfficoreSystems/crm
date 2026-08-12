@@ -15,6 +15,7 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "crm/activity-module": "^0.1",
         "crm/company-module": "^0.1",
         "crm/contact-module": "^0.1",
         "crm/deal-module": "^0.1",
@@ -60,7 +61,8 @@
             "Crm\\Contact\\Tests\\": "modules/contact/tests/",
             "Crm\\User\\Tests\\": "modules/user/tests/",
             "Crm\\Company\\Tests\\": "modules/company/tests/",
-            "Crm\\Deal\\Tests\\": "modules/deal/tests/"
+            "Crm\\Deal\\Tests\\": "modules/deal/tests/",
+            "Crm\\Activity\\Tests\\": "modules/activity/tests/"
         }
     },
     "replace": {

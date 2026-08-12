@@ -7,6 +7,7 @@ namespace Crm\SharedKernel\Tests;
 use Crm\SharedKernel\CrmSharedKernelBundle;
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 use Crm\SharedKernel\Module\CrmModuleInterface;
+use Crm\SharedKernel\Subject\SubjectResolverInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -35,15 +36,28 @@ final class CrmSharedKernelBundleTest extends TestCase
     }
 
     #[Test]
-    public function it_registers_exactly_these_two_extension_points(): void
+    public function it_tags_subject_resolvers_automatically(): void
+    {
+        $tags = $this->autoconfiguredTagsFor(SubjectResolverInterface::class);
+
+        self::assertArrayHasKey('crm.subject_resolver', $tags);
+    }
+
+    #[Test]
+    public function it_registers_exactly_these_extension_points(): void
     {
         // Absichtlich streng: ein zusaetzlicher Extension-Point ist eine
         // Erweiterung der oeffentlichen Schnittstelle und soll auffallen.
+        // Wer hier etwas ergaenzt, soll das bewusst tun.
         $container = new ContainerBuilder();
         (new CrmSharedKernelBundle())->build($container);
 
         self::assertSame(
-            [MenuProviderInterface::class, CrmModuleInterface::class],
+            [
+                MenuProviderInterface::class,
+                CrmModuleInterface::class,
+                SubjectResolverInterface::class,
+            ],
             array_keys($container->getAutoconfiguredInstanceof()),
         );
     }

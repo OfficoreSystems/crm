@@ -1,0 +1,77 @@
+{# Die Subjekte sind polymorph: dieselbe Timeline zeigt Eintraege an Kontakten,
+   Firmen und Verkaufschancen. Aufgeloest werden sie ueber die
+   SubjectResolverRegistry, die dieses Modul nach Typ befragt - ohne eines der
+   Module zu kennen. #}
+<div {{ attributes }} class="timeline">
+
+    <div class="contact-list__toolbar">
+        <select data-model="subjectType" class="timeline__filter" aria-label="Nach Bezug filtern">
+            <option value="">Alle Bezüge</option>
+            {% for type, label in this.subjectTypes %}
+                <option value="{{ type }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <select data-model="activityType" class="timeline__filter" aria-label="Nach Art filtern">
+            <option value="">Alle Arten</option>
+            {% for type in this.activityTypes %}
+                <option value="{{ type.value }}">{{ type.label }}</option>
+            {% endfor %}
+        </select>
+
+        <span class="contact-list__count" data-loading="addClass(is-busy)">
+            {{ this.total }} gesamt · {{ this.openTasks }} offene Aufgaben
+        </span>
+    </div>
+
+    {% if this.activities is empty %}
+        <p class="contact-list__empty">
+            {% if this.isFiltered %}
+                Kein Eintrag für diese Auswahl.
+            {% else %}
+                Noch keine Aktivitäten.
+                Leg welche an mit <code>bin/console activity:seed</code>.
+            {% endif %}
+        </p>
+    {% else %}
+        <ol class="timeline__list">
+            {% for activity in this.activities %}
+                {% set subject = this.subjectFor(activity) %}
+                <li class="timeline__entry timeline__entry--{{ activity.type.value }}">
+                    <div class="timeline__meta">
+                        <time datetime="{{ activity.occurredAt|date('c') }}">
+                            {{ activity.occurredAt|date('d.m.Y') }}
+                        </time>
+                        <span class="timeline__type">{{ activity.type.label }}</span>
+                        {% if activity.isOverdue %}
+                            <span class="timeline__overdue">überfällig</span>
+                        {% elseif activity.isCompleted %}
+                            <span class="timeline__done">erledigt</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="timeline__summary">{{ activity.summary }}</p>
+
+                    {% if activity.body %}
+                        <p class="timeline__body">{{ activity.body }}</p>
+                    {% endif %}
+
+                    <p class="timeline__subject">
+                        {% if subject is null %}
+                            {# Normalfall, kein Fehler: Datensatz geloescht
+                               oder das zustaendige Modul nicht installiert. #}
+                            <span class="muted">Bezug nicht auflösbar</span>
+                        {% else %}
+                            <span class="muted">{{ subject.typeLabel }}:</span>
+                            {% if subject.isLinkable %}
+                                <a href="{{ path(subject.route, subject.routeParameters) }}">{{ subject.label }}</a>
+                            {% else %}
+                                {{ subject.label }}
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+</div>

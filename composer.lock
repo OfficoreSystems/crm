@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccbcf82e5671a44229aa1892ca2a737f",
+    "content-hash": "16cf723f3dabb11af73e87ac9b07da56",
     "packages": [
         {
             "name": "composer/semver",
@@ -82,6 +82,51 @@
                 }
             ],
             "time": "2025-08-20T19:15:30+00:00"
+        },
+        {
+            "name": "crm/activity-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/activity",
+                "reference": "f06e1976a57aea42b151ad67ff656e23e181ee31"
+            },
+            "require": {
+                "crm/shared-kernel": "^0.1",
+                "doctrine/doctrine-bundle": "^2.19 || ^3.0",
+                "doctrine/orm": "^3.6",
+                "php": ">=8.2",
+                "symfony/config": "^7.4",
+                "symfony/console": "^7.4",
+                "symfony/dependency-injection": "^7.4",
+                "symfony/framework-bundle": "^7.4",
+                "symfony/http-foundation": "^7.4",
+                "symfony/http-kernel": "^7.4",
+                "symfony/routing": "^7.4",
+                "symfony/uid": "^7.4",
+                "symfony/ux-live-component": "^2.36"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Crm\\Activity\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Crm\\Activity\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Aktivitaeten und Timeline an beliebigen Datensaetzen.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "crm/company-module",
