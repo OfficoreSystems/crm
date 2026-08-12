@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "285fec780800f0c36f021178b910d0f5",
+    "content-hash": "7303d3915a48a79966ab72ab6f0bdd7a",
     "packages": [
         {
             "name": "composer/semver",
@@ -214,6 +214,46 @@
                 "proprietary"
             ],
             "description": "Referenzmodul: Kontaktverwaltung. Vorlage fuer alle weiteren Module.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "crm/dashboard-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/dashboard",
+                "reference": "1bbf2c80e2c0d1b2b0f917325f0c6bd2b4ec7843"
+            },
+            "require": {
+                "crm/shared-kernel": "^0.1",
+                "php": ">=8.2",
+                "symfony/config": "^7.4",
+                "symfony/dependency-injection": "^7.4",
+                "symfony/framework-bundle": "^7.4",
+                "symfony/http-foundation": "^7.4",
+                "symfony/http-kernel": "^7.4",
+                "symfony/routing": "^7.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Crm\\Dashboard\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Crm\\Dashboard\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Startseite mit Kennzahlen aus allen Modulen. Besitzt keine eigenen Daten.",
             "transport-options": {
                 "relative": true
             }

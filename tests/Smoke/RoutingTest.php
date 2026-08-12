@@ -44,6 +44,9 @@ final class RoutingTest extends KernelTestCase
     public static function expectedRoutes(): iterable
     {
         yield 'Startseite aus dem Core' => ['/', 'home'];
+        yield 'Modul dashboard' => ['/dashboard', 'dashboard_index'];
+        yield 'Modul search' => ['/search', 'search_index'];
+        yield 'Modul activity' => ['/activities', 'activity_index'];
         yield 'Modul contact' => ['/contacts', 'contact_index'];
         yield 'Modul company' => ['/companies', 'company_index'];
         yield 'Modul deal' => ['/deals', 'deal_index'];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Crm\SharedKernel\Company\CompanyFinderInterface;
 use Crm\SharedKernel\Company\NullCompanyFinder;
+use Crm\SharedKernel\Dashboard\MetricRegistry;
 use Crm\SharedKernel\Contact\ContactFinderInterface;
 use Crm\SharedKernel\Contact\NullContactFinder;
 use Crm\SharedKernel\Menu\MenuRegistry;
@@ -30,6 +31,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(SubjectResolverRegistry::class)
         ->args([tagged_iterator('crm.subject_resolver')]);
+
+    $services->set(MetricRegistry::class)
+        ->args([tagged_iterator('crm.metric_provider')]);
 
     // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
     // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem
