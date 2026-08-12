@@ -18,6 +18,7 @@
         "crm/activity-module": "^0.1",
         "crm/company-module": "^0.1",
         "crm/contact-module": "^0.1",
+        "crm/dashboard-module": "^0.1",
         "crm/deal-module": "^0.1",
         "crm/search-module": "^0.1",
         "crm/shared-kernel": "^0.1",
@@ -64,7 +65,8 @@
             "Crm\\Company\\Tests\\": "modules/company/tests/",
             "Crm\\Deal\\Tests\\": "modules/deal/tests/",
             "Crm\\Activity\\Tests\\": "modules/activity/tests/",
-            "Crm\\Search\\Tests\\": "modules/search/tests/"
+            "Crm\\Search\\Tests\\": "modules/search/tests/",
+            "Crm\\Dashboard\\Tests\\": "modules/dashboard/tests/"
         }
     },
     "replace": {

@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Übersicht{% endblock %}
+
+{% block body %}
+    <h1>Übersicht</h1>
+
+    {# Die Kacheln kommen aus der MetricRegistry. Welche es gibt, entscheiden
+       die installierten Module - hier steht kein Modulname. #}
+    {% if metrics is empty %}
+        <p class="lede">
+            Kein Modul liefert Kennzahlen. Sobald eines installiert ist, das
+            <code>MetricProviderInterface</code> implementiert, erscheint es hier
+            von selbst.
+        </p>
+    {% else %}
+        <p class="lede">
+            {{ metrics|length }} Kennzahlen aus
+            {{ metrics|map(m => m.module)|reduce((carry, m) => m in carry ? carry : carry|merge([m]), [])|length }}
+            Modulen.
+        </p>
+
+        {% if notable is not empty %}
+            <div class="metrics metrics--notable">
+                {% for metric in notable %}
+                    {{ _self.tile(metric) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="metrics">
+            {% for metric in metrics %}
+                {% if metric not in notable %}
+                    {{ _self.tile(metric) }}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% macro tile(metric) %}
+    <article class="metric metric--{{ metric.tone.value }}">
+        <p class="metric__label">{{ metric.label }}</p>
+        <p class="metric__value">{{ metric.value }}</p>
+        {% if metric.description %}
+            <p class="metric__description">{{ metric.description }}</p>
+        {% endif %}
+        {% if metric.isLinkable %}
+            <a class="metric__link" href="{{ path(metric.route, metric.routeParameters) }}">ansehen</a>
+        {% endif %}
+    </article>
+{% endmacro %}

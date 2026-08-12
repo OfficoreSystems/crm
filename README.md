@@ -142,6 +142,29 @@ Verträge eine **Null-Implementierung als Vorgabe**, die das jeweilige Modul
 | `CompanyFinderInterface` | `NullCompanyFinder` (findet nichts) | `company` |
 | `ContactFinderInterface` | `NullContactFinder` (findet nichts) | `contact` |
 
+### Die vier Extension-Points
+
+Ein Modul dockt an, indem es ein Interface implementiert — mehr nicht. Die
+Autoconfiguration im `CrmSharedKernelBundle` übernimmt die Registrierung, und
+kein bestehendes Modul erfährt davon.
+
+| Interface | Wozu | Registry |
+| --- | --- | --- |
+| `MenuProviderInterface` | Navigationseinträge | `MenuRegistry` |
+| `CrmModuleInterface` | Selbstbeschreibung (Name, Version, Abhängigkeiten) | `ModuleRegistry` |
+| `SubjectResolverInterface` | Datensätze als polymorphes Ziel verweisbar machen | `SubjectResolverRegistry` |
+| `MetricProviderInterface` | Kennzahlen für die Übersicht | `MetricRegistry` |
+
+Ein Test in `CrmSharedKernelBundleTest` prüft diese Liste **abschließend** —
+ein fünfter Extension-Point lässt ihn rot werden. Das ist Absicht: die
+öffentliche Schnittstelle soll nicht nebenbei wachsen.
+
+**Kennzahlen kommen fertig aggregiert.** Das Dashboard rechnet nichts und
+fragt keine fremde Tabelle ab — jedes Modul zählt selbst, mit den Abfragen
+die es ohnehin hat. Deshalb ist `Metric::$value` eine Zeichenkette: ein
+Geldbetrag, eine Prozentangabe und eine Anzahl haben nichts gemeinsam außer
+dass sie angezeigt werden.
+
 Das funktioniert, weil der `shared-kernel` in `config/bundles.php` **vor** den
 Modulen steht und die spätere Service-Definition gewinnt. Ohne das Modul
 degradiert die Anwendung, statt beim Container-Build zu scheitern.

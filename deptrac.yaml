@@ -198,6 +198,17 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Search\\UI\\#'
 
+    # ---------------------------------------------------------- Modul: dashboard
+    - name: DashboardBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Dashboard\\DashboardModule$#'
+
+    - name: DashboardUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Dashboard\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -438,6 +449,18 @@ deptrac:
     SearchUI:
       - SearchDomain
       - SearchApplication
+      - SharedKernel
+      - Symfony
+      - Twig
+
+    # dashboard hat weder Domain noch Application noch Infrastructure: es gibt
+    # nichts zu modellieren, nichts zu entscheiden und nichts zu speichern.
+    # Die Module liefern fertige Kennzahlen, das Modul reicht sie durch.
+    DashboardBundle:
+      - SharedKernel
+      - Symfony
+
+    DashboardUI:
       - SharedKernel
       - Symfony
       - Twig

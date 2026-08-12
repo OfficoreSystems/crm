@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crm\SharedKernel;
 
+use Crm\SharedKernel\Dashboard\MetricProviderInterface;
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 use Crm\SharedKernel\Module\CrmModuleInterface;
 use Crm\SharedKernel\Subject\SubjectResolverInterface;
@@ -35,6 +36,11 @@ final class CrmSharedKernelBundle extends AbstractBundle
         // verweisbar - fuer Aktivitaeten, spaeter Dokumente und E-Mails.
         $container->registerForAutoconfiguration(SubjectResolverInterface::class)
             ->addTag('crm.subject_resolver');
+
+        // Kennzahlen fuer die Startseite, fertig aggregiert vom liefernden
+        // Modul.
+        $container->registerForAutoconfiguration(MetricProviderInterface::class)
+            ->addTag('crm.metric_provider');
     }
 
     /**

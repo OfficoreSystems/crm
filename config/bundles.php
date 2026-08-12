@@ -25,4 +25,5 @@ return [
     Crm\Deal\DealModule::class => ['all' => true],
     Crm\Activity\ActivityModule::class => ['all' => true],
     Crm\Search\SearchModule::class => ['all' => true],
+    Crm\Dashboard\DashboardModule::class => ['all' => true],
 ];

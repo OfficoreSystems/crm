@@ -187,6 +187,28 @@
         .search__result--strong { background: var(--surface); }
         .search__label { font-size: 0.93rem; font-weight: 550; }
         .search__description { font-size: 0.82rem; color: var(--muted); }
+
+        .metrics {
+            display: grid; gap: 0.75rem; margin-bottom: 1.25rem;
+            grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+        }
+        .metric {
+            border: 1px solid var(--line); border-radius: 8px;
+            padding: 0.85rem 1rem; background: var(--surface);
+        }
+        .metric--positive { border-color: #16a34a55; }
+        .metric--attention { border-color: #dc262655; background: #dc26260d; }
+        .metric__label {
+            margin: 0; font-size: 0.78rem; text-transform: uppercase;
+            letter-spacing: 0.04em; color: var(--muted); font-weight: 600;
+        }
+        .metric__value {
+            margin: 0.2rem 0 0; font-size: 1.6rem; font-weight: 650;
+            letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+        }
+        .metric--attention .metric__value { color: #dc2626; }
+        .metric__description { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--muted); }
+        .metric__link { display: inline-block; margin-top: 0.5rem; font-size: 0.8rem; }
     </style>
 
     {% block stylesheets %}{% endblock %}
