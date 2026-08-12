@@ -28,6 +28,11 @@ final class NullCompanyFinder implements CompanyFinderInterface
         return [];
     }
 
+    public function searchByName(string $query, int $limit = 25): array
+    {
+        return [];
+    }
+
     public function exists(string $id): bool
     {
         return false;

@@ -189,9 +189,16 @@ deptrac:
     ContactDomain:
       - DoctrineMapping
       - SymfonyUid
+      # Contact haelt die Firma als skalare Uuid - keine Association, kein
+      # Fremdschluessel, kein Wissen ueber das company-Modul.
 
+    # SharedKernel, weil AssignContactToCompany ueber CompanyFinderInterface
+    # prueft, ob es die Firma gibt. Ein Fremdschluessel kann das nicht - er
+    # existiert ueber Modulgrenzen hinweg nicht.
     ContactApplication:
       - ContactDomain
+      - SharedKernel
+      - SymfonyUid
 
     ContactInfrastructure:
       - ContactDomain

@@ -10,8 +10,11 @@ use Crm\Contact\Domain\ContactRepositoryInterface;
 /**
  * Use-Case: einen Kontakt anlegen.
  *
- * Invokable, damit ein Use-Case genau eine Sache tut und der Aufrufer nicht
- * raten muss, welche der zwoelf Methoden eines Services gemeint ist.
+ * Prueft die Firmen-ID bewusst *nicht*. Ohne installiertes company-Modul
+ * antwortet der CompanyFinder aus dem Shared Kernel auf jede Anfrage mit
+ * "kenne ich nicht" - eine Pflichtpruefung hier wuerde jede Zuordnung
+ * unmoeglich machen, sobald das Modul fehlt. Wer geprueft zuordnen will,
+ * nutzt {@see AssignContactToCompany}.
  */
 final readonly class CreateContact
 {
@@ -26,7 +29,7 @@ final readonly class CreateContact
             $command->firstName,
             $command->lastName,
             $command->email,
-            $command->company,
+            $command->companyId,
         );
 
         $this->contacts->save($contact);

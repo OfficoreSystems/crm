@@ -53,6 +53,15 @@ final readonly class DoctrineCompanyFinder implements CompanyFinderInterface
         return array_map(self::toSummary(...), $this->companies->findAll());
     }
 
+    public function searchByName(string $query, int $limit = 25): array
+    {
+        if ('' === trim($query)) {
+            return [];
+        }
+
+        return array_map(self::toSummary(...), $this->companies->search($query, $limit));
+    }
+
     public function exists(string $id): bool
     {
         return null !== $this->find($id);

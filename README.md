@@ -136,6 +136,35 @@ Die Schwelle steht an zwei Stellen und muss zusammen gepflegt werden:
 **Die Schwelle wird nie gesenkt, um einen Build grün zu bekommen.** Wer sie
 reißt, schreibt Tests.
 
+### Verweise über Modulgrenzen
+
+Ein Kontakt gehört zu einer Firma — aber `contact` und `company` sind getrennte
+Module. Die Regel dafür, am Beispiel:
+
+| | so **nicht** | sondern |
+| --- | --- | --- |
+| Spalte | `ManyToOne` auf `Company` | `company_id UUID NULL`, **ohne** Foreign Key |
+| Lesen | `$contact->company()->name()` | `CompanyFinderInterface::findMany()` |
+| Prüfen | Datenbank-Constraint | `CompanyFinderInterface::exists()` im Use-Case |
+| Suchen | `JOIN company_companies` | Name → IDs auflösen, dann eigene Tabelle filtern |
+
+**Kein Foreign Key ist Absicht.** Ein Constraint über die Modulgrenze würde
+beide Module aneinanderketten — `company` ließe sich nicht mehr entfernen, ohne
+die `contact`-Tabelle zu zerlegen. Der Preis: die Datenbank garantiert die
+Gültigkeit nicht. Eine `company_id` kann ins Leere zeigen, und das ist ein
+**normaler Zustand**, kein Fehler — die Firma wurde gelöscht, oder das Modul ist
+nicht installiert. Aufrufer bekommen dann `null`.
+
+**Suchen ohne Join.** „Zeig mir alle Kontakte von Nordwind" beantwortet
+`contact` in zwei Schritten: erst den Begriff über `searchByName()` zu Firmen-IDs
+auflösen, dann die eigene Tabelle danach filtern. Zwei Abfragen statt eines
+Joins, dafür bleibt die Grenze intakt. Das Repository erfährt nie, was eine
+Firma ist — es filtert auf eine Spalte.
+
+**N+1 vermeiden.** Die Liste löst alle Firmen der Seite in *einem*
+`findMany()`-Aufruf auf, nicht pro Zeile. Über eine Modulgrenze ist ein N+1
+besonders teuer; ein Test hält das fest.
+
 ### Schichten innerhalb eines Moduls
 
 | Schicht          | darf sehen                              |

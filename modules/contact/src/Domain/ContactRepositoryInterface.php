@@ -20,13 +20,30 @@ interface ContactRepositoryInterface
     public function find(Uuid $id): ?Contact;
 
     /**
-     * Freitextsuche ueber Vorname, Nachname, E-Mail und Firma.
+     * Freitextsuche ueber Vorname, Nachname und E-Mail.
      *
-     * @param string $query Leerstring bedeutet: keine Einschraenkung.
+     * Firmennamen stehen nicht in dieser Tabelle - nur skalare IDs. Wer nach
+     * einer Firma suchen will, loest den Namen vorher ueber
+     * CompanyFinderInterface zu IDs auf und reicht sie hier herein. Das
+     * Repository weiss dadurch nicht, was eine Firma ist; es filtert nur auf
+     * eine Spalte.
+     *
+     * @param string       $query      Leerstring bedeutet: keine Einschraenkung.
+     * @param list<string> $companyIds Treffer aus diesen Firmen werden
+     *                                 zusaetzlich aufgenommen (ODER-verknuepft).
      *
      * @return list<Contact>
      */
-    public function search(string $query, int $limit = 50): array;
+    public function search(string $query, array $companyIds = [], int $limit = 50): array;
+
+    /**
+     * @param list<string> $companyIds
+     *
+     * @return list<Contact>
+     */
+    public function findByCompanyIds(array $companyIds, int $limit = 50): array;
+
+    public function countByCompanyId(string $companyId): int;
 
     public function countAll(): int;
 }
