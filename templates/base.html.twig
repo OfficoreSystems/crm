@@ -42,6 +42,39 @@
         .sidebar__nav a:hover { background: var(--bg); }
         .sidebar__nav a[aria-current="page"] { background: var(--bg); font-weight: 600; }
         .sidebar__empty { color: var(--muted); font-size: 0.85rem; }
+        .sidebar__account {
+            margin-top: 1.5rem; padding-top: 0.85rem;
+            border-top: 1px solid var(--line); font-size: 0.85rem;
+        }
+        .sidebar__account-name { display: block; color: var(--fg); font-weight: 550; }
+        .sidebar__account-logout { color: var(--muted); text-decoration: none; }
+        .sidebar__account-logout:hover { color: var(--accent); text-decoration: underline; }
+
+        .auth { display: grid; place-items: center; min-height: 100vh; padding: 1.5rem; }
+        .auth__card {
+            width: 100%; max-width: 22rem; border: 1px solid var(--line);
+            border-radius: 10px; padding: 1.75rem; background: var(--surface);
+        }
+        .auth__brand { margin: 0 0 1.25rem; font-weight: 650; letter-spacing: -0.01em; }
+        .auth__field { display: block; margin-bottom: 0.9rem; }
+        .auth__field span { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; color: var(--muted); }
+        .auth__field input {
+            width: 100%; padding: 0.5rem 0.7rem; border: 1px solid var(--line);
+            border-radius: 6px; background: var(--bg); color: var(--fg); font-size: 0.95rem;
+        }
+        .auth__field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .auth__submit {
+            width: 100%; padding: 0.55rem; border: 0; border-radius: 6px;
+            background: var(--accent); color: #fff; font-size: 0.95rem;
+            font-weight: 550; cursor: pointer;
+        }
+        .auth__error {
+            margin: 0 0 1rem; padding: 0.5rem 0.7rem; border-radius: 6px;
+            background: #fee2e2; color: #991b1b; font-size: 0.88rem;
+        }
+        @media (prefers-color-scheme: dark) {
+            .auth__error { background: #3f1d1d; color: #fca5a5; }
+        }
         main { flex: 1; padding: 1.75rem 2rem; max-width: 1100px; }
         h1 { font-size: 1.5rem; letter-spacing: -0.02em; margin: 0 0 0.35rem; }
         .lede { color: var(--muted); margin: 0 0 1.5rem; }
@@ -80,6 +113,9 @@
     {% endblock %}
 </head>
 <body>
+{# Die Anmeldeseite ersetzt diesen Block: dort gibt es weder Navigation noch
+   einen angemeldeten Benutzer, auf den sie sich beziehen koennte. #}
+{% block shell %}
 <div class="shell">
     <aside class="sidebar">
         <p class="sidebar__brand">◆ Officore CRM</p>
@@ -101,11 +137,24 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
+        {# Nur sichtbar, wenn ueberhaupt jemand angemeldet ist - ohne
+           user-Modul ist app.user immer null und der Block entfaellt.
+           Bewusst die literale URL statt path('user_logout'): ein Routenname
+           waere eine Kopplung an ein bestimmtes Modul, der Logout-Pfad ist
+           dagegen Firewall-Konfiguration. #}
+        {% if app.user %}
+            <div class="sidebar__account">
+                <span class="sidebar__account-name">{{ app.user.name|default(app.user.userIdentifier) }}</span>
+                <a href="/logout" class="sidebar__account-logout">Abmelden</a>
+            </div>
+        {% endif %}
     </aside>
 
     <main>
         {% block body %}{% endblock %}
     </main>
 </div>
+{% endblock %}
 </body>
 </html>

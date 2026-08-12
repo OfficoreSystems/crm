@@ -73,6 +73,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Contact\\UI\\#'
 
+    # --------------------------------------------------------------- Modul: user
+    - name: UserBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\User\\UserModule$#'
+
+    - name: UserDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\User\\Domain\\#'
+
+    - name: UserApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\User\\Application\\#'
+
+    - name: UserInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\User\\Infrastructure\\#'
+
+    - name: UserUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\User\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -151,6 +177,37 @@ deptrac:
     ContactUI:
       - ContactDomain
       - ContactApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    UserBundle:
+      - SharedKernel
+      - Symfony
+
+    UserDomain:
+      - DoctrineMapping
+      - SymfonyUid
+
+    UserApplication:
+      - UserDomain
+      - SymfonyUid
+
+    # Darf zusaetzlich SharedKernel sehen: hier liegt die Implementierung von
+    # UserFinderInterface, ueber die andere Module Benutzer nachschlagen.
+    UserInfrastructure:
+      - UserDomain
+      - UserApplication
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - Symfony
+      - SymfonyUid
+
+    UserUI:
+      - UserDomain
+      - UserApplication
       - SharedKernel
       - Symfony
       - SymfonyUid

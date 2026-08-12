@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Anmelden{% endblock %}
+
+{# Ersetzt das Grundgeruest: auf der Anmeldeseite gibt es keine Navigation. #}
+{% block shell %}
+    <div class="auth">
+        <form class="auth__card" method="post" action="{{ path('user_login') }}">
+            <p class="auth__brand">◆ Officore CRM</p>
+
+            {% if error %}
+                <p class="auth__error" role="alert">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </p>
+            {% endif %}
+
+            <label class="auth__field">
+                <span>E-Mail</span>
+                <input type="email" name="_username" value="{{ lastUsername }}"
+                       autocomplete="username" required autofocus>
+            </label>
+
+            <label class="auth__field">
+                <span>Passwort</span>
+                <input type="password" name="_password"
+                       autocomplete="current-password" required>
+            </label>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button class="auth__submit" type="submit">Anmelden</button>
+        </form>
+    </div>
+{% endblock %}

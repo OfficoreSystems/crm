@@ -17,6 +17,7 @@
         "ext-iconv": "*",
         "crm/contact-module": "^0.1",
         "crm/shared-kernel": "^0.1",
+        "crm/user-module": "^0.1",
         "doctrine/doctrine-bundle": "^2.19",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
@@ -28,6 +29,7 @@
         "symfony/framework-bundle": "7.4.*",
         "symfony/property-access": "7.4.*",
         "symfony/runtime": "7.4.*",
+        "symfony/security-bundle": "7.4.*",
         "symfony/stimulus-bundle": "^2.36",
         "symfony/twig-bundle": "7.4.*",
         "symfony/uid": "7.4.*",
@@ -53,7 +55,8 @@
         "psr-4": {
             "App\\Tests\\": "tests/",
             "Crm\\SharedKernel\\Tests\\": "modules/shared-kernel/tests/",
-            "Crm\\Contact\\Tests\\": "modules/contact/tests/"
+            "Crm\\Contact\\Tests\\": "modules/contact/tests/",
+            "Crm\\User\\Tests\\": "modules/user/tests/"
         }
     },
     "replace": {

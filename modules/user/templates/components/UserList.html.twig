@@ -1,0 +1,66 @@
+<div {{ attributes }} class="contact-list">
+
+    <div class="contact-list__toolbar">
+        <input
+            type="search"
+            value="{{ this.query }}"
+            data-model="debounce(200)|query"
+            placeholder="Nach Name oder E-Mail suchen …"
+            autocomplete="off"
+            aria-label="Benutzer durchsuchen"
+            class="contact-list__search"
+        >
+        <span class="contact-list__count" data-loading="addClass(is-busy)">
+            {% if this.isFiltered %}
+                {{ this.users|length }} von {{ this.total }}
+            {% else %}
+                {{ this.total }} {{ this.total == 1 ? 'Benutzer' : 'Benutzer' }}
+            {% endif %}
+        </span>
+    </div>
+
+    {% if this.users is empty %}
+        <p class="contact-list__empty">
+            {% if this.isFiltered %}
+                Kein Treffer für <strong>{{ this.query }}</strong>.
+            {% else %}
+                Noch keine Benutzer angelegt.
+            {% endif %}
+        </p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">E-Mail</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">Rollen</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in this.users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                        <td>{{ user.team ? user.team.name : '—' }}</td>
+                        <td>{{ user.roles|join(', ') }}</td>
+                        <td>
+                            {% if user.active %}
+                                aktiv
+                            {% else %}
+                                <span class="muted">deaktiviert</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if this.isTruncated %}
+            <p class="contact-list__note">
+                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
+            </p>
+        {% endif %}
+    {% endif %}
+</div>

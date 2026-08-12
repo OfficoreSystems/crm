@@ -12,6 +12,11 @@ make fresh          # startet Container, installiert, migriert, seedet
 
 Danach: <http://localhost:8080/contacts> · Mails unter <http://localhost:8025>
 
+Anmeldung mit `admin@officore.test` / `officore-dev-passwort`. Das Konto legt
+`user:seed` an — der Befehl **verweigert die Arbeit in Produktion**. Dort legt
+`bin/console user:create` das erste Konto an und gibt ein erzeugtes Passwort
+einmalig aus.
+
 ## Ein neues Modul anlegen
 
 ```bash
@@ -40,6 +45,29 @@ der Core wird dafür nicht angefasst.
 Kommunikation läuft ausschließlich über Interfaces im `shared-kernel` und über
 Messenger Events. Nur zwei Dateien nennen Modulnamen, und beide sind
 Registrierung statt Kopplung: `config/bundles.php` und `deptrac.yaml`.
+
+### Optionale Extension-Points
+
+Ein Modul, das `UserFinderInterface` injiziert, darf dadurch nicht das
+`user`-Modul zur Pflicht machen. Deshalb liefert der Shared Kernel für solche
+Verträge eine **Null-Implementierung als Vorgabe**, die das jeweilige Modul
+überschreibt:
+
+| Vertrag | Vorgabe im Shared Kernel | Ersetzt durch |
+| --- | --- | --- |
+| `UserFinderInterface` | `NullUserFinder` (findet niemanden) | `user` |
+| `crm.security.user_provider` | `NullUserProvider` (kennt niemanden) | `user` |
+
+Das funktioniert, weil der `shared-kernel` in `config/bundles.php` **vor** den
+Modulen steht und die spätere Service-Definition gewinnt. Ohne das Modul
+degradiert die Anwendung, statt beim Container-Build zu scheitern.
+
+**Eine Ausnahme, die Symfony erzwingt:** `security.firewalls` ist ein
+prototypisierter Knoten und muss vollständig aus *einer* Konfigurationsdatei
+kommen — ein `prependExtension()` aus dem Modul bricht mit
+„You are not allowed to define new elements for path security.firewalls" ab.
+Die Firewall steht deshalb in `config/packages/security.yaml` und verweist auf
+die feste Service-ID oben, mit literalen Pfaden statt Routennamen.
 
 Das ist keine Vereinbarung, sondern ein CI-Gate:
 

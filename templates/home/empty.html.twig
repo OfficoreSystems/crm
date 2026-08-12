@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Kein Modul installiert{% endblock %}
+
+{% block body %}
+    <h1>Kein Modul installiert</h1>
+    <p class="lede">
+        Die Anwendung läuft, aber es ist kein Modul registriert, das eine
+        Oberfläche mitbringt.
+    </p>
+    <p class="muted">
+        Module werden über <code>composer require</code> installiert und in
+        <code>config/bundles.php</code> eingetragen. Details im README.
+    </p>
+{% endblock %}

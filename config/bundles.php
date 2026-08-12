@@ -1,19 +1,5 @@
 <?php
 
-/*
- * Die Installationsliste - und die einzige Stelle im Core, an der Modulnamen
- * stehen duerfen. Das ist Registrierung, keine Kopplung: es wird hier nichts
- * aus einem Modul importiert oder aufgerufen, und kein Core-Code haengt an
- * einer dieser Klassen.
- *
- * Deptrac analysiert config/ deshalb nicht mit; die Schranke gilt fuer Code
- * unter src/ und modules/.
- *
- * Achtung: Symfony Flex schreibt diese Datei bei composer require/remove
- * automatisch fort und wirft dabei Kommentare weg. Nach groesseren
- * Composer-Operationen also kurz gegenlesen.
- */
-
 return [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
@@ -25,10 +11,14 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
+    Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
 
     // --- Vertragsschicht ---
+    // Muss vor den Modulen stehen: die Module ueberschreiben Vorgabedienste
+    // aus dem Shared Kernel, und dabei gewinnt die spaetere Definition.
     Crm\SharedKernel\CrmSharedKernelBundle::class => ['all' => true],
 
     // --- Module ---
+    Crm\User\UserModule::class => ['all' => true],
     Crm\Contact\ContactModule::class => ['all' => true],
 ];
