@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4797f977b87eb9e662c46bfb6180261",
+    "content-hash": "ccbcf82e5671a44229aa1892ca2a737f",
     "packages": [
         {
             "name": "composer/semver",
@@ -169,6 +169,51 @@
                 "proprietary"
             ],
             "description": "Referenzmodul: Kontaktverwaltung. Vorlage fuer alle weiteren Module.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "crm/deal-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/deal",
+                "reference": "3eb191bb08a0a7b1243ba41a85cfb6c1a7073809"
+            },
+            "require": {
+                "crm/shared-kernel": "^0.1",
+                "doctrine/doctrine-bundle": "^2.19 || ^3.0",
+                "doctrine/orm": "^3.6",
+                "php": ">=8.2",
+                "symfony/config": "^7.4",
+                "symfony/console": "^7.4",
+                "symfony/dependency-injection": "^7.4",
+                "symfony/framework-bundle": "^7.4",
+                "symfony/http-foundation": "^7.4",
+                "symfony/http-kernel": "^7.4",
+                "symfony/routing": "^7.4",
+                "symfony/uid": "^7.4",
+                "symfony/ux-live-component": "^2.36"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Crm\\Deal\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Crm\\Deal\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Verkaufschancen: Pipeline, Stages, Werte.",
             "transport-options": {
                 "relative": true
             }

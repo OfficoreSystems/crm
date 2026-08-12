@@ -9,11 +9,13 @@ use Crm\User\Application\CreateUserCommand;
 use Crm\User\Domain\Role;
 use Crm\User\Domain\User;
 use Crm\User\Domain\UserRepositoryInterface;
+use Crm\SharedKernel\Menu\MenuRegistry;
 use Crm\User\Infrastructure\Security\SecurityUser;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Prueft die Kette, die kein Unit-Test abdeckt: Firewall aus dem Core,
@@ -164,10 +166,18 @@ final class AuthenticationTest extends WebTestCase
     #[Test]
     public function the_home_page_redirects_to_the_first_menu_entry(): void
     {
-        // Der Core kennt kein Modul - das Ziel kommt aus der MenuRegistry.
+        // Bewusst kein fester Pfad: welches Modul vorne steht, entscheidet
+        // dessen Priority. Ein hart erwarteter Pfad wuerde diesen Test jedes
+        // Mal brechen, wenn ein Modul mit hoeherer Priority dazukommt - und
+        // damit genau das pruefen, was der Core nicht wissen soll.
+        $menu = static::getContainer()->get(MenuRegistry::class)->items();
+        self::assertNotEmpty($menu, 'Ohne Menueeintrag hat die Startseite kein Ziel.');
+
+        $expected = static::getContainer()->get(RouterInterface::class)->generate($menu[0]->route);
+
         $this->client->request('GET', '/');
 
-        self::assertResponseRedirects('/contacts');
+        self::assertResponseRedirects($expected);
     }
 
     #[Test]

@@ -45,6 +45,8 @@ final class RoutingTest extends KernelTestCase
     {
         yield 'Startseite aus dem Core' => ['/', 'home'];
         yield 'Modul contact' => ['/contacts', 'contact_index'];
+        yield 'Modul company' => ['/companies', 'company_index'];
+        yield 'Modul deal' => ['/deals', 'deal_index'];
         yield 'Modul user, Anmeldung' => ['/login', 'user_login'];
         yield 'Modul user, Verwaltung' => ['/users', 'user_index'];
     }

@@ -67,6 +67,7 @@ seed:
 	$(EXEC) bin/console user:seed
 	$(EXEC) bin/console company:seed
 	$(EXEC) bin/console contact:seed
+	$(EXEC) bin/console deal:seed
 
 fresh:
 	$(DC) up -d --build --wait
@@ -75,6 +76,7 @@ fresh:
 	$(EXEC) bin/console user:seed
 	$(EXEC) bin/console company:seed
 	$(EXEC) bin/console contact:seed
+	$(EXEC) bin/console deal:seed
 	@echo ------------------------------------------------------------------
 	@echo   App .......... http://localhost:8080/contacts
 	@echo   Anmeldung .... admin@officore.test / officore-dev-passwort
