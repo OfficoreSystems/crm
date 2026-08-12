@@ -8,6 +8,7 @@ use Crm\SharedKernel\CrmSharedKernelBundle;
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 use Crm\SharedKernel\Dashboard\MetricProviderInterface;
 use Crm\SharedKernel\Module\CrmModuleInterface;
+use Crm\SharedKernel\Security\RecordOwnershipInterface;
 use Crm\SharedKernel\Subject\SubjectResolverInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -59,9 +60,18 @@ final class CrmSharedKernelBundleTest extends TestCase
                 CrmModuleInterface::class,
                 SubjectResolverInterface::class,
                 MetricProviderInterface::class,
+                RecordOwnershipInterface::class,
             ],
             array_keys($container->getAutoconfiguredInstanceof()),
         );
+    }
+
+    #[Test]
+    public function it_tags_ownership_providers_automatically(): void
+    {
+        $tags = $this->autoconfiguredTagsFor(RecordOwnershipInterface::class);
+
+        self::assertArrayHasKey('crm.record_ownership', $tags);
     }
 
     #[Test]
