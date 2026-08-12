@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Crm\SharedKernel\Company\CompanyFinderInterface;
 use Crm\SharedKernel\Company\NullCompanyFinder;
+use Crm\SharedKernel\Contact\ContactFinderInterface;
+use Crm\SharedKernel\Contact\NullContactFinder;
 use Crm\SharedKernel\Menu\MenuRegistry;
 use Crm\SharedKernel\Module\ModuleRegistry;
 use Crm\SharedKernel\Security\NullUserProvider;
@@ -36,6 +38,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(NullCompanyFinder::class);
     $services->alias(CompanyFinderInterface::class, NullCompanyFinder::class);
+
+    $services->set(NullContactFinder::class);
+    $services->alias(ContactFinderInterface::class, NullContactFinder::class);
 
     // Feste Service-ID, auf die config/packages/security.yaml verweist.
     // Der Core kommt so ohne Modulnamen aus; das user-Modul haengt hier seine

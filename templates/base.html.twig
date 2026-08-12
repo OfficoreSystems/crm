@@ -105,6 +105,48 @@
         }
         .contact-list__table td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); }
         .contact-list__empty, .contact-list__note { color: var(--muted); }
+        .contact-list__chip {
+            border: 1px solid var(--line); border-radius: 999px; padding: 0.1rem 0.6rem;
+            background: var(--surface); color: var(--fg); font-size: 0.8rem;
+            cursor: pointer; margin-right: 0.3rem;
+        }
+
+        .pipeline__summary {
+            display: flex; gap: 2rem; margin-bottom: 1.25rem; padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .pipeline__metric { display: flex; flex-direction: column; gap: 0.15rem; }
+        .pipeline__metric strong { font-size: 1.35rem; letter-spacing: -0.02em; }
+        .pipeline__metric .muted { font-size: 0.8rem; }
+        .pipeline__board {
+            display: grid; grid-auto-flow: column; grid-auto-columns: minmax(11rem, 1fr);
+            gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem;
+        }
+        .pipeline__column {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 8px; padding: 0.7rem;
+        }
+        .pipeline__column-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+        .pipeline__stage { font-weight: 600; font-size: 0.85rem; }
+        .pipeline__stage-count { color: var(--muted); font-size: 0.8rem; }
+        .pipeline__column-sum {
+            margin: 0.15rem 0 0.7rem; font-size: 0.8rem; color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+        .pipeline__column--won { border-color: #16a34a55; }
+        .pipeline__column--lost { border-color: #dc262655; }
+        .pipeline__card {
+            background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+            padding: 0.5rem 0.6rem; margin-bottom: 0.45rem;
+        }
+        .pipeline__card-title { margin: 0; font-size: 0.87rem; font-weight: 550; }
+        .pipeline__card-value {
+            margin: 0.15rem 0 0; font-size: 0.82rem; font-variant-numeric: tabular-nums;
+        }
+        .pipeline__card-meta { margin: 0.2rem 0 0; font-size: 0.76rem; color: var(--muted); }
+        .pipeline__empty { font-size: 0.8rem; }
     </style>
 
     {% block stylesheets %}{% endblock %}

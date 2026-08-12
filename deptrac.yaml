@@ -125,6 +125,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Company\\UI\\#'
 
+    # --------------------------------------------------------------- Modul: deal
+    - name: DealBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Deal\\DealModule$#'
+
+    - name: DealDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Deal\\Domain\\#'
+
+    - name: DealApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Deal\\Application\\#'
+
+    - name: DealInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Deal\\Infrastructure\\#'
+
+    - name: DealUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Deal\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -200,9 +226,12 @@ deptrac:
       - SharedKernel
       - SymfonyUid
 
+    # SharedKernel, weil hier DoctrineContactFinder liegt - die Umsetzung des
+    # Extension-Points, ueber den andere Module Kontakte aufloesen.
     ContactInfrastructure:
       - ContactDomain
       - ContactApplication
+      - SharedKernel
       - Doctrine
       - DoctrineMapping
       - SymfonyUid
@@ -270,6 +299,36 @@ deptrac:
     CompanyUI:
       - CompanyDomain
       - CompanyApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    DealBundle:
+      - SharedKernel
+      - Symfony
+
+    DealDomain:
+      - DoctrineMapping
+      - SymfonyUid
+
+    DealApplication:
+      - DealDomain
+      - SymfonyUid
+
+    DealInfrastructure:
+      - DealDomain
+      - DealApplication
+      - Doctrine
+      - DoctrineMapping
+      - SymfonyUid
+
+    # SharedKernel: die Pipeline loest Firmen und Kontakte ueber die
+    # Finder-Interfaces auf. DealDomain sieht sie nie - dort stehen nur
+    # skalare UUIDs.
+    DealUI:
+      - DealDomain
+      - DealApplication
       - SharedKernel
       - Symfony
       - SymfonyUid

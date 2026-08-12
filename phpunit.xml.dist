@@ -38,6 +38,9 @@
         <testsuite name="company">
             <directory>modules/company/tests</directory>
         </testsuite>
+        <testsuite name="deal">
+            <directory>modules/deal/tests</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
@@ -51,6 +54,7 @@
             <directory>modules/contact/src</directory>
             <directory>modules/user/src</directory>
             <directory>modules/company/src</directory>
+            <directory>modules/deal/src</directory>
         </include>
 
         <deprecationTrigger>
