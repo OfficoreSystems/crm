@@ -7,6 +7,7 @@ namespace Crm\SharedKernel;
 use Crm\SharedKernel\Dashboard\MetricProviderInterface;
 use Crm\SharedKernel\Menu\MenuProviderInterface;
 use Crm\SharedKernel\Module\CrmModuleInterface;
+use Crm\SharedKernel\Security\RecordOwnershipInterface;
 use Crm\SharedKernel\Subject\SubjectResolverInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -41,6 +42,10 @@ final class CrmSharedKernelBundle extends AbstractBundle
         // Modul.
         $container->registerForAutoconfiguration(MetricProviderInterface::class)
             ->addTag('crm.metric_provider');
+
+        // Sagt dem Voter, wem die Datensaetze eines Moduls gehoeren.
+        $container->registerForAutoconfiguration(RecordOwnershipInterface::class)
+            ->addTag('crm.record_ownership');
     }
 
     /**

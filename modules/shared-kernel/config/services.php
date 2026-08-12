@@ -9,7 +9,10 @@ use Crm\SharedKernel\Contact\ContactFinderInterface;
 use Crm\SharedKernel\Contact\NullContactFinder;
 use Crm\SharedKernel\Menu\MenuRegistry;
 use Crm\SharedKernel\Module\ModuleRegistry;
+use Crm\SharedKernel\Security\CrmVoter;
 use Crm\SharedKernel\Security\NullUserProvider;
+use Crm\SharedKernel\Security\OwnershipRegistry;
+use Crm\SharedKernel\Security\PermissionMatrix;
 use Crm\SharedKernel\Subject\SubjectResolverRegistry;
 use Crm\SharedKernel\User\NullUserFinder;
 use Crm\SharedKernel\User\UserFinderInterface;
@@ -34,6 +37,17 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(MetricRegistry::class)
         ->args([tagged_iterator('crm.metric_provider')]);
+
+    $services->set(OwnershipRegistry::class)
+        ->args([tagged_iterator('crm.record_ownership')]);
+
+    // Die Rechtematrix als Vorgabe. Wer sie anpassen will, definiert diesen
+    // Dienst in der Anwendung neu - dann gewinnt die spaetere Definition.
+    $services->set(PermissionMatrix::class)
+        ->factory([PermissionMatrix::class, 'default']);
+
+    $services->set(CrmVoter::class)
+        ->tag('security.voter');
 
     // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
     // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem
