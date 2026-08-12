@@ -81,6 +81,11 @@ müsste jedes solche Modul die konkreten Finder von `contact`, `company` und
 Fehlt ein Resolver, fehlt der Eintrag im Ergebnis. Die Timeline zeigt dann
 „Bezug nicht auflösbar" — die Historie bleibt, nur der Name fehlt.
 
+**Der Beleg, dass der Schnitt trägt:** das `search`-Modul besitzt **keine
+eigene Tabelle und keine Migration**. Es fragt nur die Registry und sortiert.
+Ein neues Modul wird durchsuchbar, indem es einen Resolver mitbringt — `search`
+erfährt davon nichts.
+
 ### Wie Modulrouten geladen werden
 
 Über die Liste der **registrierten Bundles** in

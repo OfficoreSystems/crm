@@ -44,6 +44,9 @@
         <testsuite name="activity">
             <directory>modules/activity/tests</directory>
         </testsuite>
+        <testsuite name="search">
+            <directory>modules/search/tests</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
@@ -59,6 +62,7 @@
             <directory>modules/company/src</directory>
             <directory>modules/deal/src</directory>
             <directory>modules/activity/src</directory>
+            <directory>modules/search/src</directory>
         </include>
 
         <deprecationTrigger>

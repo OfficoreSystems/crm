@@ -19,6 +19,7 @@
         "crm/company-module": "^0.1",
         "crm/contact-module": "^0.1",
         "crm/deal-module": "^0.1",
+        "crm/search-module": "^0.1",
         "crm/shared-kernel": "^0.1",
         "crm/user-module": "^0.1",
         "doctrine/doctrine-bundle": "^2.19",
@@ -62,7 +63,8 @@
             "Crm\\User\\Tests\\": "modules/user/tests/",
             "Crm\\Company\\Tests\\": "modules/company/tests/",
             "Crm\\Deal\\Tests\\": "modules/deal/tests/",
-            "Crm\\Activity\\Tests\\": "modules/activity/tests/"
+            "Crm\\Activity\\Tests\\": "modules/activity/tests/",
+            "Crm\\Search\\Tests\\": "modules/search/tests/"
         }
     },
     "replace": {

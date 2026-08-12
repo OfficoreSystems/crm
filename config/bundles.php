@@ -24,4 +24,5 @@ return [
     Crm\Contact\ContactModule::class => ['all' => true],
     Crm\Deal\DealModule::class => ['all' => true],
     Crm\Activity\ActivityModule::class => ['all' => true],
+    Crm\Search\SearchModule::class => ['all' => true],
 ];

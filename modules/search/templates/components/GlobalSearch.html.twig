@@ -1,0 +1,69 @@
+{# Die Treffer kommen aus der SubjectResolverRegistry. Welche Typen es gibt,
+   entscheiden die installierten Module - hier steht kein Modulname. #}
+<div {{ attributes }} class="search">
+
+    <div class="contact-list__toolbar">
+        <input
+            type="search"
+            value="{{ this.query }}"
+            data-model="debounce(200)|query"
+            placeholder="Kontakt, Firma oder Verkaufschance suchen …"
+            autocomplete="off"
+            aria-label="Alles durchsuchen"
+            class="contact-list__search"
+            autofocus
+        >
+
+        <select data-model="type" class="timeline__filter" aria-label="Auf einen Typ einschränken">
+            <option value="">Überall</option>
+            {% for type, label in this.types %}
+                <option value="{{ type }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <span class="contact-list__count" data-loading="addClass(is-busy)">
+            {% if this.hasQuery %}
+                {{ this.hits|length }} Treffer
+            {% endif %}
+        </span>
+    </div>
+
+    {% if not this.hasQuery %}
+        <p class="contact-list__empty">
+            {% if this.types is empty %}
+                Kein durchsuchbares Modul installiert.
+            {% else %}
+                Tipp einen Suchbegriff ein. Durchsucht werden:
+                {{ this.types|join(', ') }}.
+            {% endif %}
+        </p>
+    {% elseif this.hits is empty %}
+        <p class="contact-list__empty">
+            Kein Treffer für <strong>{{ this.query }}</strong>.
+        </p>
+    {% else %}
+        {% for type, hits in this.groupedHits %}
+            <section class="search__group">
+                <h2 class="search__group-title">
+                    {{ this.labelForType(type) }}
+                    <span class="muted">{{ hits|length }}</span>
+                </h2>
+                <ul class="search__results">
+                    {% for hit in hits %}
+                        <li class="search__result{{ hit.isStrong ? ' search__result--strong' : '' }}">
+                            {% if hit.subject.isLinkable %}
+                                <a href="{{ path(hit.subject.route, hit.subject.routeParameters) }}"
+                                   class="search__label">{{ hit.subject.label }}</a>
+                            {% else %}
+                                <span class="search__label">{{ hit.subject.label }}</span>
+                            {% endif %}
+                            {% if hit.subject.description %}
+                                <span class="search__description">{{ hit.subject.description }}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endfor %}
+    {% endif %}
+</div>

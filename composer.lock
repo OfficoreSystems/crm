@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16cf723f3dabb11af73e87ac9b07da56",
+    "content-hash": "285fec780800f0c36f021178b910d0f5",
     "packages": [
         {
             "name": "composer/semver",
@@ -259,6 +259,47 @@
                 "proprietary"
             ],
             "description": "Verkaufschancen: Pipeline, Stages, Werte.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "crm/search-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/search",
+                "reference": "9e5bfdd68a98ab17e61612e267a3c81c6dd66373"
+            },
+            "require": {
+                "crm/shared-kernel": "^0.1",
+                "php": ">=8.2",
+                "symfony/config": "^7.4",
+                "symfony/dependency-injection": "^7.4",
+                "symfony/framework-bundle": "^7.4",
+                "symfony/http-foundation": "^7.4",
+                "symfony/http-kernel": "^7.4",
+                "symfony/routing": "^7.4",
+                "symfony/ux-live-component": "^2.36"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Crm\\Search\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Crm\\Search\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Modulueberschreitende Suche. Besitzt keine eigenen Daten.",
             "transport-options": {
                 "relative": true
             }

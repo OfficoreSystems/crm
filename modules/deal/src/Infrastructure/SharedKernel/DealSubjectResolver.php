@@ -63,6 +63,12 @@ final readonly class DealSubjectResolver implements SubjectResolverInterface
             label: $deal->title(),
             route: 'deal_index',
             typeLabel: 'Verkaufschance',
+            description: sprintf(
+                '%s %s · %s',
+                $deal->value()->asDecimal(),
+                $deal->value()->currency,
+                $deal->stage()->label(),
+            ),
         );
     }
 }

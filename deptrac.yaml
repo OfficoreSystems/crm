@@ -177,6 +177,27 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Activity\\UI\\#'
 
+    # ------------------------------------------------------------- Modul: search
+    - name: SearchBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Search\\SearchModule$#'
+
+    - name: SearchDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Search\\Domain\\#'
+
+    - name: SearchApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Search\\Application\\#'
+
+    - name: SearchUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Search\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -397,4 +418,26 @@ deptrac:
       - SharedKernel
       - Symfony
       - SymfonyUid
+      - Twig
+
+    # search hat keine Infrastructure-Schicht: das Modul besitzt keine Daten
+    # und spricht mit keiner Datenbank. Es fragt nur die Registry.
+    SearchBundle:
+      - SharedKernel
+      - Symfony
+
+    # Wie ActivityDomain nur wegen eines Wertobjekts aus dem Shared Kernel -
+    # hier ResolvedSubject, das bewertet wird.
+    SearchDomain:
+      - SharedKernel
+
+    SearchApplication:
+      - SearchDomain
+      - SharedKernel
+
+    SearchUI:
+      - SearchDomain
+      - SearchApplication
+      - SharedKernel
+      - Symfony
       - Twig

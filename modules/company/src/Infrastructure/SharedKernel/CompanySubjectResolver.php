@@ -57,12 +57,15 @@ final readonly class CompanySubjectResolver implements SubjectResolverInterface
 
     private static function toSubject(Company $company): ResolvedSubject
     {
+        $parts = array_filter([$company->industry(), $company->address()->city]);
+
         return new ResolvedSubject(
             type: self::TYPE,
             id: (string) $company->id(),
             label: $company->name(),
             route: 'company_index',
             typeLabel: 'Firma',
+            description: [] === $parts ? null : implode(' · ', $parts),
         );
     }
 }
