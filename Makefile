@@ -18,7 +18,7 @@ help:
 	@echo   make fresh ..... Alles von null: hochfahren, installieren, migrieren, seeden
 	@echo   make install ... composer install im Container
 	@echo   make migrate ... Migrationen anwenden
-	@echo   make seed ...... Beispielkontakte anlegen
+	@echo   make seed ...... Entwicklungs-Admin und Beispielkontakte anlegen
 	@echo ------------------------------------------------------------------
 	@echo Container
 	@echo   make up ........ Container starten, wartet auf die Datenbank
@@ -64,15 +64,18 @@ migrate:
 	$(EXEC) bin/console doctrine:migrations:migrate -n
 
 seed:
+	$(EXEC) bin/console user:seed
 	$(EXEC) bin/console contact:seed
 
 fresh:
 	$(DC) up -d --build --wait
 	$(EXEC) composer install
 	$(EXEC) bin/console doctrine:migrations:migrate -n
+	$(EXEC) bin/console user:seed
 	$(EXEC) bin/console contact:seed
 	@echo ------------------------------------------------------------------
 	@echo   App .......... http://localhost:8080/contacts
+	@echo   Anmeldung .... admin@officore.test / officore-dev-passwort
 	@echo   Profiler ..... http://localhost:8080/_profiler
 	@echo   Mailpit ...... http://localhost:8025
 	@echo   Postgres ..... 127.0.0.1:5432 db=crm user=app pass=app
