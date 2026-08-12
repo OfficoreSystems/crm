@@ -173,6 +173,20 @@
         .timeline__summary { margin: 0.2rem 0 0; font-size: 0.95rem; font-weight: 550; }
         .timeline__body { margin: 0.2rem 0 0; font-size: 0.88rem; color: var(--muted); }
         .timeline__subject { margin: 0.3rem 0 0; font-size: 0.8rem; }
+
+        .search__group { margin-bottom: 1.5rem; }
+        .search__group-title {
+            font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
+            color: var(--muted); font-weight: 600; margin: 0 0 0.4rem;
+        }
+        .search__results { list-style: none; margin: 0; padding: 0; }
+        .search__result {
+            padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line);
+            display: flex; gap: 0.75rem; align-items: baseline;
+        }
+        .search__result--strong { background: var(--surface); }
+        .search__label { font-size: 0.93rem; font-weight: 550; }
+        .search__description { font-size: 0.82rem; color: var(--muted); }
     </style>
 
     {% block stylesheets %}{% endblock %}

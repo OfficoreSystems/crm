@@ -69,6 +69,11 @@ final readonly class ContactSubjectResolver implements SubjectResolverInterface
             label: $contact->fullName(),
             route: 'contact_index',
             typeLabel: 'Kontakt',
+            // Bewusst nur die E-Mail und nicht der Firmenname: den
+            // aufzuloesen hiesse, hier den CompanyFinder zu bemuehen - je
+            // Treffer, in einer Schleife. Fuer eine Trefferliste ist das der
+            // falsche Ort.
+            description: $contact->email(),
         );
     }
 }

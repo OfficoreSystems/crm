@@ -1,0 +1,35 @@
+{
+    "name": "crm/search-module",
+    "description": "Modulueberschreitende Suche. Besitzt keine eigenen Daten.",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "version": "0.1.0",
+    "require": {
+        "php": ">=8.2",
+        "crm/shared-kernel": "^0.1",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/http-foundation": "^7.4",
+        "symfony/http-kernel": "^7.4",
+        "symfony/routing": "^7.4",
+        "symfony/ux-live-component": "^2.36"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Crm\\Search\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Crm\\Search\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}

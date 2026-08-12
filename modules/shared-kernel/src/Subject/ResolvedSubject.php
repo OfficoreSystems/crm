@@ -15,6 +15,11 @@ final readonly class ResolvedSubject
 {
     /**
      * @param array<string, string|int> $routeParameters
+     * @param string|null               $description Zweite Zeile: was diesen
+     *                                               Datensatz von gleichnamigen
+     *                                               unterscheidet. Ohne sie ist
+     *                                               eine Trefferliste mit drei
+     *                                               "Nordwind" nicht benutzbar.
      */
     public function __construct(
         public string $type,
@@ -23,6 +28,7 @@ final readonly class ResolvedSubject
         public ?string $route = null,
         public array $routeParameters = [],
         public ?string $typeLabel = null,
+        public ?string $description = null,
     ) {
     }
 
