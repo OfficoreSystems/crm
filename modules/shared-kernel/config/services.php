@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Crm\SharedKernel\Company\CompanyFinderInterface;
+use Crm\SharedKernel\Company\NullCompanyFinder;
 use Crm\SharedKernel\Menu\MenuRegistry;
 use Crm\SharedKernel\Module\ModuleRegistry;
 use Crm\SharedKernel\Security\NullUserProvider;
@@ -31,6 +33,9 @@ return static function (ContainerConfigurator $container): void {
     // injizieren, ohne das user-Modul zur Pflicht zu machen.
     $services->set(NullUserFinder::class);
     $services->alias(UserFinderInterface::class, NullUserFinder::class);
+
+    $services->set(NullCompanyFinder::class);
+    $services->alias(CompanyFinderInterface::class, NullCompanyFinder::class);
 
     // Feste Service-ID, auf die config/packages/security.yaml verweist.
     // Der Core kommt so ohne Modulnamen aus; das user-Modul haengt hier seine

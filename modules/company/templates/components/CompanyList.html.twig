@@ -1,0 +1,88 @@
+<div {{ attributes }} class="contact-list">
+
+    <div class="contact-list__toolbar">
+        <input
+            type="search"
+            value="{{ this.query }}"
+            data-model="debounce(200)|query"
+            placeholder="Nach Name, Branche oder Ort suchen …"
+            autocomplete="off"
+            aria-label="Firmen durchsuchen"
+            class="contact-list__search"
+        >
+        <span class="contact-list__count" data-loading="addClass(is-busy)">
+            {% if this.isFiltered %}
+                {{ this.companies|length }} von {{ this.total }}
+            {% else %}
+                {{ this.total }} {{ this.total == 1 ? 'Firma' : 'Firmen' }}
+            {% endif %}
+        </span>
+    </div>
+
+    {% set industries = this.topIndustries %}
+    {% if industries is not empty and not this.isFiltered %}
+        <p class="contact-list__note">
+            Häufigste Branchen:
+            {% for industry, count in industries %}
+                <button type="button" data-model="query" value="{{ industry }}"
+                        class="contact-list__chip">{{ industry }} ({{ count }})</button>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if this.companies is empty %}
+        <p class="contact-list__empty">
+            {% if this.isFiltered %}
+                Kein Treffer für <strong>{{ this.query }}</strong>.
+            {% else %}
+                Noch keine Firmen angelegt.
+                Leg welche an mit <code>bin/console company:seed</code>.
+            {% endif %}
+        </p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Branche</th>
+                    <th scope="col">Ort</th>
+                    <th scope="col">Kontakt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in this.companies %}
+                    <tr>
+                        <td>
+                            {% if company.website %}
+                                <a href="{{ company.website }}" rel="noopener noreferrer" target="_blank">{{ company.name }}</a>
+                            {% else %}
+                                {{ company.name }}
+                            {% endif %}
+                        </td>
+                        <td>{{ company.industry ?? '—' }}</td>
+                        <td>
+                            {% if company.address.isEmpty %}
+                                <span class="muted">&mdash;</span>
+                            {% else %}
+                                {{ company.address.asLine }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if company.email %}
+                                <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+                            {% else %}
+                                <span class="muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if this.isTruncated %}
+            <p class="contact-list__note">
+                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
+            </p>
+        {% endif %}
+    {% endif %}
+</div>

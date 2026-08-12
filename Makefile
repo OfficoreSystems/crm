@@ -65,6 +65,7 @@ migrate:
 
 seed:
 	$(EXEC) bin/console user:seed
+	$(EXEC) bin/console company:seed
 	$(EXEC) bin/console contact:seed
 
 fresh:
@@ -72,6 +73,7 @@ fresh:
 	$(EXEC) composer install
 	$(EXEC) bin/console doctrine:migrations:migrate -n
 	$(EXEC) bin/console user:seed
+	$(EXEC) bin/console company:seed
 	$(EXEC) bin/console contact:seed
 	@echo ------------------------------------------------------------------
 	@echo   App .......... http://localhost:8080/contacts

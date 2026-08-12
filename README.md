@@ -99,6 +99,7 @@ Verträge eine **Null-Implementierung als Vorgabe**, die das jeweilige Modul
 | --- | --- | --- |
 | `UserFinderInterface` | `NullUserFinder` (findet niemanden) | `user` |
 | `crm.security.user_provider` | `NullUserProvider` (kennt niemanden) | `user` |
+| `CompanyFinderInterface` | `NullCompanyFinder` (findet nichts) | `company` |
 
 Das funktioniert, weil der `shared-kernel` in `config/bundles.php` **vor** den
 Modulen steht und die spätere Service-Definition gewinnt. Ohne das Modul
