@@ -99,6 +99,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\User\\UI\\#'
 
+    # ------------------------------------------------------------ Modul: company
+    - name: CompanyBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Company\\CompanyModule$#'
+
+    - name: CompanyDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Company\\Domain\\#'
+
+    - name: CompanyApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Company\\Application\\#'
+
+    - name: CompanyInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Company\\Infrastructure\\#'
+
+    - name: CompanyUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Company\\UI\\#'
+
     # ------------------------------------------------------------------ Fremdcode
     # Eng geschnitten und ueberschneidungsfrei: ein Token darf nur in genau
     # einem dieser Layer landen, sonst meldet Deptrac Verstoesse fuer den
@@ -208,6 +234,35 @@ deptrac:
     UserUI:
       - UserDomain
       - UserApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    CompanyBundle:
+      - SharedKernel
+      - Symfony
+
+    CompanyDomain:
+      - DoctrineMapping
+      - SymfonyUid
+
+    CompanyApplication:
+      - CompanyDomain
+
+    # SharedKernel, weil hier DoctrineCompanyFinder liegt - die Umsetzung des
+    # Extension-Points, ueber den andere Module Firmen aufloesen.
+    CompanyInfrastructure:
+      - CompanyDomain
+      - CompanyApplication
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - SymfonyUid
+
+    CompanyUI:
+      - CompanyDomain
+      - CompanyApplication
       - SharedKernel
       - Symfony
       - SymfonyUid

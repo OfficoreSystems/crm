@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Firmen{% endblock %}
+
+{% block body %}
+    <h1>Firmen</h1>
+    <p class="lede">
+        Stammdaten der Firmen. Die Suche greift auf Name, Branche und Ort.
+    </p>
+
+    <twig:CompanyList />
+{% endblock %}

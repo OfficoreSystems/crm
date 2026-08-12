@@ -35,6 +35,9 @@
         <testsuite name="user">
             <directory>modules/user/tests</directory>
         </testsuite>
+        <testsuite name="company">
+            <directory>modules/company/tests</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
@@ -47,6 +50,7 @@
             <directory>modules/shared-kernel/src</directory>
             <directory>modules/contact/src</directory>
             <directory>modules/user/src</directory>
+            <directory>modules/company/src</directory>
         </include>
 
         <deprecationTrigger>

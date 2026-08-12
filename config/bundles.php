@@ -20,5 +20,6 @@ return [
 
     // --- Module ---
     Crm\User\UserModule::class => ['all' => true],
+    Crm\Company\CompanyModule::class => ['all' => true],
     Crm\Contact\ContactModule::class => ['all' => true],
 ];
