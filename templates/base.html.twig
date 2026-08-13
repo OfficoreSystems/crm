@@ -6,8 +6,8 @@
     <title>{% block title %}CRM{% endblock %} · Officore</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>◆</text></svg>">
 
-    {# Bewusst inline: das Grundlayout soll ohne Asset-Pipeline stehen.
-       Modul-eigene Styles gehoeren in den AssetMapper. #}
+    {# Deliberately inline: the shell layout should stand without an asset
+       pipeline. Module-owned styles belong in the AssetMapper. #}
     <style>
         :root {
             --bg: #ffffff; --fg: #16181d; --muted: #6b7280;
@@ -217,15 +217,15 @@
     {% endblock %}
 </head>
 <body>
-{# Die Anmeldeseite ersetzt diesen Block: dort gibt es weder Navigation noch
-   einen angemeldeten Benutzer, auf den sie sich beziehen koennte. #}
+{# The sign-in page replaces this block: there is neither navigation there
+   nor a signed-in user it could refer to. #}
 {% block shell %}
 <div class="shell">
     <aside class="sidebar">
         <p class="sidebar__brand">◆ Officore CRM</p>
 
-        {# Der Core fragt die Registry, nicht die Module. Wer hier auftaucht,
-           entscheidet sich dadurch, welche Bundles installiert sind. #}
+        {# The core asks the registry, not the modules. Who shows up here is
+           decided by which bundles are installed. #}
         {% set menu = crm_menu() %}
         {% if menu is empty %}
             <p class="sidebar__empty">{{ 'app.no_modules'|trans }}</p>
@@ -242,24 +242,24 @@
             </ul>
         {% endif %}
 
-        {# Nur sichtbar, wenn ueberhaupt jemand angemeldet ist - ohne
-           user-Modul ist app.user immer null und der Block entfaellt.
-           Bewusst die literale URL statt path('user_logout'): ein Routenname
-           waere eine Kopplung an ein bestimmtes Modul, der Logout-Pfad ist
-           dagegen Firewall-Konfiguration. #}
+        {# Only visible when somebody is signed in at all - without the user
+           module app.user is always null and the block disappears.
+           Deliberately the literal URL instead of path('user_logout'): a route
+           name would couple this to a particular module, whereas the logout
+           path is firewall configuration. #}
         {% if app.user %}
             <div class="sidebar__account">
                 <span class="sidebar__account-name">{{ app.user.name|default(app.user.userIdentifier) }}</span>
                 <a href="/logout" class="sidebar__account-logout">{{ 'app.logout'|trans }}</a>
 
-                {# Der Umschalter steht hier und nicht auf einer eigenen
-                   Einstellungsseite: wer die Oberflaeche gerade nicht versteht,
-                   findet keine Einstellungsseite.
+                {# The switcher sits here and not on a settings page of its own:
+                   whoever cannot currently read the interface will not find a
+                   settings page.
 
-                   crm_locales() kommt aus dem Core und kennt kein Modul - die
-                   Route dagegen bringt das user-Modul mit, deshalb die
-                   Pruefung. Ohne dieses Modul gibt es kein Konto, an dem sich
-                   etwas speichern liesse. #}
+                   crm_locales() comes from the core and knows no module - the
+                   route, on the other hand, is brought along by the user
+                   module, hence the check. Without that module there is no
+                   account to store anything on. #}
                 {% if crm_locales()|length > 1 and crm_route_exists('user_language_switch') %}
                     <form method="post" action="{{ path('user_language_switch') }}" class="sidebar__language">
                         <input type="hidden" name="_token"

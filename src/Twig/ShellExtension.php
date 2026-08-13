@@ -10,10 +10,10 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Was das Grundlayout wissen muss, ohne ein Modul zu kennen.
+ * What the shell layout needs to know without knowing a module.
  *
- * Beide Funktionen hier haben denselben Hintergrund: die Seitenleiste steht im
- * Core und soll trotzdem Dinge anbieten, die aus Modulen kommen.
+ * Both functions here share the same background: the sidebar lives in the core
+ * and still wants to offer things that come from modules.
  */
 final class ShellExtension extends AbstractExtension
 {
@@ -39,17 +39,17 @@ final class ShellExtension extends AbstractExtension
     }
 
     /**
-     * Gibt es diese Route?
+     * Does this route exist?
      *
-     * Klingt nach einem Umweg und ist einer - aber der guenstigste. Das
-     * Layout will einen Sprachumschalter anbieten, der ins user-Modul fuehrt.
-     * Ohne dieses Modul gibt es die Route nicht, und path() wuerde die ganze
-     * Seite mit einer Ausnahme abbrechen.
+     * Sounds like a detour and is one - but the cheapest available. The layout
+     * wants to offer a language switcher that leads into the user module.
+     * Without that module the route does not exist, and path() would abort the
+     * whole page with an exception.
      *
-     * Die Alternative waere ein Extension-Point im Shared Kernel, ueber den
-     * Module "Kontoaktionen" beisteuern. Fuer genau einen Eintrag waere das
-     * mehr Gerüst als Nutzen; kommt ein zweiter dazu, ist es der richtige
-     * Zeitpunkt dafuer.
+     * The alternative would be an extension point in the shared kernel through
+     * which modules contribute "account actions". For exactly one entry that
+     * would be more scaffolding than benefit; once a second one shows up, that
+     * is the right moment for it.
      */
     public function routeExists(string $name): bool
     {

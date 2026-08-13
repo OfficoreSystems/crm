@@ -1,78 +1,78 @@
 # crm
 
-Modulares CRM auf Symfony 7.4 LTS. Monorepo: jedes Modul ist gleichzeitig ein
-Composer-Paket und ein Symfony-Bundle.
+Modular CRM on Symfony 7.4 LTS. Monorepo: every module is a Composer package
+and a Symfony bundle at the same time.
 
 ## Setup
 
 ```bash
 git clone https://github.com/OfficoreSystems/crm.git && cd crm
-make fresh          # startet Container, installiert, migriert, seedet
+make fresh          # starts containers, installs, migrates, seeds
 ```
 
-Danach: <http://localhost:8080/contacts> · Mails unter <http://localhost:8025> ·
-Objektspeicher unter <http://localhost:9001> (`officore` / `officore-dev-passwort`)
+Then: <http://localhost:8080/contacts> · mail at <http://localhost:8025> ·
+object storage at <http://localhost:9001> (`officore` / `officore-dev-passwort`)
 
-`user:seed` legt **drei** Konten an, alle mit dem Passwort
+`user:seed` creates **three** accounts, all with the password
 `officore-dev-passwort`:
 
-| Konto | Rolle | Team |
+| Account | Role | Team |
 | --- | --- | --- |
 | `admin@officore.test` | Administrator | Vertrieb |
-| `vertrieb@officore.test` | Benutzer | Vertrieb |
-| `innendienst@officore.test` | Benutzer | Innendienst |
+| `vertrieb@officore.test` | User | Vertrieb |
+| `innendienst@officore.test` | User | Innendienst |
 
-Drei und nicht eines, weil sich mit einem einzigen Administrator nicht
-erkennen lässt, ob die Rechte überhaupt greifen — er darf ohnehin alles.
-Melde dich nacheinander als `vertrieb@` und `innendienst@` an: dieselbe
-Pipeline, unterschiedliche Zeilen. Siehe [Rechte](#rechte).
+Three and not one, because a single administrator makes it impossible to tell
+whether permissions work at all — he is allowed everything anyway. Sign in as
+`vertrieb@` and then as `innendienst@`: same pipeline, different rows. See
+[Permissions](#permissions).
 
-Der Befehl **verweigert die Arbeit in Produktion**. Dort legt
-`bin/console user:create` das erste Konto an und gibt ein erzeugtes Passwort
-einmalig aus.
+The command **refuses to run in production**. There, `bin/console user:create`
+creates the first account and prints a generated password once.
 
-## Ein neues Modul anlegen
+## Adding a new module
 
 ```bash
-cp -r modules/contact modules/invoice     # 1. Referenzmodul kopieren
+cp -r modules/contact modules/invoice     # 1. copy the reference module
 ```
 
-2. In `modules/invoice/composer.json` Name auf `crm/invoice-module` und den
-   PSR-4-Prefix auf `Crm\Invoice\` setzen.
-3. `Crm\Contact\` → `Crm\Invoice\` in allen Dateien ersetzen, `ContactModule`
-   → `InvoiceModule` (auch Twig-Namespace `@ContactModule` → `@InvoiceModule`).
+2. In `modules/invoice/composer.json`, set the name to `crm/invoice-module` and
+   the PSR-4 prefix to `Crm\Invoice\`.
+3. Replace `Crm\Contact\` with `Crm\Invoice\` everywhere, `ContactModule` with
+   `InvoiceModule` (including the Twig namespace `@ContactModule` →
+   `@InvoiceModule`).
 4. `config/bundles.php`: `Crm\Invoice\InvoiceModule::class => ['all' => true]`.
-5. `deptrac.yaml`: Layer `InvoiceDomain/Application/Infrastructure/UI` +
-   `InvoiceBundle` anlegen und in `ruleset` verdrahten — **ohne diesen Schritt
-   schlägt `make arch` fehl**, das ist Absicht.
+5. `deptrac.yaml`: add the layers `InvoiceDomain/Application/Infrastructure/UI`
+   plus `InvoiceBundle` and wire them into `ruleset` — **without this step
+   `make arch` fails**, and that is on purpose.
 6. `composer require crm/invoice-module:^0.1 && make migrate`
 
-Routing, Twig-Pfad, Doctrine-Mapping und Menüeintrag ziehen sich von selbst —
-der Core wird dafür nicht angefasst.
+Routing, Twig path, Doctrine mapping and menu entry wire themselves up — the
+core is not touched for any of it.
 
 ---
 
-## Die eine Regel
+## The one rule
 
-**Der Core kennt kein konkretes Modul, und kein Modul kennt ein anderes.**
+**The core knows no concrete module, and no module knows another.**
 
-Kommunikation läuft ausschließlich über Interfaces im `shared-kernel` und über
-Messenger Events. Nur zwei Dateien nennen Modulnamen, und beide sind
-Registrierung statt Kopplung: `config/bundles.php` und `deptrac.yaml`.
+Communication runs exclusively through interfaces in the `shared-kernel` and
+through Messenger events. Only two files name modules, and both are
+registration rather than coupling: `config/bundles.php` and `deptrac.yaml`.
 
-### Polymorphe Verweise
+### Polymorphic references
 
-Eine Aktivität hängt mal an einem Kontakt, mal an einer Firma, mal an einer
-Verkaufschance. Ein Fremdschlüssel scheidet hier schon technisch aus,
-unabhängig von der Modulgrenze. Stattdessen `SubjectRef` — **Typ + ID als zwei
-Skalare** — plus `SubjectResolverInterface` im Shared Kernel.
+An activity hangs off a contact, sometimes a company, sometimes a deal. A
+foreign key is out of the question on technical grounds alone, quite apart from
+the module boundary. Instead there is `SubjectRef` — **type + ID as two
+scalars** — plus `SubjectResolverInterface` in the shared kernel.
 
-Der Typ ist eine Zeichenkette und **kein Enum**: ein Enum müsste alle Typen
-kennen und läge damit im Shared Kernel, sodass jedes neue Modul eine Änderung
-daran wäre. Genau das soll der Extension-Point vermeiden.
+The type is a string and **not an enum**: an enum would have to know every
+type, would therefore live in the shared kernel, and every new module would be
+a change to it. Avoiding exactly that is the point of the extension point.
 
-Ein Modul macht seine Datensätze verweisbar, indem es das Interface
-implementiert — mehr nicht. Die Autoconfiguration übernimmt den Rest:
+A module makes its records referenceable by implementing the interface —
+nothing more. Autoconfiguration does the rest:
 
 ```php
 final class ContactSubjectResolver implements SubjectResolverInterface
@@ -83,377 +83,369 @@ final class ContactSubjectResolver implements SubjectResolverInterface
 }
 ```
 
-**`resolve()` nimmt eine Liste, keine einzelne ID.** Die `SubjectResolverRegistry`
-gruppiert nach Typ und ruft jeden Resolver **genau einmal** auf — eine Timeline
-mit 50 Einträgen über drei Module kostet drei Aufrufe, nicht 50.
+**`resolve()` takes a list, not a single ID.** The `SubjectResolverRegistry`
+groups by type and calls each resolver **exactly once** — a timeline with 50
+entries across three modules costs three calls, not 50.
 
-**`search()` gehört dazu**, obwohl es nach „auflösen" klingt: wer etwas an ein
-Subjekt hängen will, muss vorher eines auswählen können. Ohne diese Methode
-müsste jedes solche Modul die konkreten Finder von `contact`, `company` und
-`deal` kennen — der Extension-Point wäre nur halb.
+**`search()` belongs here**, even though it sounds like the opposite of
+"resolve": whoever wants to attach something to a subject must be able to pick
+one first. Without this method every such module would have to know the
+concrete finders of `contact`, `company` and `deal` — the extension point would
+only be half of one.
 
-Fehlt ein Resolver, fehlt der Eintrag im Ergebnis. Die Timeline zeigt dann
-„Bezug nicht auflösbar" — die Historie bleibt, nur der Name fehlt.
+If a resolver is missing, the entry is missing from the result. The timeline
+then shows "Reference not resolvable" — the history stays, only the name is
+gone.
 
-**Der Beleg, dass der Schnitt trägt:** das `search`-Modul besitzt **keine
-eigene Tabelle und keine Migration**. Es fragt nur die Registry und sortiert.
-Ein neues Modul wird durchsuchbar, indem es einen Resolver mitbringt — `search`
-erfährt davon nichts.
+**The proof that the cut holds:** the `search` module has **no table of its own
+and no migration**. It only asks the registry and sorts. A new module becomes
+searchable by bringing a resolver along — `search` never hears about it.
 
-### Wie Modulrouten geladen werden
+### How module routes are loaded
 
-Über die Liste der **registrierten Bundles** in
-[`src/Kernel.php`](src/Kernel.php), nicht über einen Glob auf `modules/`:
+Through the list of **registered bundles** in
+[`src/Kernel.php`](src/Kernel.php), not through a glob over `modules/`:
 
 ```php
 foreach ($this->getBundles() as $bundle) {
     if (!$bundle instanceof CrmModuleInterface) {
         continue;
     }
-    // ... <bundle-pfad>/config/routes.php importieren
+    // ... import <bundle-path>/config/routes.php
 }
 ```
 
-Ein Glob läse das Dateisystem, während die Registrierung über
-`config/bundles.php` läuft — beides kann auseinanderlaufen. Ein deregistriertes
-Modul behielte seine Routen und der erste Aufruf endete mit
-*„has no container set"*, also **500 statt 404**.
+A glob would read the file system while registration runs through
+`config/bundles.php` — the two can drift apart. A deregistered module would keep
+its routes and the first call would end in *"has no container set"*, that is
+**500 instead of 404**.
 
-Der Filter auf `CrmModuleInterface` ist nicht optional: Fremdbundles bringen
-ebenfalls `config/routes.php` mit. `LiveComponentBundle` etwa wird von
-`config/routes/ux_live_component.yaml` bereits mit dem Präfix `/_components`
-importiert; ein zweiter Import ohne Präfix erzeugt
-`/{_live_component}/{_live_action}` — eine Route, die **jeden einteiligen Pfad
-schluckt**. Abgesichert durch
+The filter on `CrmModuleInterface` is not optional: third-party bundles ship
+`config/routes.php` too. `LiveComponentBundle`, for one, is already imported by
+`config/routes/ux_live_component.yaml` with the prefix `/_components`; a second
+import without the prefix produces `/{_live_component}/{_live_action}` — a route
+that **swallows every single-segment path**. Guarded by
 [`tests/Smoke/RoutingTest.php`](tests/Smoke/RoutingTest.php).
 
-### Modularitätstest
+### Modularity test
 
-Ein Modul muss sich entfernen lassen, ohne dass die Anwendung bricht:
+A module must be removable without breaking the application:
 
 ```bash
-# 1. Aus config/bundles.php austragen
+# 1. remove it from config/bundles.php
 # 2. composer remove crm/user-module
 make fresh
 ```
 
-Erwartung: Die Anwendung **degradiert, sie crasht nicht**. `/contacts` liefert
-weiter 200, `/login` und `/users` liefern **404** (nicht 500), das Menü zeigt
-den Eintrag des Moduls nicht mehr, und `UserFinderInterface` fällt auf
-`NullUserFinder` zurück.
+Expectation: the application **degrades, it does not crash**. `/contacts` still
+returns 200, `/login` and `/users` return **404** (not 500), the menu no longer
+shows the module's entry, and `UserFinderInterface` falls back to
+`NullUserFinder`.
 
-### Optionale Extension-Points
+### Optional extension points
 
-Ein Modul, das `UserFinderInterface` injiziert, darf dadurch nicht das
-`user`-Modul zur Pflicht machen. Deshalb liefert der Shared Kernel für solche
-Verträge eine **Null-Implementierung als Vorgabe**, die das jeweilige Modul
-überschreibt:
+A module that injects `UserFinderInterface` must not thereby make the `user`
+module mandatory. For such contracts the shared kernel therefore ships a **null
+implementation as the default**, which the module in question overrides:
 
-| Vertrag | Vorgabe im Shared Kernel | Ersetzt durch |
+| Contract | Default in the shared kernel | Replaced by |
 | --- | --- | --- |
-| `UserFinderInterface` | `NullUserFinder` (findet niemanden) | `user` |
-| `crm.security.user_provider` | `NullUserProvider` (kennt niemanden) | `user` |
-| `CompanyFinderInterface` | `NullCompanyFinder` (findet nichts) | `company` |
-| `ContactFinderInterface` | `NullContactFinder` (findet nichts) | `contact` |
+| `UserFinderInterface` | `NullUserFinder` (finds nobody) | `user` |
+| `crm.security.user_provider` | `NullUserProvider` (knows nobody) | `user` |
+| `CompanyFinderInterface` | `NullCompanyFinder` (finds nothing) | `company` |
+| `ContactFinderInterface` | `NullContactFinder` (finds nothing) | `contact` |
 
-### Die fünf Extension-Points
+### The five extension points
 
-Ein Modul dockt an, indem es ein Interface implementiert — mehr nicht. Die
-Autoconfiguration im `CrmSharedKernelBundle` übernimmt die Registrierung, und
-kein bestehendes Modul erfährt davon.
+A module plugs in by implementing an interface — nothing more. The
+autoconfiguration in `CrmSharedKernelBundle` handles registration, and no
+existing module hears about it.
 
-| Interface | Wozu | Registry |
+| Interface | What for | Registry |
 | --- | --- | --- |
-| `MenuProviderInterface` | Navigationseinträge | `MenuRegistry` |
-| `CrmModuleInterface` | Selbstbeschreibung (Name, Version, Abhängigkeiten) | `ModuleRegistry` |
-| `SubjectResolverInterface` | Datensätze als polymorphes Ziel verweisbar machen | `SubjectResolverRegistry` |
-| `MetricProviderInterface` | Kennzahlen für die Übersicht | `MetricRegistry` |
-| `RecordOwnershipInterface` | Wem ein Datensatz gehört, und in welchen Spalten | `OwnershipRegistry` |
+| `MenuProviderInterface` | Navigation entries | `MenuRegistry` |
+| `CrmModuleInterface` | Self-description (name, version, dependencies) | `ModuleRegistry` |
+| `SubjectResolverInterface` | Make records referenceable as a polymorphic target | `SubjectResolverRegistry` |
+| `MetricProviderInterface` | Figures for the overview | `MetricRegistry` |
+| `RecordOwnershipInterface` | Who owns a record, and in which columns | `OwnershipRegistry` |
 
-Ein Test in `CrmSharedKernelBundleTest` prüft diese Liste **abschließend** —
-ein sechster Extension-Point lässt ihn rot werden. Das ist Absicht: die
-öffentliche Schnittstelle soll nicht nebenbei wachsen.
+A test in `CrmSharedKernelBundleTest` checks this list **exhaustively** — a
+sixth extension point turns it red. That is deliberate: the public interface
+should not grow by accident.
 
-**Kennzahlen kommen fertig aggregiert.** Das Dashboard rechnet nichts und
-fragt keine fremde Tabelle ab — jedes Modul zählt selbst, mit den Abfragen
-die es ohnehin hat. Deshalb ist `Metric::$value` eine Zeichenkette: ein
-Geldbetrag, eine Prozentangabe und eine Anzahl haben nichts gemeinsam außer
-dass sie angezeigt werden.
+**Figures arrive pre-aggregated.** The dashboard computes nothing and queries no
+foreign table — every module counts for itself, using the queries it has anyway.
+That is why `Metric::$value` is a string: an amount of money, a percentage and a
+count have nothing in common except that they get displayed.
 
-Das funktioniert, weil der `shared-kernel` in `config/bundles.php` **vor** den
-Modulen steht und die spätere Service-Definition gewinnt. Ohne das Modul
-degradiert die Anwendung, statt beim Container-Build zu scheitern.
+This works because the `shared-kernel` sits **before** the modules in
+`config/bundles.php` and the later service definition wins. Without the module
+the application degrades instead of failing at container build time.
 
-**Eine Ausnahme, die Symfony erzwingt:** `security.firewalls` ist ein
-prototypisierter Knoten und muss vollständig aus *einer* Konfigurationsdatei
-kommen — ein `prependExtension()` aus dem Modul bricht mit
-„You are not allowed to define new elements for path security.firewalls" ab.
-Die Firewall steht deshalb in `config/packages/security.yaml` und verweist auf
-die feste Service-ID oben, mit literalen Pfaden statt Routennamen.
+**One exception Symfony forces on us:** `security.firewalls` is a prototyped
+node and must come in full from *one* configuration file — a
+`prependExtension()` from the module aborts with "You are not allowed to define
+new elements for path security.firewalls". The firewall therefore lives in
+`config/packages/security.yaml` and points at the fixed service ID above, using
+literal paths instead of route names.
 
-Das ist keine Vereinbarung, sondern ein CI-Gate:
+This is not an agreement but a CI gate:
 
 ```bash
 make arch     # deptrac analyse --report-uncovered --fail-on-uncovered
 ```
 
-Der Lauf muss **0 Violations und 0 Uncovered** melden. `--fail-on-uncovered`
-ist der wichtigere Schalter: er fängt auch den Fall ab, dass jemand ein neues
-Modul anlegt und vergisst, es in `deptrac.yaml` einzutragen.
+The run must report **0 violations and 0 uncovered**. `--fail-on-uncovered` is
+the more important switch: it also catches the case where somebody adds a new
+module and forgets to enter it in `deptrac.yaml`.
 
-### Rechte
+### Permissions
 
-Zwei Mechanismen, die verschiedene Fragen beantworten. Beide werden gebraucht
-— wer einen weglässt, hat ein Loch.
+Two mechanisms answering different questions. Both are needed — leave one out
+and you have a hole.
 
-| | Frage | Wo |
+| | Question | Where |
 | --- | --- | --- |
-| **Voter** | Darf dieser Benutzer *diesen* Datensatz? | `#[IsGranted]` am Controller |
-| **Doctrine-Filter** | Welche Zeilen bekommt er überhaupt geladen? | `RecordVisibilityFilter`, in SQL |
+| **Voter** | May this user have *this* record? | `#[IsGranted]` on the controller |
+| **Doctrine filter** | Which rows does he get loaded at all? | `RecordVisibilityFilter`, in SQL |
 
-Der Voter allein reicht für Listen nicht: eine Seite mit fünfzig Zeilen würde
-fünfzig Mal abstimmen, und die Zeilen wären zu dem Zeitpunkt längst geladen.
-Der Filter allein reicht nicht, weil er nur Abfragen einschränkt.
+The voter alone is not enough for lists: a page with fifty rows would vote fifty
+times, and by then the rows would long since be loaded. The filter alone is not
+enough because it only constrains queries.
 
-**Das Attribut heißt `modul.aktion`**, kleingeschrieben:
+**The attribute is named `module.action`**, lower case:
 
 ```php
-#[IsGranted('deal.view')]                  // Listenseite: darf er das Modul?
-#[IsGranted('deal.view', subject: 'deal')] // Detailseite: darf er den Datensatz?
+#[IsGranted('deal.view')]                  // list page: may he have the module?
+#[IsGranted('deal.view', subject: 'deal')] // detail page: may he have the record?
 ```
 
-Ein einzelnes Wort als `subject:` wäre von Symfony als *Controller-Argument*
-gelesen worden — daher das zusammengesetzte Attribut statt zweier Parameter.
+A single word as `subject:` would have been read by Symfony as a *controller
+argument* — hence the compound attribute instead of two parameters.
 
-**Die Rechtematrix** (`PermissionMatrix::default()`) ordnet Rolle → Modul →
-Aktion einen Scope zu: `all`, `team` oder `own`. Ein benannter Moduleintrag
-fällt **nicht** auf den Platzhalter `*` zurück — sonst ließe sich „dieses Modul
-darf niemand" gar nicht ausdrücken, und die Benutzerverwaltung war für alle
-sichtbar.
+**The permission matrix** (`PermissionMatrix::default()`) maps role → module →
+action to a scope: `all`, `team` or `own`. A named module entry does **not** fall
+back to the wildcard `*` — otherwise "nobody may have this module" could not be
+expressed at all, and user administration was visible to everyone.
 
-**Ein Modul macht mit**, indem es `RecordOwnershipInterface` implementiert:
-Modulname, Besitzer und Team eines Objekts — plus die Spaltennamen für den
-Filter. Die Spalten stehen dort und **nicht als Attribut an der Entity**: die
-Domain-Schicht hängt an nichts, und ein Attribut aus dem Shared Kernel wäre
-genau so eine Abhängigkeit. Ein Modul ohne Implementierung hat keine
-Besitzverhältnisse — seine Daten gehören allen, was für Stammdaten wie Firmen
-und Kontakte richtig ist.
+**A module joins in** by implementing `RecordOwnershipInterface`: module name,
+owner and team of an object — plus the column names for the filter. The columns
+live there and **not as an attribute on the entity**: the domain layer depends on
+nothing, and an attribute from the shared kernel would be exactly such a
+dependency. A module without an implementation has no ownership — its data
+belongs to everyone, which is right for master data like companies and contacts.
 
-Zwei Fallen, die Zeit gekostet haben:
+Two traps that cost time:
 
-- **Der Filter ist ohne seinen Configurator wirkungslos.** Er wird pro Request
-  von `RecordVisibilityConfigurator` scharfgeschaltet und parametrisiert. Fehlt
-  der als Service-Definition, sieht die Anwendung völlig normal aus — sie zeigt
-  nur zu viel. Deshalb prüft `RecordVisibilityTest` mit echten Requests, dass
-  zwei Benutzer denselben Datensatz **unterschiedlich** zu sehen bekommen.
-- **In Funktionstests muss die Identity Map geleert werden.** Der
-  `KernelBrowser` startet den Kernel vor dem *ersten* Request nicht neu; ein
-  soeben angelegter Datensatz liegt dann noch im EntityManager und wird ohne
-  SQL — also ohne Filter — zurückgegeben. `SignsIn::signIn()` erledigt das.
+- **The filter is useless without its configurator.** It is armed and
+  parameterised per request by `RecordVisibilityConfigurator`. If that is missing
+  as a service definition, the application looks entirely normal — it just shows
+  too much. That is why `RecordVisibilityTest` uses real requests to check that
+  two users see the same record **differently**.
+- **Functional tests have to clear the identity map.** The `KernelBrowser` does
+  not reboot the kernel before the *first* request; a record created moments ago
+  is then still in the EntityManager and is returned without SQL — and therefore
+  without the filter. `SignsIn::signIn()` takes care of it.
 
-### Dateien
+### Files
 
-Dokumente hängen wie Aktivitäten an einem **polymorphen Verweis** — Typ plus
-ID, kein Fremdschlüssel. Das Modul weiß nicht, was ein Kontakt ist.
+Documents hang off a **polymorphic reference** just like activities — type plus
+ID, no foreign key. The module does not know what a contact is.
 
-Die Datei selbst liegt im Objektspeicher, in der Datenbank steht nur, wo.
-Lokal ist das MinIO aus [compose.yaml](compose.yaml), in Produktion S3, R2 oder
-Hetzner — derselbe Adapter, andere Werte aus der Umgebung. In Tests ein
-lokales Verzeichnis, damit die Suite ohne laufenden Container durchläuft.
+The file itself lives in object storage; the database only records where. Locally
+that is the MinIO from [compose.yaml](compose.yaml), in production S3, R2 or
+Hetzner — same adapter, different values from the environment. In tests a local
+directory, so the suite runs without a container.
 
-Drei Entscheidungen, die man kennen sollte:
+Three decisions worth knowing about:
 
-- **Der Speicherschlüssel hat nichts mit dem Dateinamen zu tun.** Er lautet
-  `<typ>/<jahr>/<monat>/<uuid>`. Aus dem Dateinamen abgeleitet hätte er zwei
-  Probleme, von denen das zweite das schlimmere ist: zwei Benutzer würden sich
-  gegenseitig überschreiben, und wer den Dateinamen kennt, kennt den
-  Speicherort.
-- **Erst die Datei, dann die Datenbankzeile** — und beim Scheitern wird die
-  Datei wieder gelöscht. Es gibt keine gemeinsame Transaktion, also entscheidet
-  die Reihenfolge, welcher Fehlerfall übrig bleibt: eine verwaiste Datei ist
-  aufräumbar, ein Eintrag ohne Datei zeigt dem Benutzer etwas, das beim Klick
-  nicht existiert.
-- **Der Download läuft durch die Anwendung**, nicht über eine Bucket-URL. Eine
-  öffentliche URL wäre billiger, würde aber die Rechte aushebeln: wer den Link
-  hat, hätte die Datei. Ausgeliefert wird immer als `attachment` mit
-  `X-Content-Type-Options: nosniff` — eine hochgeladene HTML- oder SVG-Datei
-  liefe sonst im Ursprung der Anwendung.
+- **The storage key has nothing to do with the file name.** It reads
+  `<type>/<year>/<month>/<uuid>`. Derived from the file name it would have two
+  problems, the second being the worse: two users would overwrite each other, and
+  whoever knows the file name knows the storage location.
+- **File first, database row second** — and on failure the file is deleted again.
+  There is no shared transaction, so the order decides which failure mode is left
+  over: an orphaned file can be cleaned up, an entry without a file shows the user
+  something that does not exist when clicked.
+- **The download runs through the application**, not through a bucket URL. A
+  public URL would be cheaper but would defeat permissions: whoever has the link
+  would have the file. Delivery is always `attachment` with
+  `X-Content-Type-Options: nosniff` — an uploaded HTML or SVG file would otherwise
+  run in the application's origin.
 
-Löschen ist per Vorgabe dem Administrator vorbehalten, wie bei Chancen und
-Aktivitäten. Wer das ändern will, ergänzt in `PermissionMatrix::default()`
-einen `document`-Eintrag — das Modul selbst braucht dafür keine Änderung.
+Deleting is reserved for the administrator by default, as with deals and
+activities. To change that, add a `document` entry to
+`PermissionMatrix::default()` — the module itself needs no change.
 
-### Termine und der ICS-Feed
+### Appointments and the ICS feed
 
-**Alle Zeiten sind UTC** — in der Datenbank, im Speicher, im Feed. Die
-Umrechnung passiert an genau zwei Stellen: beim Lesen der Eingabe (der
-Controller nimmt `Europe/Berlin` an) und beim Anzeigen. Dazwischen nie.
+**All times are UTC** — in the database, in memory, in the feed. Conversion
+happens in exactly two places: when reading input (the controller assumes
+`Europe/Berlin`) and when displaying. Never in between.
 
-Ein `datetime-local`-Feld liefert Ortszeit *ohne* Zeitzone — welche gemeint
-ist, weiß der Browser, sagt es aber nicht. Die Annahme steht deshalb an einer
-Stelle im Controller und ist der Ort, an dem eine Zeitzone je Benutzer
-andocken würde.
+A `datetime-local` field delivers local time *without* a time zone — which one is
+meant is known to the browser, but it does not say. The assumption therefore sits
+in one place in the controller and is where a per-user time zone would plug in.
 
-**Ganztägige Termine sind Daten, keine Zeitpunkte.** Wer sie erst nach UTC
-umrechnet und dann die Uhrzeit abschneidet, verliert östlich von Greenwich
-einen Tag: aus Mitternacht in Berlin wird 22:00 des Vortags. Im ICS stehen sie
-als `VALUE=DATE` ganz ohne Zeitzone, und `DTEND` ist der **Folgetag** — mit
-23:59:59 zeigt Outlook den Termin über zwei Tage.
+**All-day appointments are dates, not points in time.** Converting them to UTC
+first and truncating the time afterwards loses a day east of Greenwich: midnight
+in Berlin becomes 22:00 the day before. In ICS they appear as `VALUE=DATE`
+without any time zone, and `DTEND` is the **following day** — with 23:59:59
+Outlook shows the appointment across two days.
 
-#### Der öffentliche Bereich
+#### The public area
 
-Outlook, Google und Apple rufen den Feed ohne Sitzung ab und können keine
-bekommen. Ihr einziger Ausweis ist ein Token in der URL. Solche Endpunkte
-liegen unter dem generischen Präfix `/oeffentlich/`, das
-[security.yaml](config/packages/security.yaml) freigibt — generisch, damit der
-Core nicht weiß, welche Module ihn nutzen. Später kommen Abmeldelinks und
-Webhooks dazu.
+Outlook, Google and Apple fetch the feed without a session and cannot get one.
+Their only credential is a token in the URL. Such endpoints live under the
+generic prefix `/public/`, which
+[security.yaml](config/packages/security.yaml) opens up — generic, so that the
+core does not know which modules use it. Unsubscribe links and webhooks will join
+them later.
 
-Der Grund für den Umweg: `security.access_control` lässt sich — wie
-`security.firewalls` — **nicht** aus einem Modul heraus prependen. Symfony
-bricht mit „cannot be overwritten" ab. Ein Test im calendar-Modul hält fest,
-dass wir es gar nicht erst versuchen.
+The reason for the detour: `security.access_control`, like
+`security.firewalls`, **cannot** be prepended from a module. Symfony aborts with
+"cannot be overwritten". A test in the calendar module records that we do not
+even try.
 
-Was daraus für den Feed folgt:
+What follows for the feed:
 
-- Gespeichert wird nur der **SHA-256-Hash** des Tokens, gesucht wird danach.
-  Wer die Datenbank liest, kann keinen Feed abrufen.
-- Die URL wird **einmal** angezeigt. Danach nie wieder — sonst wäre der Hash
-  Dekoration. Wer sie verliert, erzeugt eine neue; die alte ist sofort wertlos.
-- Der Feed enthält **nur die Termine seines Besitzers**, ausdrücklich in der
-  Abfrage. Der Doctrine-Sichtbarkeitsfilter hilft hier nicht: ohne
-  angemeldeten Benutzer ist er abgeschaltet. Wer sich auf ihn verließe,
-  lieferte die Termine aller Benutzer aus.
-- Ein unbekanntes Token bekommt **404 ohne Erklärung**. Ein „Token abgelaufen"
-  wäre die Bestätigung, dass es das Token gab.
+- Only the **SHA-256 hash** of the token is stored, and that is what is looked
+  up. Reading the database gets you no feed.
+- The URL is shown **once**. Never again afterwards — otherwise the hash would be
+  decoration. Lose it and you generate a new one; the old one is worthless
+  immediately.
+- The feed contains **only its owner's appointments**, stated explicitly in the
+  query. The Doctrine visibility filter does not help here: without a signed-in
+  user it is switched off. Relying on it would serve every user's appointments.
+- An unknown token gets **404 without explanation**. A "token expired" would
+  confirm that the token once existed.
 
-### Sprachen
+### Languages
 
-**Englisch ist die Standardsprache**, Deutsch die zweite. Die Liste steht an
-zwei Orten, die zusammenpassen müssen — `enabled_locales` in
-[translation.yaml](config/packages/translation.yaml) und die Aufzählung
-`Crm\SharedKernel\Localization\Locale`. Ein Test hält beide zusammen, denn
-laufen sie auseinander, zeigt die Anwendung eine andere Sprache an, als der
-Umschalter behauptet.
+**English is the default language**, German the second. The list lives in two
+places that must agree — `enabled_locales` in
+[translation.yaml](config/packages/translation.yaml) and the enum
+`Crm\SharedKernel\Localization\Locale`. A test holds them together, because if
+they drift apart the application shows a different language than the switcher
+claims.
 
-Die Wahl hängt **am Konto**, nicht an der Sitzung: sie soll auch nach dem
-nächsten Anmelden gelten und später für Mails, bei denen es keine Sitzung
-gibt. `null` in der Spalte heißt „nie gewählt" — der Unterschied zu `'en'`
-zählt, wenn sich die Standardsprache einmal ändert.
+The choice lives **on the account**, not in the session: it should still apply
+after the next sign-in, and later for emails, where there is no session. `null`
+in the column means "never chosen" — the difference from `'en'` matters if the
+default language ever changes.
 
-Die Kette ist länger, als sie aussieht:
+The chain is longer than it looks:
 
 ```
-Konto → SecurityUser → ActorInterface → ActorLocaleListener
-                                          ├→ Request
-                                          └→ LocaleSwitcher → Übersetzer
+Account → SecurityUser → ActorInterface → ActorLocaleListener
+                                            ├→ Request
+                                            └→ LocaleSwitcher → translator
 ```
 
-Der Listener läuft bei **Priority 5**, also *nach* der Firewall (8) — vorher
-gibt es keinen angemeldeten Benutzer. Damit kommt er zu spät für Symfonys
-`LocaleAwareListener` (15) und setzt deshalb beides selbst. Nur eines von
-beidem zu setzen ergibt eine Anwendung, die halb übersetzt ist, und zwar je
-nach Stelle unterschiedlich.
+The listener runs at **priority 5**, that is *after* the firewall (8) — before
+that there is no signed-in user. That makes it too late for Symfony's
+`LocaleAwareListener` (15), so it sets both itself. Setting only one of the two
+produces an application that is half translated, and differently so depending on
+where you look.
 
-**Texte gehören zum Modul.** Jedes Modul bringt sein eigenes `translations/`
-mit; Symfony lädt es automatisch, weil die Module Bundles sind. Der Core hat
-nur den Katalog für das Grundlayout.
+**Texts belong to the module.** Every module brings its own `translations/`;
+Symfony loads it automatically because the modules are bundles. The core only
+holds the catalogue for the shell layout.
 
-**Beschriftungen sind Schlüssel, keine Texte.** Menüeinträge, Kennzahlen und
-Suchtreffer entstehen in der Infrastructure-Schicht der Module — und die darf
-Symfony nicht sehen. Ein injizierter Übersetzer wäre genau diese Abhängigkeit.
-Also reichen die Module Schlüssel und Platzhalter weiter, und übersetzt wird im
-Template. Wo Daten und Übersetzung sich mischen — „Nordwind Logistik ·
-Angebot" —, gibt es `TranslatableText` mit verschachtelten Platzhaltern.
+**Labels are keys, not texts.** Menu entries, figures and search hits are created
+in the infrastructure layer of the modules — and that layer must not see Symfony.
+An injected translator would be exactly that dependency. So the modules pass keys
+and placeholders along, and translation happens in the template. Where data and
+translation mix — "Nordwind Logistik · Proposal" — there is `TranslatableText`
+with nested placeholders.
 
-**Zahlen und Daten folgen der Sprache**, nicht dem Template: `format_date`,
-`format_datetime` und `format_currency` aus `twig/intl-extra` statt
-`date('d.m.Y')`. Für Geldbeträge trägt `Metric` einen Währungscode — nur dann
-formatiert das Dashboard um. Prozentwerte und Anzahlen nach Währungsregeln zu
-behandeln wäre schlimmer als gar nichts.
+**Numbers and dates follow the language**, not the template: `format_date`,
+`format_datetime` and `format_currency` from `twig/intl-extra` instead of
+`date('d.m.Y')`. For amounts of money `Metric` carries a currency code — only
+then does the dashboard reformat. Treating percentages and counts by currency
+rules would be worse than nothing.
 
-**URLs und Formularfelder sind englisch**, weil Englisch die Standardsprache
-ist: `/calendar`, `/documents/for/{type}/{id}`, `name="start"`. Übersetzte
-Routen (`/de/kalender`) gibt es bewusst nicht — sie hätten den ICS-Feed-Pfad
-verdoppelt, den externe Kalender dauerhaft speichern.
+**URLs and form fields are English**, because English is the default language:
+`/calendar`, `/documents/for/{type}/{id}`, `name="start"`. Localised routes
+(`/de/kalender`) are deliberately absent — they would have doubled the ICS feed
+path, which external calendars store permanently.
 
-### Coverage-Gate
+### Coverage gate
 
-Mindestens **80 % Zeilenabdeckung**, erzwungen in der CI durch
-[`tools/coverage-gate.php`](tools/coverage-gate.php). PHPUnit selbst kennt kein
-„fail under" — das Skript liest den Clover-Report und bricht ab, wenn die
-Schwelle gerissen ist. Bei rotem Gate listet es die schwächsten Dateien auf.
+At least **80 % line coverage**, enforced in CI by
+[`tools/coverage-gate.php`](tools/coverage-gate.php). PHPUnit itself has no
+"fail under" — the script reads the Clover report and aborts when the threshold
+is missed. On a red gate it lists the weakest files.
 
-Die Schwelle steht an zwei Stellen und muss zusammen gepflegt werden:
-`COVERAGE_MIN` im [Makefile](Makefile) und in
+The threshold lives in two places and has to be maintained together:
+`COVERAGE_MIN` in the [Makefile](Makefile) and in
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-**Die Schwelle wird nie gesenkt, um einen Build grün zu bekommen.** Wer sie
-reißt, schreibt Tests.
+**The threshold is never lowered to make a build green.** Whoever misses it
+writes tests.
 
-### Verweise über Modulgrenzen
+### References across module boundaries
 
-Ein Kontakt gehört zu einer Firma — aber `contact` und `company` sind getrennte
-Module. Die Regel dafür, am Beispiel:
+A contact belongs to a company — but `contact` and `company` are separate
+modules. The rule for that, by example:
 
-| | so **nicht** | sondern |
+| | **not** like this | but like this |
 | --- | --- | --- |
-| Spalte | `ManyToOne` auf `Company` | `company_id UUID NULL`, **ohne** Foreign Key |
-| Lesen | `$contact->company()->name()` | `CompanyFinderInterface::findMany()` |
-| Prüfen | Datenbank-Constraint | `CompanyFinderInterface::exists()` im Use-Case |
-| Suchen | `JOIN company_companies` | Name → IDs auflösen, dann eigene Tabelle filtern |
+| Column | `ManyToOne` to `Company` | `company_id UUID NULL`, **without** a foreign key |
+| Reading | `$contact->company()->name()` | `CompanyFinderInterface::findMany()` |
+| Checking | database constraint | `CompanyFinderInterface::exists()` in the use case |
+| Searching | `JOIN company_companies` | resolve name → IDs, then filter the own table |
 
-**Kein Foreign Key ist Absicht.** Ein Constraint über die Modulgrenze würde
-beide Module aneinanderketten — `company` ließe sich nicht mehr entfernen, ohne
-die `contact`-Tabelle zu zerlegen. Der Preis: die Datenbank garantiert die
-Gültigkeit nicht. Eine `company_id` kann ins Leere zeigen, und das ist ein
-**normaler Zustand**, kein Fehler — die Firma wurde gelöscht, oder das Modul ist
-nicht installiert. Aufrufer bekommen dann `null`.
+**No foreign key is deliberate.** A constraint across the module boundary would
+chain both modules together — `company` could no longer be removed without taking
+the `contact` table apart. The price: the database does not guarantee validity. A
+`company_id` can point nowhere, and that is a **normal state**, not an error —
+the company was deleted, or the module is not installed. Callers get `null`.
 
-**Suchen ohne Join.** „Zeig mir alle Kontakte von Nordwind" beantwortet
-`contact` in zwei Schritten: erst den Begriff über `searchByName()` zu Firmen-IDs
-auflösen, dann die eigene Tabelle danach filtern. Zwei Abfragen statt eines
-Joins, dafür bleibt die Grenze intakt. Das Repository erfährt nie, was eine
-Firma ist — es filtert auf eine Spalte.
+**Searching without a join.** "Show me all contacts of Nordwind" is answered by
+`contact` in two steps: first resolve the term to company IDs via
+`searchByName()`, then filter its own table by them. Two queries instead of one
+join, and the boundary stays intact. The repository never learns what a company
+is — it filters on a column.
 
-**N+1 vermeiden.** Die Liste löst alle Firmen der Seite in *einem*
-`findMany()`-Aufruf auf, nicht pro Zeile. Über eine Modulgrenze ist ein N+1
-besonders teuer; ein Test hält das fest.
+**Avoiding N+1.** The list resolves all companies on the page in *one*
+`findMany()` call, not per row. Across a module boundary an N+1 is especially
+expensive; a test records that.
 
-### Schichten innerhalb eines Moduls
+### Layers inside a module
 
-| Schicht          | darf sehen                              |
-| ---------------- | --------------------------------------- |
-| `Domain`         | nichts (nur Mapping-Attribute und Uuid) |
-| `Application`    | `Domain`                                |
-| `Infrastructure` | `Domain`, `Application`, Doctrine       |
-| `UI`             | `Domain`, `Application`, `shared-kernel` |
+| Layer            | may see                                      |
+| ---------------- | -------------------------------------------- |
+| `Domain`         | nothing (only mapping attributes and Uuid)   |
+| `Application`    | `Domain`                                     |
+| `Infrastructure` | `Domain`, `Application`, Doctrine            |
+| `UI`             | `Domain`, `Application`, `shared-kernel`     |
 
-## Befehle
+## Commands
 
-`make` ohne Argument zeigt die Liste.
+`make` without an argument prints the list.
 
-| Befehl         | Wirkung                                                  |
-| -------------- | -------------------------------------------------------- |
-| `make fresh`   | up + install + migrate + seed, gibt die URLs aus          |
-| `make up/down` | Container starten / stoppen                               |
-| `make build`   | Images neu bauen                                          |
-| `make sh`      | Shell im PHP-Container                                    |
-| `make logs`    | Logs folgen                                               |
-| `make install` | `composer install` im Container                           |
-| `make migrate` | Migrationen anwenden                                      |
-| `make seed`    | Beispielkontakte anlegen                                  |
-| `make test`    | PHPUnit über alle Modul-Suites (legt die Test-DB mit an)  |
-| `make coverage`| PHPUnit mit Coverage, failt unter `COVERAGE_MIN` Prozent   |
-| `make stan`    | PHPStan Level 8                                           |
-| `make arch`    | Deptrac                                                   |
-| `make ci`      | alle Gates in CI-Reihenfolge                              |
-| `make reset`   | Container **und** DB-Volume löschen — Daten sind dann weg |
+| Command        | Effect                                                    |
+| -------------- | --------------------------------------------------------- |
+| `make fresh`   | up + install + migrate + seed, prints the URLs             |
+| `make up/down` | start / stop containers                                    |
+| `make build`   | rebuild images                                             |
+| `make sh`      | shell in the PHP container                                 |
+| `make logs`    | follow logs                                                |
+| `make install` | `composer install` in the container                        |
+| `make migrate` | apply migrations                                           |
+| `make seed`    | create sample records                                      |
+| `make test`    | PHPUnit across all module suites (creates the test DB too)  |
+| `make coverage`| PHPUnit with coverage, fails below `COVERAGE_MIN` percent   |
+| `make stan`    | PHPStan level 8                                            |
+| `make arch`    | Deptrac                                                    |
+| `make ci`      | all gates in CI order                                      |
+| `make reset`   | delete containers **and** the DB volume — data is gone then |
 
-### Debuggen
+### Debugging
 
-Xdebug ist im Dev-Image installiert, aber aus (`XDEBUG_MODE=off`), weil es
-sonst jeden Request bremst. Anschalten:
+Xdebug is installed in the dev image but switched off (`XDEBUG_MODE=off`),
+because it slows down every request otherwise. To turn it on:
 
 ```bash
 XDEBUG_MODE=debug make up
@@ -461,24 +453,31 @@ XDEBUG_MODE=debug make up
 
 ## Stack
 
-Symfony 7.4 LTS · PHP 8.4 · PostgreSQL 17 · FrankenPHP (Worker-Mode in Prod) ·
+Symfony 7.4 LTS · PHP 8.4 · PostgreSQL 17 · FrankenPHP (worker mode in prod) ·
 Twig + UX Live Components · PHPStan 8 · Deptrac · PHPUnit
 
-## Aufbau
+## Layout
 
 ```
-src/                     App\  — nur Wiring, keine Geschäftslogik
-templates/base.html.twig Layout; rendert die Navigation aus der MenuRegistry
-modules/shared-kernel/   Crm\SharedKernel\  — Verträge, hängt an keinem Modul
-modules/contact/         Crm\Contact\       — Referenzmodul
-migrations/              zentral, weil die Reihenfolge global sein muss
+src/                     App\  — wiring only, no business logic
+templates/base.html.twig layout; renders the navigation from the MenuRegistry
+modules/shared-kernel/   Crm\SharedKernel\  — contracts, depends on no module
+modules/contact/         Crm\Contact\       — reference module
+migrations/              central, because the order has to be global
 ```
 
-### Zwei Dinge, die überraschen können
+### Two things that can surprise you
 
-- **Die `composer.lock` wird lokal unter PHP 8.3 aufgelöst, der Container läuft
-  8.4.** Das ist unkritisch (8.3-kompatible Pakete laufen auf 8.4), aber wer
-  reproduzierbar auflösen will, macht das in `make sh`.
-- **Flex überschreibt `config/bundles.php`** bei jedem `composer require` und
-  wirft dabei die Kommentare weg. Nach größeren Composer-Operationen kurz
-  gegenlesen.
+- **`composer.lock` is resolved locally under PHP 8.3, the container runs 8.4.**
+  That is harmless (8.3-compatible packages run on 8.4), but whoever wants a
+  reproducible resolve does it inside `make sh`.
+- **Flex rewrites `config/bundles.php`** on every `composer require` and throws
+  the comments away in the process. Give it a quick read after larger Composer
+  operations.
+
+### A note on language
+
+Documentation and code comments are English. Commit messages and pull request
+descriptions are German — that is a deliberate split, not an oversight: the code
+is meant to be readable by anyone, the change history is written for the team
+that works here.

@@ -10,10 +10,10 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Macht die Navigation im Layout verfuegbar.
+ * Makes the navigation available to the layout.
  *
- * Die einzige Stelle, an der der Core ueber Module spricht - und auch hier nur
- * ueber die Registry aus dem shared-kernel, nie ueber ein konkretes Modul.
+ * The only place where the core speaks about modules - and even here only
+ * through the registry from the shared kernel, never about a concrete module.
  */
 final class MenuExtension extends AbstractExtension
 {
