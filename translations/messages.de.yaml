@@ -1,0 +1,5 @@
+app:
+    no_modules: 'Kein Modul installiert.'
+    logout: 'Abmelden'
+    language: 'Sprache'
+    apply: 'Übernehmen'

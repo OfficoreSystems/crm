@@ -1,0 +1,7 @@
+# Core catalogue. Deliberately free of module knowledge: every module ships
+# its own translations/ directory and registers it from its bundle class.
+app:
+    no_modules: 'No module installed.'
+    logout: 'Sign out'
+    language: 'Language'
+    apply: 'Apply'

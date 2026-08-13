@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crm\User\Infrastructure\Security;
 
+use Crm\SharedKernel\Localization\Locale;
 use Crm\SharedKernel\Security\ActorInterface;
 use Crm\User\Domain\User;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -30,6 +31,7 @@ final class SecurityUser implements UserInterface, PasswordAuthenticatedUserInte
         private readonly array $roles,
         private string $passwordHash,
         private readonly ?string $teamId,
+        private readonly ?Locale $locale,
     ) {
     }
 
@@ -42,6 +44,7 @@ final class SecurityUser implements UserInterface, PasswordAuthenticatedUserInte
             $user->roles(),
             $user->passwordHash(),
             $user->teamId()?->toString(),
+            $user->locale(),
         );
     }
 
@@ -109,5 +112,10 @@ final class SecurityUser implements UserInterface, PasswordAuthenticatedUserInte
     public function actorRoles(): array
     {
         return $this->roles;
+    }
+
+    public function actorLocale(): ?Locale
+    {
+        return $this->locale;
     }
 }

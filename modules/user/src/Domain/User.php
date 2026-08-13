@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crm\User\Domain;
 
+use Crm\SharedKernel\Localization\Locale;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
@@ -53,6 +54,17 @@ class User
     #[ORM\Column]
     private bool $active;
 
+    /**
+     * Die gewaehlte Sprache, oder null.
+     *
+     * Nullable und nicht "en" als Vorgabe: null heisst "nie gewaehlt". Der
+     * Unterschied zaehlt, wenn sich die Standardsprache der Anwendung einmal
+     * aendert - dann wandern alle mit, die nie etwas ausgesucht haben, und nur
+     * die.
+     */
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $locale;
+
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -75,6 +87,7 @@ class User
         $this->passwordHash = $passwordHash;
         $this->team = $team;
         $this->active = true;
+        $this->locale = null;
         $this->createdAt = $createdAt;
     }
 
@@ -157,6 +170,19 @@ class User
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    /**
+     * Null, solange nie eine Sprache gewaehlt wurde.
+     */
+    public function locale(): ?Locale
+    {
+        return null === $this->locale ? null : Locale::tryFrom($this->locale);
+    }
+
+    public function switchTo(Locale $locale): void
+    {
+        $this->locale = $locale->value;
     }
 
     public function changeEmail(string $email): void
