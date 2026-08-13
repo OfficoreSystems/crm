@@ -63,7 +63,7 @@ security:
         # aus einem Modul heraus prependen ("cannot be overwritten").
         #
         # Wer hier etwas ablegt, uebernimmt die Pruefung selbst.
-        - { path: ^/oeffentlich/, roles: PUBLIC_ACCESS }
+        - { path: ^/public/, roles: PUBLIC_ACCESS }
 
         - { path: ^/, roles: ROLE_USER }
 

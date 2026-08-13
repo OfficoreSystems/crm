@@ -10,6 +10,7 @@ use Crm\Calendar\Application\SubscribeToCalendar;
 use Crm\Calendar\Domain\Appointment;
 use Crm\Calendar\Domain\AppointmentRepositoryInterface;
 use Crm\Calendar\Domain\TimeSpan;
+use Crm\Calendar\Domain\InvalidAppointment;
 use Crm\Calendar\Domain\UnresolvableSubject;
 use Crm\SharedKernel\Security\ActorInterface;
 use Crm\SharedKernel\Subject\ResolvedSubject;
@@ -23,7 +24,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/kalender', name: 'calendar_')]
+#[Route('/calendar', name: 'calendar_')]
 final class CalendarController extends AbstractController
 {
     public function __construct(
@@ -45,7 +46,7 @@ final class CalendarController extends AbstractController
         ]);
     }
 
-    #[Route('/neu', name: 'create', methods: ['POST'])]
+    #[Route('/new', name: 'create', methods: ['POST'])]
     #[IsGranted('calendar.create')]
     public function create(Request $request, ScheduleAppointment $schedule): Response
     {
@@ -53,18 +54,20 @@ final class CalendarController extends AbstractController
 
         try {
             ($schedule)(new ScheduleAppointmentCommand(
-                title: (string) $request->request->get('titel'),
+                title: (string) $request->request->get('title'),
                 when: $this->readTimeSpan($request),
-                description: $request->request->get('beschreibung') ? (string) $request->request->get('beschreibung') : null,
-                location: $request->request->get('ort') ? (string) $request->request->get('ort') : null,
+                description: $request->request->get('description') ? (string) $request->request->get('description') : null,
+                location: $request->request->get('location') ? (string) $request->request->get('location') : null,
                 subject: $this->readSubject($request),
                 ownerId: $this->actorId($actor),
                 ownerTeamId: $this->actorTeamId($actor),
             ));
 
-            $this->addFlash('success', 'Termin eingetragen.');
-        } catch (UnresolvableSubject|\InvalidArgumentException $e) {
-            $this->addFlash('error', $e->getMessage());
+            $this->addFlash('success', 'calendar.form.success');
+        } catch (UnresolvableSubject|InvalidAppointment $e) {
+            // Der uebersetzbare Teil, nicht getMessage() - die Meldung der
+            // Ausnahme ist fuers Log und bleibt englisch.
+            $this->addFlash('error', $e->translatable);
         }
 
         return $this->redirectToRoute('calendar_index');
@@ -78,7 +81,7 @@ final class CalendarController extends AbstractController
      * entweder die volle URL oder den Hinweis, dass er eine neue erzeugen
      * muss.
      */
-    #[Route('/abonnement', name: 'subscription', methods: ['GET', 'POST'])]
+    #[Route('/subscription', name: 'subscription', methods: ['GET', 'POST'])]
     #[IsGranted('calendar.view')]
     public function subscription(Request $request, SubscribeToCalendar $subscribe): Response
     {
@@ -93,10 +96,10 @@ final class CalendarController extends AbstractController
 
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('calendar_feed_'.$userId, (string) $request->request->get('_token'))) {
-                $this->addFlash('error', 'Die Anfrage war nicht gueltig. Bitte erneut versuchen.');
+                $this->addFlash('error', 'calendar.subscription.invalid_token');
             } else {
                 $token = $subscribe->regenerate($userId);
-                $this->addFlash('success', 'Neue Adresse erzeugt. Die alte funktioniert ab sofort nicht mehr.');
+                $this->addFlash('success', 'calendar.subscription.regenerated');
             }
         } else {
             [, $token] = ($subscribe)($userId);
@@ -114,14 +117,14 @@ final class CalendarController extends AbstractController
 
     private function readTimeSpan(Request $request): TimeSpan
     {
-        $allDay = (bool) $request->request->get('ganztaegig');
-        $start = $this->readMoment((string) $request->request->get('beginn'));
+        $allDay = (bool) $request->request->get('all_day');
+        $start = $this->readMoment((string) $request->request->get('start'));
 
         if ($allDay) {
             return TimeSpan::allDay($start);
         }
 
-        return TimeSpan::of($start, $this->readMoment((string) $request->request->get('ende')));
+        return TimeSpan::of($start, $this->readMoment((string) $request->request->get('end')));
     }
 
     /**
@@ -137,13 +140,13 @@ final class CalendarController extends AbstractController
         $raw = trim($raw);
 
         if ('' === $raw) {
-            throw new \InvalidArgumentException('Ohne Beginn laesst sich kein Termin eintragen.');
+            throw InvalidAppointment::withoutStart();
         }
 
         try {
             return new \DateTimeImmutable($raw, new \DateTimeZone(self::INPUT_TIMEZONE));
         } catch (\Exception) {
-            throw new \InvalidArgumentException(sprintf('Mit "%s" laesst sich kein Zeitpunkt anfangen.', $raw));
+            throw InvalidAppointment::unparsable($raw);
         }
     }
 
@@ -158,8 +161,8 @@ final class CalendarController extends AbstractController
 
     private function readSubject(Request $request): ?SubjectRef
     {
-        $type = trim((string) $request->request->get('bezug_typ'));
-        $id = trim((string) $request->request->get('bezug_id'));
+        $type = trim((string) $request->request->get('subject_type'));
+        $id = trim((string) $request->request->get('subject_id'));
 
         return '' === $type || '' === $id ? null : new SubjectRef($type, $id);
     }

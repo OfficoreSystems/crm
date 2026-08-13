@@ -13,7 +13,8 @@ namespace Crm\SharedKernel\Menu;
 final readonly class MenuItem
 {
     /**
-     * @param string $label    Angezeigter Text.
+     * @param string $label    Uebersetzungsschluessel, kein fertiger Text -
+     *                         das Layout ruft ihn durch |trans.
      * @param string $route    Symfony-Routenname, nicht die URL.
      * @param string $icon     Icon-Bezeichner, vom Template interpretiert.
      * @param int    $priority Hoeher = weiter vorne. Gleichstand wird nach Label sortiert.

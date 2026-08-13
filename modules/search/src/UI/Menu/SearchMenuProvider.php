@@ -13,7 +13,7 @@ final class SearchMenuProvider implements MenuProviderInterface
     {
         // Ueber allem: die Suche ist der schnellste Weg zu irgendetwas.
         yield new MenuItem(
-            label: 'Suche',
+            label: 'search.menu',
             route: 'search_index',
             icon: 'search',
             priority: 200,

@@ -1,23 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Übersicht{% endblock %}
+{% block title %}{{ 'dashboard.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Übersicht</h1>
+    <h1>{{ 'dashboard.title'|trans }}</h1>
 
     {# Die Kacheln kommen aus der MetricRegistry. Welche es gibt, entscheiden
        die installierten Module - hier steht kein Modulname. #}
     {% if metrics is empty %}
-        <p class="lede">
-            Kein Modul liefert Kennzahlen. Sobald eines installiert ist, das
-            <code>MetricProviderInterface</code> implementiert, erscheint es hier
-            von selbst.
-        </p>
+        <p class="lede">{{ 'dashboard.empty'|trans|raw }}</p>
     {% else %}
         <p class="lede">
-            {{ metrics|length }} Kennzahlen aus
-            {{ metrics|map(m => m.module)|reduce((carry, m) => m in carry ? carry : carry|merge([m]), [])|length }}
-            Modulen.
+            {{ 'dashboard.summary'|trans({
+                '%metrics%': metrics|length,
+                '%modules%': metrics|map(m => m.module)|reduce((carry, m) => m in carry ? carry : carry|merge([m]), [])|length,
+            }) }}
         </p>
 
         {% if notable is not empty %}
@@ -38,15 +35,29 @@
     {% endif %}
 {% endblock %}
 
+{# Label und Beschreibung sind Uebersetzungsschluessel - uebersetzt wird hier
+   und nicht im Modul. Grund: die Kennzahlen entstehen in der
+   Infrastructure-Schicht, und die darf Symfony nicht sehen. #}
 {% macro tile(metric) %}
     <article class="metric metric--{{ metric.tone.value }}">
-        <p class="metric__label">{{ metric.label }}</p>
-        <p class="metric__value">{{ metric.value }}</p>
+        <p class="metric__label">{{ metric.label|trans(metric.parameters) }}</p>
+        <p class="metric__value">
+            {# Nur Geldbetraege werden umformatiert - Prozentwerte und Anzahlen
+               nach Waehrungsregeln zu behandeln waere schlimmer als gar
+               nichts. #}
+            {% if metric.currency %}
+                {{ metric.value|format_currency(metric.currency) }}
+            {% else %}
+                {{ metric.value }}
+            {% endif %}
+        </p>
         {% if metric.description %}
-            <p class="metric__description">{{ metric.description }}</p>
+            <p class="metric__description">{{ metric.description|trans(metric.parameters) }}</p>
         {% endif %}
         {% if metric.isLinkable %}
-            <a class="metric__link" href="{{ path(metric.route, metric.routeParameters) }}">ansehen</a>
+            <a class="metric__link" href="{{ path(metric.route, metric.routeParameters) }}">
+                {{ 'dashboard.view'|trans }}
+            </a>
         {% endif %}
     </article>
 {% endmacro %}

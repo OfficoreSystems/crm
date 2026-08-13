@@ -40,7 +40,7 @@ final class CalendarModuleTest extends TestCase
         // durch Outlook auf die Anmeldeseite, und der Kalender bleibt still
         // leer. Diese Zusicherung ist der einzige Ort, an dem beide Seiten
         // aufeinandertreffen.
-        self::assertStringStartsWith('/oeffentlich/', CalendarModule::FEED_PREFIX);
+        self::assertStringStartsWith('/public/', CalendarModule::FEED_PREFIX);
     }
 
     #[Test]
@@ -93,7 +93,7 @@ final class CalendarModuleTest extends TestCase
         // aber die Pipeline bleibt der Einstieg.
         $item = iterator_to_array((new CalendarMenuProvider())->getMenuItems())[0];
 
-        self::assertSame('Kalender', $item->label);
+        self::assertSame('calendar.menu', $item->label);
         self::assertSame('calendar_index', $item->route);
         self::assertGreaterThan(100, $item->priority);
         self::assertLessThan(110, $item->priority);

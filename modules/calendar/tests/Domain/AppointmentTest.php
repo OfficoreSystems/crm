@@ -46,7 +46,7 @@ final class AppointmentTest extends TestCase
     #[Test]
     public function a_title_of_only_spaces_is_refused(): void
     {
-        $this->expectExceptionMessage('ohne Titel');
+        $this->expectExceptionMessage('without a title');
 
         Appointment::schedule(title: '   ', when: $this->span());
     }

@@ -1,0 +1,52 @@
+calendar:
+    menu: 'Calendar'
+    title: 'Calendar'
+
+    metric:
+        label: 'Appointments'
+        today: '{0}nothing left today|{1}1 of them today|]1,Inf[ %count% of them today'
+
+    list:
+        empty: 'Nothing scheduled.'
+        all_day: 'all day'
+        no_subject: '—'
+        unresolved_subject: 'Reference not resolvable'
+        column:
+            when: 'When'
+            title: 'Title'
+            location: 'Location'
+            subject: 'Reference'
+
+    form:
+        title: 'Title'
+        start: 'Start'
+        end: 'End'
+        all_day: 'All day'
+        location: 'Location'
+        subject: 'Reference'
+        subject_none: '— none —'
+        subject_id: 'ID of the record'
+        submit: 'Add'
+        success: 'Appointment added.'
+
+    subscription:
+        link: 'Subscribe in Outlook, Google & Apple'
+        title: 'Subscribe to calendar'
+        back: 'Calendar'
+        intro: 'Add this address as a subscription in Outlook, Google Calendar or Apple Calendar:'
+        copy_now: '<strong>Copy it now.</strong> The address is shown this once only — only its checksum is stored, exactly like a password.'
+        already_exists: 'This account already has a subscription.'
+        cannot_show_again: 'The address cannot be shown again. If you lost it, create a new one — the old one stops working immediately.'
+        privacy: 'The feed contains only appointments owned by this account. Whoever has the address can see them, without signing in. It therefore does not belong in an email or a shared document.'
+        regenerate: 'Create a new address'
+        regenerate_confirm: 'Create a new address? The old one will stop working.'
+        regenerated: 'New address created. The old one no longer works.'
+        invalid_token: 'The request was not valid. Please try again.'
+
+    error:
+        no_start: 'Without a start there is no appointment to add.'
+        unparsable: 'Cannot make a point in time out of "%value%".'
+        end_before_start: 'An appointment cannot end before it begins.'
+        no_title: 'An appointment without a title cannot be found in any calendar.'
+        all_day_minimum: 'An all-day appointment lasts at least one day.'
+        unresolvable_subject: 'No module resolves the type "%type%". Known types: %known%.'

@@ -21,3 +21,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # Zahlen, Daten und Betraege in der Sprache des Betrachters.
+    #
+    # twig/intl-extra bringt die Extension mit, meldet sie aber nicht an - das
+    # tut sonst twig/extra-bundle, und ein ganzes Bundle fuer eine Extension
+    # waere hier zu viel. Ohne diese Zeilen fehlen format_date,
+    # format_datetime und format_currency, und die Templates brechen mit
+    # "Unknown filter" ab.
+    Twig\Extra\Intl\IntlExtension:
+        tags: ['twig.extension']

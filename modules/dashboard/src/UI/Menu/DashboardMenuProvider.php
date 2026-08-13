@@ -16,7 +16,7 @@ final class DashboardMenuProvider implements MenuProviderInterface
         // benennen muesste - der HomeController nimmt schlicht den ersten
         // Menueeintrag.
         yield new MenuItem(
-            label: 'Übersicht',
+            label: 'dashboard.menu',
             route: 'dashboard_index',
             icon: 'layout-dashboard',
             priority: 300,

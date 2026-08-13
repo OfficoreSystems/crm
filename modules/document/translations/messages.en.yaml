@@ -1,0 +1,39 @@
+document:
+    menu: 'Documents'
+    title: 'Documents'
+    title_for: 'Documents for %subject%'
+    back_to_all: 'All documents'
+
+    metric:
+        label: 'Documents'
+        used: '%size% in use'
+        none_yet: 'nothing stored yet'
+
+    list:
+        empty: 'Nothing stored yet. Files are attached to a record — open a contact, a company or a deal and upload them there.'
+        empty_for_subject: 'No file stored yet.'
+        unresolved_subject: 'Reference not resolvable'
+        unresolved_hint: 'The reference cannot be resolved — the responsible module is not installed. Existing files remain reachable.'
+        column:
+            file: 'File'
+            belongs_to: 'Belongs to'
+            size: 'Size'
+            uploaded: 'Stored'
+            actions: 'Actions'
+
+    upload:
+        label: 'Add file'
+        submit: 'Upload'
+        success: 'File stored.'
+        no_file: 'No valid file arrived. It may have been too large for the server.'
+
+    delete:
+        submit: 'Delete'
+        confirm: 'Really delete this file?'
+        success: 'File deleted.'
+        invalid_token: 'The request was not valid. Please try again.'
+
+    error:
+        too_large: 'The file is %size%, the limit is %limit%.'
+        unresolvable_subject: 'No module resolves the type "%type%". Known types: %known%.'
+        file_gone: 'There is no file for this entry any more.'

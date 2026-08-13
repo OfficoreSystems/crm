@@ -23,7 +23,8 @@ final class CompanyMetricProviderTest extends TestCase
         $metric = iterator_to_array((new CompanyMetricProvider($repository))->getMetrics())[0];
 
         self::assertSame('3', $metric->value);
-        self::assertSame('2 Branchen, groesste: Energie', $metric->description);
+        self::assertSame('company.metric.by_industry', $metric->description);
+        self::assertSame(['%industry%' => 'Energie'], $metric->parameters);
     }
 
     #[Test]
@@ -35,7 +36,7 @@ final class CompanyMetricProviderTest extends TestCase
         $metric = iterator_to_array((new CompanyMetricProvider($repository))->getMetrics())[0];
 
         self::assertSame('1', $metric->value);
-        self::assertNull($metric->description);
+        self::assertSame('company.metric.none_yet', $metric->description);
     }
 
     #[Test]

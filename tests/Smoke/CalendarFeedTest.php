@@ -101,7 +101,7 @@ final class CalendarFeedTest extends WebTestCase
     {
         // Ohne Erklaerung: ein "Token abgelaufen" waere die Bestaetigung, dass
         // es das Token einmal gab.
-        $this->fetchRaw('/oeffentlich/kalender/'.str_repeat('A', 43).'.ics');
+        $this->fetchRaw('/public/calendar/'.str_repeat('A', 43).'.ics');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -145,12 +145,12 @@ final class CalendarFeedTest extends WebTestCase
         $vera = $this->givenUser('vera@example.test', 'Vera', teamName: 'Vertrieb');
         $this->signIn($this->client, $vera);
 
-        $this->client->request('GET', '/kalender/abonnement');
+        $this->client->request('GET', '/calendar/subscription');
         self::assertSelectorExists('.feed-url');
 
-        $this->client->request('GET', '/kalender/abonnement');
+        $this->client->request('GET', '/calendar/subscription');
         self::assertSelectorNotExists('.feed-url');
-        self::assertSelectorTextContains('body', 'nicht erneut anzeigen');
+        self::assertSelectorTextContains('body', 'cannot be shown again');
     }
 
     private function givenAppointment(User $owner, string $title): void
@@ -172,7 +172,7 @@ final class CalendarFeedTest extends WebTestCase
 
         self::assertNotNull($token, 'Beim ersten Abonnieren muss es ein Token geben.');
 
-        return '/oeffentlich/kalender/'.$token.'.ics';
+        return '/public/calendar/'.$token.'.ics';
     }
 
     private function fetch(string $url): string

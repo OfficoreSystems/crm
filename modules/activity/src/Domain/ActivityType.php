@@ -14,10 +14,10 @@ enum ActivityType: string
     public function label(): string
     {
         return match ($this) {
-            self::NOTE => 'Notiz',
-            self::CALL => 'Anruf',
-            self::MEETING => 'Termin',
-            self::TASK => 'Aufgabe',
+            self::NOTE => 'activity.type.note',
+            self::CALL => 'activity.type.call',
+            self::MEETING => 'activity.type.meeting',
+            self::TASK => 'activity.type.task',
         };
     }
 

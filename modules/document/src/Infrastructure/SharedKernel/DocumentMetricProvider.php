@@ -22,13 +22,12 @@ final readonly class DocumentMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'document.count',
-            label: 'Dokumente',
+            label: 'document.metric.label',
             value: (string) $count,
             // Der belegte Platz interessiert, weil Objektspeicher nach Volumen
             // abgerechnet wird - anders als Tabellenzeilen.
-            description: 0 === $count
-                ? 'noch nichts abgelegt'
-                : FileSize::humanize($this->documents->totalBytes()).' belegt',
+            description: 0 === $count ? 'document.metric.none_yet' : 'document.metric.used',
+            parameters: ['%size%' => FileSize::humanize($this->documents->totalBytes())],
             route: 'document_index',
             priority: 40,
         );

@@ -1,0 +1,31 @@
+user:
+    menu: 'Benutzer'
+    title: 'Benutzer'
+    lede: 'Konten legt der Konsolenbefehl <code>bin/console user:create</code> an — es gibt bewusst keine Selbstregistrierung.'
+
+    role:
+        admin: 'Administrator'
+        user: 'Benutzer'
+
+    login:
+        title: 'Anmelden'
+        email: 'E-Mail'
+        password: 'Passwort'
+        submit: 'Anmelden'
+
+    list:
+        search_placeholder: 'Nach Name oder E-Mail suchen …'
+        search_label: 'Benutzer durchsuchen'
+        filtered_count: '%shown% von %total%'
+        total_count: '{0}keine Benutzer|{1}%count% Benutzer|]1,Inf[ %count% Benutzer'
+        no_match: 'Kein Treffer für <strong>%query%</strong>.'
+        none_yet: 'Noch keine Benutzer angelegt.'
+        truncated: 'Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.'
+        active: 'aktiv'
+        inactive: 'deaktiviert'
+        column:
+            name: 'Name'
+            email: 'E-Mail'
+            team: 'Team'
+            roles: 'Rollen'
+            status: 'Status'

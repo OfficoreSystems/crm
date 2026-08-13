@@ -52,7 +52,7 @@ final class DocumentController extends AbstractController
      * Die Liste zu einem Datensatz - der Weg, ueber den Dokumente im Alltag
      * gefunden werden.
      */
-    #[Route('/an/{type}/{id}', name: 'for_subject', methods: ['GET'])]
+    #[Route('/for/{type}/{id}', name: 'for_subject', methods: ['GET'])]
     #[IsGranted('document.view')]
     public function forSubject(string $type, string $id): Response
     {
@@ -66,18 +66,18 @@ final class DocumentController extends AbstractController
         ]);
     }
 
-    #[Route('/an/{type}/{id}', name: 'upload', methods: ['POST'])]
+    #[Route('/for/{type}/{id}', name: 'upload', methods: ['POST'])]
     #[IsGranted('document.create')]
     public function upload(string $type, string $id, Request $request, UploadDocument $upload): Response
     {
-        $file = $request->files->get('datei');
+        $file = $request->files->get('file');
         $subject = new SubjectRef($type, $id);
 
         if (!$file instanceof UploadedFile || !$file->isValid()) {
             // Trifft auch zu, wenn PHP selbst abgebrochen hat - etwa bei
             // ueberschrittenem upload_max_filesize. Ohne diesen Zweig
             // bekaeme der Benutzer eine leere Seite.
-            $this->addFlash('error', 'Es kam keine gueltige Datei an. Vielleicht war sie zu gross fuer den Server.');
+            $this->addFlash('error', 'document.upload.no_file');
 
             return $this->redirectToRoute('document_for_subject', ['type' => $type, 'id' => $id]);
         }
@@ -99,9 +99,11 @@ final class DocumentController extends AbstractController
                 ownerTeamId: $this->actorTeamId($actor),
             ));
 
-            $this->addFlash('success', 'Datei abgelegt.');
+            $this->addFlash('success', 'document.upload.success');
         } catch (DocumentTooLarge|UnresolvableSubject $e) {
-            $this->addFlash('error', $e->getMessage());
+            // Der uebersetzbare Teil, nicht getMessage(): die Meldung der
+            // Ausnahme ist fuers Log und bleibt englisch.
+            $this->addFlash('error', $e->translatable);
         } finally {
             if (\is_resource($stream)) {
                 fclose($stream);
@@ -119,14 +121,14 @@ final class DocumentController extends AbstractController
      * Alternative - dann muesste die Gueltigkeitsdauer zu den Rechten passen,
      * und ein entzogenes Recht wirkte erst nach Ablauf.
      */
-    #[Route('/datei/{document}', name: 'download', methods: ['GET'])]
+    #[Route('/file/{document}', name: 'download', methods: ['GET'])]
     #[IsGranted('document.view', subject: 'document')]
     public function download(Document $document, DocumentStorageInterface $storage): Response
     {
         try {
             $stream = $storage->readStream($document->storageKey());
         } catch (DocumentFileMissing) {
-            throw $this->createNotFoundException('Zu diesem Eintrag existiert keine Datei mehr.');
+            throw $this->createNotFoundException();
         }
 
         $response = new StreamedResponse(static function () use ($stream): void {
@@ -145,23 +147,23 @@ final class DocumentController extends AbstractController
         $response->headers->set('Content-Disposition', HeaderUtils::makeDisposition(
             HeaderUtils::DISPOSITION_ATTACHMENT,
             $document->filename(),
-            'datei',
+            'file',
         ));
 
         return $response;
     }
 
-    #[Route('/datei/{document}', name: 'delete', methods: ['POST'])]
+    #[Route('/file/{document}', name: 'delete', methods: ['POST'])]
     #[IsGranted('document.delete', subject: 'document')]
     public function delete(Document $document, Request $request, DeleteDocument $delete): Response
     {
         $subject = $document->subject();
 
         if (!$this->isCsrfTokenValid('document_delete_'.$document->id(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Die Anfrage war nicht gueltig. Bitte erneut versuchen.');
+            $this->addFlash('error', 'document.delete.invalid_token');
         } else {
             ($delete)($document);
-            $this->addFlash('success', 'Datei geloescht.');
+            $this->addFlash('success', 'document.delete.success');
         }
 
         return $this->redirectToRoute('document_for_subject', [

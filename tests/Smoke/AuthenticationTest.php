@@ -160,7 +160,7 @@ final class AuthenticationTest extends WebTestCase
         $this->client->request('GET', '/users');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Benutzer');
+        self::assertSelectorTextContains('h1', 'Users');
     }
 
     #[Test]
@@ -216,7 +216,7 @@ final class AuthenticationTest extends WebTestCase
     private function submitLogin(string $username, string $password): void
     {
         $crawler = $this->client->request('GET', '/login');
-        $form = $crawler->selectButton('Anmelden')->form();
+        $form = $crawler->selectButton('Sign in')->form();
 
         $this->client->submit($form, [
             '_username' => $username,

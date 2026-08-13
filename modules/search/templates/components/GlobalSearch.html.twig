@@ -1,5 +1,7 @@
 {# Die Treffer kommen aus der SubjectResolverRegistry. Welche Typen es gibt,
-   entscheiden die installierten Module - hier steht kein Modulname. #}
+   entscheiden die installierten Module - hier steht kein Modulname.
+
+   Die Typbeschriftungen sind Uebersetzungsschluessel, siehe Timeline. #}
 <div {{ attributes }} class="search">
 
     <div class="contact-list__toolbar">
@@ -7,23 +9,24 @@
             type="search"
             value="{{ this.query }}"
             data-model="debounce(200)|query"
-            placeholder="Kontakt, Firma oder Verkaufschance suchen …"
+            placeholder="{{ 'search.placeholder'|trans }}"
             autocomplete="off"
-            aria-label="Alles durchsuchen"
+            aria-label="{{ 'search.label'|trans }}"
             class="contact-list__search"
             autofocus
         >
 
-        <select data-model="type" class="timeline__filter" aria-label="Auf einen Typ einschränken">
-            <option value="">Überall</option>
+        <select data-model="type" class="timeline__filter"
+                aria-label="{{ 'search.type_filter_label'|trans }}">
+            <option value="">{{ 'search.everywhere'|trans }}</option>
             {% for type, label in this.types %}
-                <option value="{{ type }}">{{ label }}</option>
+                <option value="{{ type }}">{{ label|trans }}</option>
             {% endfor %}
         </select>
 
         <span class="contact-list__count" data-loading="addClass(is-busy)">
             {% if this.hasQuery %}
-                {{ this.hits|length }} Treffer
+                {{ 'search.hit_count'|trans({'%count%': this.hits|length}) }}
             {% endif %}
         </span>
     </div>
@@ -31,21 +34,24 @@
     {% if not this.hasQuery %}
         <p class="contact-list__empty">
             {% if this.types is empty %}
-                Kein durchsuchbares Modul installiert.
+                {{ 'search.no_module'|trans }}
             {% else %}
-                Tipp einen Suchbegriff ein. Durchsucht werden:
-                {{ this.types|join(', ') }}.
+                {% set typeNames = [] %}
+                {% for label in this.types %}
+                    {% set typeNames = typeNames|merge([label|trans]) %}
+                {% endfor %}
+                {{ 'search.hint'|trans({'%types%': typeNames|join(', ')}) }}
             {% endif %}
         </p>
     {% elseif this.hits is empty %}
         <p class="contact-list__empty">
-            Kein Treffer für <strong>{{ this.query }}</strong>.
+            {{ 'search.no_results'|trans({'%query%': this.query})|raw }}
         </p>
     {% else %}
         {% for type, hits in this.groupedHits %}
             <section class="search__group">
                 <h2 class="search__group-title">
-                    {{ this.labelForType(type) }}
+                    {{ this.labelForType(type)|trans }}
                     <span class="muted">{{ hits|length }}</span>
                 </h2>
                 <ul class="search__results">
@@ -58,7 +64,7 @@
                                 <span class="search__label">{{ hit.subject.label }}</span>
                             {% endif %}
                             {% if hit.subject.description %}
-                                <span class="search__description">{{ hit.subject.description }}</span>
+                                <span class="search__description">{{ hit.subject.description|trans }}</span>
                             {% endif %}
                         </li>
                     {% endfor %}

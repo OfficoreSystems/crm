@@ -9,16 +9,16 @@
             type="search"
             value="{{ this.query }}"
             data-model="debounce(200)|query"
-            placeholder="Nach Name, E-Mail oder Firma suchen …"
+            placeholder="{{ 'contact.list.search_placeholder'|trans }}"
             autocomplete="off"
-            aria-label="Kontakte durchsuchen"
+            aria-label="{{ 'contact.list.search_label'|trans }}"
             class="contact-list__search"
         >
         <span class="contact-list__count" data-loading="addClass(is-busy)">
             {% if this.isFiltered %}
-                {{ this.contacts|length }} von {{ this.total }}
+                {{ 'contact.list.filtered_count'|trans({'%shown%': this.contacts|length, '%total%': this.total}) }}
             {% else %}
-                {{ this.total }} {{ this.total == 1 ? 'Kontakt' : 'Kontakte' }}
+                {{ 'contact.list.total_count'|trans({'%count%': this.total}) }}
             {% endif %}
         </span>
     </div>
@@ -26,20 +26,19 @@
     {% if this.contacts is empty %}
         <p class="contact-list__empty">
             {% if this.isFiltered %}
-                Kein Treffer für <strong>{{ this.query }}</strong>.
+                {{ 'contact.list.no_match'|trans({'%query%': this.query})|raw }}
             {% else %}
-                Noch keine Kontakte angelegt.
-                Leg welche an mit <code>bin/console contact:seed</code>.
+                {{ 'contact.list.none_yet'|trans|raw }}
             {% endif %}
         </p>
     {% else %}
         <table class="contact-list__table">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">E-Mail</th>
-                    <th scope="col">Firma</th>
-                    <th scope="col">Angelegt</th>
+                    <th scope="col">{{ 'contact.list.column.name'|trans }}</th>
+                    <th scope="col">{{ 'contact.list.column.email'|trans }}</th>
+                    <th scope="col">{{ 'contact.list.column.company'|trans }}</th>
+                    <th scope="col">{{ 'contact.list.column.created'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,16 +57,21 @@
                                oder company-Modul nicht installiert. #}
                             {{ this.companyNameFor(contact) ?? '—' }}
                         </td>
-                        <td><time datetime="{{ contact.createdAt|date('c') }}">{{ contact.createdAt|date('d.m.Y') }}</time></td>
+                        <td>
+                            {# format_date statt date('d.m.Y'): das Format kommt
+                               aus der Sprache des Betrachters, nicht aus dem
+                               Template. #}
+                            <time datetime="{{ contact.createdAt|date('c') }}">
+                                {{ contact.createdAt|format_date('medium') }}
+                            </time>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         {% if this.isTruncated %}
-            <p class="contact-list__note">
-                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
-            </p>
+            <p class="contact-list__note">{{ 'contact.list.truncated'|trans }}</p>
         {% endif %}
     {% endif %}
 </div>

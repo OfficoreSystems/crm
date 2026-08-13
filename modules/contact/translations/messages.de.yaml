@@ -1,0 +1,19 @@
+contact:
+    menu: 'Kontakte'
+    title: 'Kontakte'
+    lede: 'Referenzmodul. Die Liste unten ist eine Live-Component — die Suche filtert ohne Seitenwechsel.'
+    subject_type: 'Kontakt'
+
+    list:
+        search_placeholder: 'Nach Name, E-Mail oder Firma suchen …'
+        search_label: 'Kontakte durchsuchen'
+        filtered_count: '%shown% von %total%'
+        total_count: '{0}keine Kontakte|{1}%count% Kontakt|]1,Inf[ %count% Kontakte'
+        no_match: 'Kein Treffer für <strong>%query%</strong>.'
+        none_yet: 'Noch keine Kontakte angelegt. Leg welche an mit <code>bin/console contact:seed</code>.'
+        truncated: 'Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.'
+        column:
+            name: 'Name'
+            email: 'E-Mail'
+            company: 'Firma'
+            created: 'Angelegt'

@@ -1,0 +1,25 @@
+company:
+    menu: 'Companies'
+    title: 'Companies'
+    lede: 'Company master data. Search covers name, industry and city.'
+    subject_type: 'Company'
+
+    metric:
+        label: 'Companies'
+        by_industry: 'largest industry: %industry%'
+        none_yet: 'none recorded yet'
+
+    list:
+        search_placeholder: 'Search by name, industry or city …'
+        search_label: 'Search companies'
+        filtered_count: '%shown% of %total%'
+        total_count: '{0}no companies|{1}%count% company|]1,Inf[ %count% companies'
+        no_match: 'No match for <strong>%query%</strong>.'
+        none_yet: 'No companies yet. Create some with <code>bin/console company:seed</code>.'
+        truncated: 'Showing the first matches only. Narrow the search further.'
+        top_industries: 'Most common industries:'
+        column:
+            name: 'Name'
+            industry: 'Industry'
+            city: 'City'
+            contacts: 'Contacts'

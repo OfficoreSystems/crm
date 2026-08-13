@@ -27,12 +27,12 @@ enum Stage: string
     public function label(): string
     {
         return match ($this) {
-            self::LEAD => 'Lead',
-            self::QUALIFIED => 'Qualifiziert',
-            self::PROPOSAL => 'Angebot',
-            self::NEGOTIATION => 'Verhandlung',
-            self::WON => 'Gewonnen',
-            self::LOST => 'Verloren',
+            self::LEAD => 'deal.stage.lead',
+            self::QUALIFIED => 'deal.stage.qualified',
+            self::PROPOSAL => 'deal.stage.proposal',
+            self::NEGOTIATION => 'deal.stage.negotiation',
+            self::WON => 'deal.stage.won',
+            self::LOST => 'deal.stage.lost',
         };
     }
 

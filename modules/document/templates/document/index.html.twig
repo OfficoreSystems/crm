@@ -1,24 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dokumente{% endblock %}
+{% block title %}{{ 'document.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Dokumente</h1>
+    <h1>{{ 'document.title'|trans }}</h1>
 
     {% if documents is empty %}
-        <p class="muted">
-            Noch nichts abgelegt. Dateien haengen an einem Datensatz &mdash;
-            oeffne einen Kontakt, eine Firma oder eine Verkaufschance und lade
-            sie dort hoch.
-        </p>
+        <p class="muted">{{ 'document.list.empty'|trans }}</p>
     {% else %}
         <table class="contact-list__table">
             <thead>
                 <tr>
-                    <th scope="col">Datei</th>
-                    <th scope="col">Gehoert zu</th>
-                    <th scope="col">Groesse</th>
-                    <th scope="col">Abgelegt</th>
+                    <th scope="col">{{ 'document.list.column.file'|trans }}</th>
+                    <th scope="col">{{ 'document.list.column.belongs_to'|trans }}</th>
+                    <th scope="col">{{ 'document.list.column.size'|trans }}</th>
+                    <th scope="col">{{ 'document.list.column.uploaded'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,15 +32,15 @@
                                     type: document.subject.type,
                                     id: document.subject.id,
                                 }) }}">{{ label.label }}</a>
-                                <span class="muted">({{ label.typeLabel }})</span>
+                                <span class="muted">({{ label.typeLabel|trans }})</span>
                             {% else %}
                                 {# Das Modul, das diesen Typ aufloest, ist nicht
                                    installiert. Die Datei bleibt erreichbar. #}
-                                <span class="muted">Bezug nicht aufloesbar</span>
+                                <span class="muted">{{ 'document.list.unresolved_subject'|trans }}</span>
                             {% endif %}
                         </td>
                         <td>{{ document.size|document_size }}</td>
-                        <td>{{ document.uploadedAt|date('d.m.Y H:i') }}</td>
+                        <td>{{ document.uploadedAt|format_datetime('medium', 'short') }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

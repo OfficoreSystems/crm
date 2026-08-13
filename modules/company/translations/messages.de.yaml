@@ -1,0 +1,25 @@
+company:
+    menu: 'Firmen'
+    title: 'Firmen'
+    lede: 'Stammdaten der Firmen. Die Suche greift auf Name, Branche und Ort.'
+    subject_type: 'Firma'
+
+    metric:
+        label: 'Firmen'
+        by_industry: 'größte Branche: %industry%'
+        none_yet: 'noch nichts erfasst'
+
+    list:
+        search_placeholder: 'Nach Name, Branche oder Ort suchen …'
+        search_label: 'Firmen durchsuchen'
+        filtered_count: '%shown% von %total%'
+        total_count: '{0}keine Firmen|{1}%count% Firma|]1,Inf[ %count% Firmen'
+        no_match: 'Kein Treffer für <strong>%query%</strong>.'
+        none_yet: 'Noch keine Firmen angelegt. Leg welche an mit <code>bin/console company:seed</code>.'
+        truncated: 'Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.'
+        top_industries: 'Häufigste Branchen:'
+        column:
+            name: 'Name'
+            industry: 'Branche'
+            city: 'Ort'
+            contacts: 'Kontakte'

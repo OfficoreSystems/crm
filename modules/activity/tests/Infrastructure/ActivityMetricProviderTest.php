@@ -26,7 +26,7 @@ final class ActivityMetricProviderTest extends TestCase
         ]);
 
         self::assertSame('2', $metrics['activity.open_tasks']->value);
-        self::assertSame('davon 1 ueberfaellig', $metrics['activity.open_tasks']->description);
+        self::assertSame('activity.metric.overdue', $metrics['activity.open_tasks']->description);
         self::assertSame(MetricTone::ATTENTION, $metrics['activity.open_tasks']->tone);
     }
 
@@ -36,7 +36,7 @@ final class ActivityMetricProviderTest extends TestCase
         $metrics = $this->metricsFor([$this->task('spaeter', '2099-01-01')]);
 
         self::assertSame(MetricTone::NEUTRAL, $metrics['activity.open_tasks']->tone);
-        self::assertSame('nichts ueberfaellig', $metrics['activity.open_tasks']->description);
+        self::assertSame('activity.metric.overdue', $metrics['activity.open_tasks']->description);
     }
 
     #[Test]

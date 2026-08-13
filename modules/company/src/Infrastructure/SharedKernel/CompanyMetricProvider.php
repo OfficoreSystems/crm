@@ -21,11 +21,10 @@ final readonly class CompanyMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'company.total',
-            label: 'Firmen',
+            label: 'company.metric.label',
             value: (string) $this->companies->countAll(),
-            description: [] === $byIndustry
-                ? null
-                : sprintf('%d Branchen, groesste: %s', \count($byIndustry), array_key_first($byIndustry)),
+            description: [] === $byIndustry ? 'company.metric.none_yet' : 'company.metric.by_industry',
+            parameters: ['%industry%' => [] === $byIndustry ? '' : (string) array_key_first($byIndustry)],
             route: 'company_index',
             priority: 50,
         );

@@ -14,7 +14,7 @@ final class CalendarMenuProvider implements MenuProviderInterface
         // Zwischen Pipeline und Kontakten: was heute ansteht, schaut man
         // haeufiger an als eine Kontaktliste.
         yield new MenuItem(
-            label: 'Kalender',
+            label: 'calendar.menu',
             route: 'calendar_index',
             icon: 'calendar',
             priority: 105,

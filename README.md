@@ -356,8 +356,26 @@ beidem zu setzen ergibt eine Anwendung, die halb übersetzt ist, und zwar je
 nach Stelle unterschiedlich.
 
 **Texte gehören zum Modul.** Jedes Modul bringt sein eigenes `translations/`
-mit und meldet es in seiner Bundle-Klasse an — genauso wie Twig-Pfad und
-Doctrine-Mapping. Der Core hat nur den Katalog für das Grundlayout.
+mit; Symfony lädt es automatisch, weil die Module Bundles sind. Der Core hat
+nur den Katalog für das Grundlayout.
+
+**Beschriftungen sind Schlüssel, keine Texte.** Menüeinträge, Kennzahlen und
+Suchtreffer entstehen in der Infrastructure-Schicht der Module — und die darf
+Symfony nicht sehen. Ein injizierter Übersetzer wäre genau diese Abhängigkeit.
+Also reichen die Module Schlüssel und Platzhalter weiter, und übersetzt wird im
+Template. Wo Daten und Übersetzung sich mischen — „Nordwind Logistik ·
+Angebot" —, gibt es `TranslatableText` mit verschachtelten Platzhaltern.
+
+**Zahlen und Daten folgen der Sprache**, nicht dem Template: `format_date`,
+`format_datetime` und `format_currency` aus `twig/intl-extra` statt
+`date('d.m.Y')`. Für Geldbeträge trägt `Metric` einen Währungscode — nur dann
+formatiert das Dashboard um. Prozentwerte und Anzahlen nach Währungsregeln zu
+behandeln wäre schlimmer als gar nichts.
+
+**URLs und Formularfelder sind englisch**, weil Englisch die Standardsprache
+ist: `/calendar`, `/documents/for/{type}/{id}`, `name="start"`. Übersetzte
+Routen (`/de/kalender`) gibt es bewusst nicht — sie hätten den ICS-Feed-Pfad
+verdoppelt, den externe Kalender dauerhaft speichern.
 
 ### Coverage-Gate
 

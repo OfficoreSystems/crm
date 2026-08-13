@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Crm\Document\Domain;
 
+use Crm\SharedKernel\Localization\TranslatableText;
+
 /**
  * Ein Dokument soll an einem Typ haengen, den niemand aufloest.
  *
@@ -13,15 +15,31 @@ namespace Crm\Document\Domain;
  */
 final class UnresolvableSubject extends \InvalidArgumentException
 {
+    private function __construct(
+        string $message,
+        /**
+         * Dieselbe Aussage fuer die Oberflaeche. Die Meldung oben bleibt
+         * englisch - ein Log in der Sprache des gerade angemeldeten Benutzers
+         * waere beim Suchen nach Fehlern nicht hilfreich.
+         */
+        public readonly TranslatableText $translatable,
+    ) {
+        parent::__construct($message);
+    }
+
     /**
      * @param list<string> $known
      */
     public static function ofType(string $type, array $known): self
     {
-        return new self(sprintf(
-            'Kein Modul loest den Typ "%s" auf. Bekannt sind: %s.',
-            $type,
-            [] === $known ? 'keine' : implode(', ', $known),
-        ));
+        $knownList = [] === $known ? 'none' : implode(', ', $known);
+
+        return new self(
+            sprintf('No module resolves the type "%s". Known types: %s.', $type, $knownList),
+            TranslatableText::of('document.error.unresolvable_subject', [
+                '%type%' => $type,
+                '%known%' => $knownList,
+            ]),
+        );
     }
 }

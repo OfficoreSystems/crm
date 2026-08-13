@@ -1,0 +1,52 @@
+calendar:
+    menu: 'Kalender'
+    title: 'Kalender'
+
+    metric:
+        label: 'Termine'
+        today: '{0}heute nichts mehr|{1}1 davon heute|]1,Inf[ %count% davon heute'
+
+    list:
+        empty: 'Nichts geplant.'
+        all_day: 'ganztägig'
+        no_subject: '—'
+        unresolved_subject: 'Bezug nicht auflösbar'
+        column:
+            when: 'Wann'
+            title: 'Titel'
+            location: 'Ort'
+            subject: 'Bezug'
+
+    form:
+        title: 'Titel'
+        start: 'Beginn'
+        end: 'Ende'
+        all_day: 'Ganztägig'
+        location: 'Ort'
+        subject: 'Bezug'
+        subject_none: '— ohne —'
+        subject_id: 'ID des Datensatzes'
+        submit: 'Eintragen'
+        success: 'Termin eingetragen.'
+
+    subscription:
+        link: 'Abonnement für Outlook, Google & Apple'
+        title: 'Kalender abonnieren'
+        back: 'Kalender'
+        intro: 'Diese Adresse in Outlook, Google Kalender oder Apple Kalender als Abonnement eintragen:'
+        copy_now: '<strong>Jetzt kopieren.</strong> Die Adresse wird nur dieses eine Mal angezeigt — gespeichert ist nur ihre Prüfsumme, genau wie bei einem Passwort.'
+        already_exists: 'Es gibt bereits ein Abonnement für dieses Konto.'
+        cannot_show_again: 'Die Adresse lässt sich nicht erneut anzeigen. Wer sie verloren hat, erzeugt eine neue — die alte hört damit sofort auf zu funktionieren.'
+        privacy: 'Der Feed enthält ausschließlich Termine, die diesem Konto gehören. Wer die Adresse hat, sieht sie — ohne Anmeldung. Sie gehört deshalb nicht in eine E-Mail und nicht in ein geteiltes Dokument.'
+        regenerate: 'Neue Adresse erzeugen'
+        regenerate_confirm: 'Neue Adresse erzeugen? Die alte funktioniert danach nicht mehr.'
+        regenerated: 'Neue Adresse erzeugt. Die alte funktioniert ab sofort nicht mehr.'
+        invalid_token: 'Die Anfrage war nicht gültig. Bitte erneut versuchen.'
+
+    error:
+        no_start: 'Ohne Beginn lässt sich kein Termin eintragen.'
+        unparsable: 'Mit "%value%" lässt sich kein Zeitpunkt anfangen.'
+        end_before_start: 'Ein Termin kann nicht enden, bevor er beginnt.'
+        no_title: 'Ein Termin ohne Titel ist in keinem Kalender wiederzufinden.'
+        all_day_minimum: 'Ein ganztägiger Termin dauert mindestens einen Tag.'
+        unresolvable_subject: 'Kein Modul löst den Typ "%type%" auf. Bekannt sind: %known%.'

@@ -14,7 +14,7 @@ final class DocumentMenuProvider implements MenuProviderInterface
         // Niedrige Priority: Dokumente sucht man ueber den Datensatz, an dem
         // sie haengen. Die Liste ist der Nachschlageweg, nicht der Einstieg.
         yield new MenuItem(
-            label: 'Dokumente',
+            label: 'document.menu',
             route: 'document_index',
             icon: 'paperclip',
             priority: 40,

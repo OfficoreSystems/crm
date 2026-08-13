@@ -1,0 +1,29 @@
+activity:
+    menu: 'Aktivitäten'
+    title: 'Aktivitäten'
+    lede: 'Notizen, Anrufe, Termine und Aufgaben — unabhängig davon, woran sie hängen.'
+
+    type:
+        note: 'Notiz'
+        call: 'Anruf'
+        meeting: 'Termin'
+        task: 'Aufgabe'
+
+    metric:
+        open_tasks: 'Offene Aufgaben'
+        overdue: '{0}nichts überfällig|{1}1 davon überfällig|]1,Inf[ %count% davon überfällig'
+        total: 'Aktivitäten'
+        total_description: 'insgesamt erfasst'
+
+    timeline:
+        filter_subject_label: 'Nach Bezug filtern'
+        filter_type_label: 'Nach Art filtern'
+        all_subjects: 'Alle Bezüge'
+        all_types: 'Alle Arten'
+        summary: '%total% gesamt · %open% offene Aufgaben'
+        empty_filtered: 'Kein Eintrag für diese Auswahl.'
+        none_yet: 'Noch keine Aktivitäten. Leg welche an mit <code>bin/console activity:seed</code>.'
+        overdue: 'überfällig'
+        done: 'erledigt'
+        unresolved_subject: 'Bezug nicht auflösbar'
+

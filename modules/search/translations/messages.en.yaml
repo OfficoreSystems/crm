@@ -1,0 +1,13 @@
+search:
+    menu: 'Search'
+    title: 'Search'
+    lede: 'Searches every module that offers itself as a subject — without this module knowing any of them.'
+
+    placeholder: 'Search contacts, companies or deals …'
+    label: 'Search everything'
+    type_filter_label: 'Restrict to one type'
+    everywhere: 'Everywhere'
+    hit_count: '{0}no matches|{1}1 match|]1,Inf[ %count% matches'
+    no_module: 'No searchable module installed.'
+    hint: 'Type a search term. Searched: %types%.'
+    no_results: 'No match for <strong>%query%</strong>.'

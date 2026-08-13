@@ -30,7 +30,7 @@ final readonly class TimeSpan
         $end = self::toUtc($end);
 
         if ($end < $start) {
-            throw new \InvalidArgumentException('Ein Termin kann nicht enden, bevor er beginnt.');
+            throw InvalidAppointment::endsBeforeItStarts();
         }
 
         return new self($start, $end, false);
@@ -47,7 +47,7 @@ final readonly class TimeSpan
     public static function allDay(\DateTimeImmutable $day, int $days = 1): self
     {
         if ($days < 1) {
-            throw new \InvalidArgumentException('Ein ganztaegiger Termin dauert mindestens einen Tag.');
+            throw InvalidAppointment::shorterThanADay();
         }
 
         // Hier wird bewusst *nicht* umgerechnet.

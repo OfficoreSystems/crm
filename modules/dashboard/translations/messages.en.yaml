@@ -1,0 +1,6 @@
+dashboard:
+    menu: 'Overview'
+    title: 'Overview'
+    empty: 'No module provides figures. As soon as one implementing <code>MetricProviderInterface</code> is installed, it appears here by itself.'
+    summary: '%metrics% figures from %modules% modules.'
+    view: 'view'

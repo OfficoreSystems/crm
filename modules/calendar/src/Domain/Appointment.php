@@ -109,7 +109,7 @@ class Appointment
         $title = trim($title);
 
         if ('' === $title) {
-            throw new \InvalidArgumentException('Ein Termin ohne Titel ist in keinem Kalender wiederzufinden.');
+            throw InvalidAppointment::withoutTitle();
         }
 
         return new self(
@@ -215,7 +215,7 @@ class Appointment
         $title = trim($title);
 
         if ('' === $title) {
-            throw new \InvalidArgumentException('Ein Termin ohne Titel ist in keinem Kalender wiederzufinden.');
+            throw InvalidAppointment::withoutTitle();
         }
 
         $this->title = mb_substr($title, 0, 200);

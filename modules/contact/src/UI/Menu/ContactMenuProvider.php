@@ -18,7 +18,7 @@ final class ContactMenuProvider implements MenuProviderInterface
     public function getMenuItems(): iterable
     {
         yield new MenuItem(
-            label: 'Kontakte',
+            label: 'contact.menu',
             route: 'contact_index',
             icon: 'users',
             priority: 100,

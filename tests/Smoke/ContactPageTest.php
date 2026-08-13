@@ -45,7 +45,7 @@ final class ContactPageTest extends WebTestCase
         $this->client->request('GET', '/contacts');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Kontakte');
+        self::assertSelectorTextContains('h1', 'Contacts');
     }
 
     #[Test]
@@ -70,7 +70,7 @@ final class ContactPageTest extends WebTestCase
         // MenuProviderInterface + Tag hierher gekommen sein.
         $crawler = $this->client->request('GET', '/contacts');
 
-        self::assertSelectorTextContains('.sidebar__nav', 'Kontakte');
+        self::assertSelectorTextContains('.sidebar__nav', 'Contacts');
         self::assertCount(1, $crawler->filter('.sidebar__nav a[aria-current="page"]'));
     }
 }

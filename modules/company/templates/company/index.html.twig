@@ -1,12 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Firmen{% endblock %}
+{% block title %}{{ 'company.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Firmen</h1>
-    <p class="lede">
-        Stammdaten der Firmen. Die Suche greift auf Name, Branche und Ort.
-    </p>
+    <h1>{{ 'company.title'|trans }}</h1>
+    <p class="lede">{{ 'company.lede'|trans }}</p>
 
     <twig:CompanyList />
 {% endblock %}

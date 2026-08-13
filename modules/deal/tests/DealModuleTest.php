@@ -73,7 +73,7 @@ final class DealModuleTest extends TestCase
         // Vertriebsalltag und gehoert davor.
         $item = iterator_to_array((new DealMenuProvider())->getMenuItems())[0];
 
-        self::assertSame('Pipeline', $item->label);
+        self::assertSame('deal.menu', $item->label);
         self::assertSame('deal_index', $item->route);
         self::assertGreaterThan(100, $item->priority);
     }

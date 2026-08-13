@@ -1,0 +1,19 @@
+contact:
+    menu: 'Contacts'
+    title: 'Contacts'
+    lede: 'Reference module. The list below is a Live Component — searching filters without a page load.'
+    subject_type: 'Contact'
+
+    list:
+        search_placeholder: 'Search by name, email or company …'
+        search_label: 'Search contacts'
+        filtered_count: '%shown% of %total%'
+        total_count: '{0}no contacts|{1}%count% contact|]1,Inf[ %count% contacts'
+        no_match: 'No match for <strong>%query%</strong>.'
+        none_yet: 'No contacts yet. Create some with <code>bin/console contact:seed</code>.'
+        truncated: 'Showing the first matches only. Narrow the search further.'
+        column:
+            name: 'Name'
+            email: 'Email'
+            company: 'Company'
+            created: 'Added'

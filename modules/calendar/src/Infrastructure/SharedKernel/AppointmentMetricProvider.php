@@ -27,11 +27,10 @@ final readonly class AppointmentMetricProvider implements MetricProviderInterfac
 
         yield new Metric(
             key: 'calendar.upcoming',
-            label: 'Termine',
+            label: 'calendar.metric.label',
             value: (string) \count($upcoming),
-            description: 0 === \count($today)
-                ? 'heute nichts mehr'
-                : sprintf('%d davon heute', \count($today)),
+            description: 'calendar.metric.today',
+            parameters: ['%count%' => \count($today)],
             route: 'calendar_index',
             priority: 80,
             // Was heute noch ansteht, verdient einen Blick - alles andere
