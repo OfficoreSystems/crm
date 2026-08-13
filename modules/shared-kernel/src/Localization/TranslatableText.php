@@ -8,22 +8,22 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Ein Text, der erst beim Anzeigen zu Text wird.
+ * A text that only becomes text when it is displayed.
  *
- * Module bauen ihre Beschriftungen dort, wo die Daten liegen - in der
- * Infrastructure-Schicht. Die darf Symfony nicht sehen, ein injizierter
- * Uebersetzer waere genau diese Abhaengigkeit. Also reichen sie stattdessen
- * Schluessel und Platzhalter weiter, und uebersetzt wird im Template.
+ * Modules build their labels where the data lives - in the infrastructure layer.
+ * That layer must not see Symfony; an injected translator would be exactly that
+ * dependency. So instead they pass keys and placeholders along, and translation
+ * happens in the template.
  *
- * Implementiert TranslatableInterface aus den Symfony-*Contracts* - das ist
- * ein Interface-Paket ohne Implementierung, vergleichbar mit den
- * Doctrine-Mapping-Attributen in der Domain. Der Gewinn: Twigs |trans-Filter
- * kennt dieses Interface und braucht keinen Sonderweg.
+ * Implements TranslatableInterface from the Symfony *contracts* - an
+ * interface-only package, comparable to the Doctrine mapping attributes in the
+ * domain. The gain: Twig's |trans filter knows this interface and needs no
+ * special path.
  *
- * Platzhalter duerfen selbst uebersetzbar sein. Das ist der Grund, warum diese
- * Klasse existiert und nicht einfach ein Array genuegt: eine Beschreibung wie
- * "Nordwind Logistik · Angebot" besteht aus einem Namen (Daten) und einer
- * Stufe (Uebersetzung), und beide muessen unterschiedlich behandelt werden.
+ * Placeholders may themselves be translatable. That is why this class exists
+ * rather than a plain array being enough: a description such as "Nordwind
+ * Logistik · Proposal" consists of a name (data) and a stage (translation), and
+ * the two have to be treated differently.
  */
 final readonly class TranslatableText implements TranslatableInterface
 {

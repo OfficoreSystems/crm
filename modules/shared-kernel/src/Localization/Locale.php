@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Localization;
 
 /**
- * Die Sprachen, die diese Anwendung spricht.
+ * The languages this application speaks.
  *
- * Eine geschlossene Aufzaehlung und keine freie Zeichenkette: eine Spalte, in
- * der "de", "de_DE", "German" und "" nebeneinander stehen koennen, wird genau
- * so aussehen. Beim Lesen aus der Datenbank faengt {@see tryFrom()} den Rest
- * ab.
+ * A closed enumeration and not a free-form string: a column in which "de",
+ * "de_DE", "German" and "" can sit next to each other will end up looking
+ * exactly like that. When reading from the database {@see tryFrom()} catches the
+ * rest.
  *
- * Der Wert ist zugleich der Symfony-Locale-Code - beide auseinanderzuhalten
- * waere eine Umrechnung ohne Gegenwert.
+ * The value is also the Symfony locale code - keeping the two apart would be a
+ * conversion without any return.
  */
 enum Locale: string
 {
@@ -21,10 +21,10 @@ enum Locale: string
     case GERMAN = 'de';
 
     /**
-     * Was gilt, wenn niemand etwas anderes gesagt hat.
+     * What applies when nobody has said otherwise.
      *
-     * Muss zu default_locale in config/packages/translation.yaml passen; ein
-     * Test haelt beides zusammen.
+     * Has to match default_locale in config/packages/translation.yaml; a test
+     * holds the two together.
      */
     public static function default(): self
     {
@@ -32,10 +32,10 @@ enum Locale: string
     }
 
     /**
-     * Der Name der Sprache *in dieser Sprache*.
+     * The name of the language *in that language*.
      *
-     * Nicht uebersetzt, und das ist Absicht: wer die Oberflaeche gerade nicht
-     * versteht, sucht nach "Deutsch" und nicht nach "German".
+     * Not translated, and that is deliberate: whoever cannot currently read the
+     * interface looks for "Deutsch" and not for "German".
      */
     public function label(): string
     {
@@ -46,11 +46,11 @@ enum Locale: string
     }
 
     /**
-     * Aus einem gespeicherten Wert - oder die Vorgabe.
+     * From a stored value - or the default.
      *
-     * Faengt drei Faelle auf einmal ab: null (nie gewaehlt), Muell (von Hand
-     * in die Datenbank geschrieben) und eine Sprache, die es einmal gab und
-     * heute nicht mehr.
+     * Catches three cases at once: null (never chosen), garbage (written into
+     * the database by hand) and a language that existed once and does not any
+     * more.
      */
     public static function fromStringOrDefault(?string $value): self
     {

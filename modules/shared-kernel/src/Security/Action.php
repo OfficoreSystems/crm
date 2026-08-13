@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Die vier Aktionen, fuer die es Rechte gibt.
+ * The four actions rights exist for.
  *
- * Bewusst genau vier und nicht beliebig erweiterbar: sobald jedes Modul eigene
- * Aktionen mitbringt ("exportieren", "zuweisen", "abschliessen"), ist die
- * Rechtematrix nicht mehr ueberblickbar und niemand kann mehr sagen, was eine
- * Rolle eigentlich darf. Spezialfaelle gehoeren als Rolle modelliert, nicht
- * als neue Aktion.
+ * Deliberately exactly four and not freely extensible: as soon as every module
+ * brings its own actions ("export", "assign", "close"), the permission matrix
+ * stops being surveyable and nobody can say what a role actually may do.
+ * Special cases belong in a role, not in a new action.
  */
 enum Action: string
 {
@@ -20,21 +19,24 @@ enum Action: string
     case EDIT = 'edit';
     case DELETE = 'delete';
 
+    /**
+     * A translation key, not a finished text.
+     */
     public function label(): string
     {
         return match ($this) {
-            self::VIEW => 'ansehen',
-            self::CREATE => 'anlegen',
-            self::EDIT => 'bearbeiten',
-            self::DELETE => 'löschen',
+            self::VIEW => 'security.action.view',
+            self::CREATE => 'security.action.create',
+            self::EDIT => 'security.action.edit',
+            self::DELETE => 'security.action.delete',
         };
     }
 
     /**
-     * Aktionen, die einen konkreten Datensatz brauchen.
+     * Actions that need a concrete record.
      *
-     * "create" ist die Ausnahme: dort gibt es noch nichts, dessen Besitzer man
-     * pruefen koennte.
+     * "create" is the exception: there is nothing yet whose owner could be
+     * checked.
      */
     public function needsRecord(): bool
     {

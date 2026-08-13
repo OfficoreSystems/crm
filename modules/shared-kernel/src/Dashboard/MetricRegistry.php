@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Dashboard;
 
 /**
- * Sammelt die Kennzahlen aller Module ein.
+ * Collects the figures of every module.
  *
- * Wie die MenuRegistry: der Core fragt ab, statt zu wissen, wer liefert.
+ * Like the MenuRegistry: the core asks rather than knowing who delivers.
  */
 final class MetricRegistry
 {
@@ -25,8 +25,8 @@ final class MetricRegistry
     }
 
     /**
-     * @return list<Metric> Absteigend nach Priority, bei Gleichstand
-     *                      alphabetisch nach Label.
+     * @return list<Metric> Descending by priority, alphabetically by label on a
+     *                      tie.
      */
     public function all(): array
     {
@@ -39,9 +39,9 @@ final class MetricRegistry
         foreach ($this->providers as $provider) {
             foreach ($provider->getMetrics() as $metric) {
                 if (isset($metrics[$metric->key])) {
-                    // Zwei Module, die denselben Schluessel beanspruchen,
-                    // sind ein Installationsfehler - und einer, der sonst nur
-                    // als gelegentlich falsche Zahl auffiele.
+                    // Two modules claiming the same key are an installation
+                    // error - and one that would otherwise only show up as an
+                    // occasionally wrong number.
                     throw new \LogicException(sprintf(
                         'Der Metric-Schluessel "%s" wird von zwei Anbietern belegt.',
                         $metric->key,
@@ -63,7 +63,7 @@ final class MetricRegistry
     }
 
     /**
-     * Nur die Kennzahlen eines Moduls.
+     * Only the figures of one module.
      *
      * @return list<Metric>
      */
@@ -76,8 +76,7 @@ final class MetricRegistry
     }
 
     /**
-     * Kennzahlen, die Aufmerksamkeit verlangen - fuer eine hervorgehobene
-     * Zeile ganz oben.
+     * Figures that demand attention - for a highlighted row at the top.
      *
      * @return list<Metric>
      */

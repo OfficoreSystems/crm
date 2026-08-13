@@ -5,42 +5,41 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Extension-Point: ein Modul sagt, wem seine Datensaetze gehoeren.
+ * Extension point: a module states who owns its records.
  *
- * Damit kann der Voter im Shared Kernel ueber Zugriffe entscheiden, ohne ein
- * einziges Modul zu kennen. Er fragt: "welches Modul, wer ist Besitzer,
- * welches Team" - und vergleicht das mit der Rechtematrix.
+ * This lets the voter in the shared kernel decide about access without knowing a
+ * single module. It asks: "which module, who is the owner, which team" - and
+ * compares that against the permission matrix.
  *
- * Implementierungen werden ueber registerForAutoconfiguration() automatisch
- * mit `crm.record_ownership` getaggt.
+ * Implementations are tagged with `crm.record_ownership` automatically through
+ * registerForAutoconfiguration().
  *
- * Ein Modul, dessen Daten allen gehoeren - Stammdaten wie Firmen etwa -
- * braucht keine Implementierung. Solche Datensaetze sind dann nur mit
- * ALL-Rechten erreichbar, und genau das ist fuer gemeinsames Wissen richtig.
+ * A module whose data belongs to everyone - master data such as companies -
+ * needs no implementation. Such records are then reachable only with ALL rights,
+ * and that is exactly right for shared knowledge.
  */
 interface RecordOwnershipInterface
 {
     /**
-     * Das Modul, zu dem die Datensaetze gehoeren - z. B. "deal".
+     * The module the records belong to - "deal", for instance.
      *
-     * Der Schluessel, unter dem die Rechtematrix nachschlaegt.
+     * The key the permission matrix looks up.
      */
     public function module(): string;
 
     public function supports(object $record): bool;
 
     /**
-     * Nur aufgerufen, wenn supports() zugestimmt hat.
+     * Only called once supports() has agreed.
      */
     public function ownershipOf(object $record): RecordOwnership;
 
     /**
-     * Die Spalten, an denen der Sichtbarkeitsfilter einschraenken kann - oder
-     * null, wenn dieses Modul keine eigene Tabelle dafuer hat.
+     * The columns the visibility filter can restrict on - or null when this
+     * module has no table of its own for it.
      *
-     * Null heisst nicht "unbeschraenkt": der Voter prueft weiterhin jeden
-     * einzelnen Datensatz. Es heisst nur, dass die Einschraenkung nicht schon
-     * in SQL passieren kann.
+     * Null does not mean "unrestricted": the voter still checks every single
+     * record. It only means the restriction cannot already happen in SQL.
      */
     public function restrictedColumns(): ?RestrictedColumns;
 }

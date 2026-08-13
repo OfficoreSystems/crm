@@ -10,21 +10,22 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Filter\SQLFilter;
 
 /**
- * Schraenkt Listen direkt in SQL ein.
+ * Restricts lists directly in SQL.
  *
- * Der Voter beantwortet "darf dieser Benutzer *diesen* Datensatz". Fuer eine
- * Liste ist das die falsche Frage: sie wuerde je Zeile gestellt, und die
- * Zeilen waeren zu dem Zeitpunkt bereits geladen. Wer fremde Verkaufschancen
- * nicht sehen soll, soll sie gar nicht erst aus der Datenbank bekommen.
+ * The voter answers "may this user have *this* record". For a list that is the
+ * wrong question: it would be asked per row, and by then the rows would already
+ * be loaded. Whoever must not see other people's deals should not get them out
+ * of the database in the first place.
  *
- * Die Klasse liegt in Infrastructure und nicht neben dem Voter: sie erbt von
- * Doctrine, und der Vertragsteil des Shared Kernel soll frei von Persistenz
- * bleiben. Wer hier etwas aendert, aendert Infrastruktur - nicht den Vertrag.
+ * The class lives in Infrastructure and not next to the voter: it inherits from
+ * Doctrine, and the contract part of the shared kernel is meant to stay free of
+ * persistence. Changing something here changes infrastructure - not the
+ * contract.
  *
- * Der Filter tut nichts, solange er nicht aktiviert *und* parametrisiert
- * wurde. Beides erledigt {@see RecordVisibilityConfigurator} je Request. Ohne
- * angemeldeten Benutzer bleibt er aus, damit Konsolenbefehle und Migrationen
- * ungehindert arbeiten.
+ * The filter does nothing until it has been enabled *and* parameterised. Both is
+ * done by {@see RecordVisibilityConfigurator} per request. Without a signed-in
+ * user it stays off, so that console commands and migrations can work
+ * unhindered.
  */
 final class RecordVisibilityFilter extends SQLFilter
 {
@@ -36,10 +37,10 @@ final class RecordVisibilityFilter extends SQLFilter
     private array $restrictions = [];
 
     /**
-     * Wird vom Configurator gesetzt, nachdem Doctrine den Filter gebaut hat.
+     * Set by the configurator after Doctrine has built the filter.
      *
-     * Doctrine erzeugt Filter ohne Container, deshalb dieser Weg statt
-     * Konstruktor-Injektion.
+     * Doctrine creates filters without a container, hence this route instead of
+     * constructor injection.
      *
      * @param array<class-string, RecordRestriction> $restrictions
      */
@@ -53,8 +54,8 @@ final class RecordVisibilityFilter extends SQLFilter
      */
     public function addFilterConstraint(ClassMetadata $targetEntity, string $targetTableAlias): string
     {
-        // Entities ohne Eintrag werden nicht gefiltert - Stammdaten wie Firmen
-        // und Kontakte gehoeren allen.
+        // Entities without an entry are not filtered - master data such as
+        // companies and contacts belongs to everyone.
         $restriction = $this->restrictions[$targetEntity->getName()] ?? null;
 
         if (null === $restriction) {
@@ -81,9 +82,9 @@ final class RecordVisibilityFilter extends SQLFilter
 
         $teamId = $this->readParameter('actor_team_id');
 
-        // Ohne Team bleibt von TEAM nur OWN uebrig. Sonst saehe ein teamloser
-        // Benutzer alle Datensaetze ohne Team - also die aller anderen
-        // teamlosen Benutzer.
+        // Without a team, TEAM collapses to OWN. Otherwise a user without a
+        // team would see every record without a team - that is, those of every
+        // other user without a team.
         if (null === $teamId) {
             return $owner;
         }
@@ -99,20 +100,20 @@ final class RecordVisibilityFilter extends SQLFilter
 
     private function scopeFor(string $module): ?AccessScope
     {
-        // Roh, nicht gequotet: der Wert wird verglichen, nicht in SQL
-        // eingebettet. Mit Anfuehrungszeichen scheiterte tryFrom() still und
-        // der Filter liesse alles durch.
+        // Raw, not quoted: the value is compared, not embedded into SQL. With
+        // quotes tryFrom() would fail silently and the filter would let
+        // everything through.
         $raw = $this->readRawParameter('scope_'.$module) ?? $this->readRawParameter('scope_default');
 
         return null === $raw ? null : AccessScope::tryFrom($raw);
     }
 
     /**
-     * Liest einen Parameter, ohne zu werfen, wenn er fehlt.
+     * Reads a parameter without throwing when it is missing.
      *
-     * SQLFilter::getParameter() wirft bei fehlenden Parametern. Genau das ist
-     * hier der Normalfall: in der Konsole gibt es keinen angemeldeten
-     * Benutzer, und dann soll der Filter schlicht nichts tun.
+     * SQLFilter::getParameter() throws on missing parameters. That is exactly
+     * the normal case here: on the console there is no signed-in user, and then
+     * the filter should simply do nothing.
      */
     private function readParameter(string $name): ?string
     {
@@ -120,16 +121,16 @@ final class RecordVisibilityFilter extends SQLFilter
             return null;
         }
 
-        // getParameter() liefert den Wert bereits gequotet - genau richtig
-        // fuer die Einbettung in SQL.
+        // getParameter() returns the value already quoted - exactly right for
+        // embedding into SQL.
         $value = $this->getParameter($name);
 
         return "''" === $value ? null : $value;
     }
 
     /**
-     * Wie readParameter, aber ohne Quoting - fuer Werte, die verglichen und
-     * nicht eingebettet werden.
+     * Like readParameter, but without quoting - for values that get compared
+     * rather than embedded.
      */
     private function readRawParameter(string $name): ?string
     {

@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Subject;
 
 /**
- * Loest polymorphe Verweise auf, indem sie den zustaendigen Resolver findet.
+ * Resolves polymorphic references by finding the responsible resolver.
  *
- * Der Kern ist die Buendelung: die Verweise werden nach Typ gruppiert und
- * jeder Resolver genau einmal mit allen IDs seines Typs aufgerufen. Eine
- * Timeline mit fuenfzig Eintraegen ueber drei Module kostet damit drei
- * Aufrufe, nicht fuenfzig.
+ * The core of it is the bundling: references are grouped by type and each
+ * resolver is called exactly once with every ID of its type. A timeline with
+ * fifty entries across three modules therefore costs three calls, not fifty.
  *
- * Ist fuer einen Typ kein Resolver registriert - weil das Modul fehlt oder
- * entfernt wurde -, fehlt der Eintrag im Ergebnis. Aufrufer muessen damit
- * ohnehin rechnen: auch ein vorhandener Resolver findet geloeschte
- * Datensaetze nicht mehr.
+ * If no resolver is registered for a type - because the module is absent or was
+ * removed - the entry is missing from the result. Callers have to expect that
+ * anyway: even an existing resolver no longer finds deleted records.
  */
 final class SubjectResolverRegistry
 {
@@ -35,7 +33,7 @@ final class SubjectResolverRegistry
     /**
      * @param list<SubjectRef> $refs
      *
-     * @return array<string, ResolvedSubject> Indiziert nach SubjectRef::key().
+     * @return array<string, ResolvedSubject> Indexed by SubjectRef::key().
      */
     public function resolveAll(array $refs): array
     {
@@ -73,7 +71,7 @@ final class SubjectResolverRegistry
     }
 
     /**
-     * Kandidaten aus allen Typen - oder aus einem, wenn angegeben.
+     * Candidates from every type - or from one, when given.
      *
      * @return list<ResolvedSubject>
      */
@@ -95,9 +93,9 @@ final class SubjectResolverRegistry
     }
 
     /**
-     * Alle Typen, die derzeit aufloesbar sind - fuer Filter in der Oberflaeche.
+     * Every type that is currently resolvable - for filters in the interface.
      *
-     * @return array<string, string> Typ => Anzeigename, alphabetisch.
+     * @return array<string, string> type => display name, alphabetically.
      */
     public function supportedTypes(): array
     {
@@ -132,11 +130,11 @@ final class SubjectResolverRegistry
             $type = $resolver->type();
 
             if (isset($indexed[$type])) {
-                // Zwei Module, die denselben Typ beanspruchen, sind ein
-                // Installationsfehler - und einer, der sonst nur als
-                // gelegentlich falsches Label auffiele.
+                // Two modules claiming the same type are an installation
+                // error - and one that would otherwise only show up as an
+                // occasionally wrong label.
                 throw new \LogicException(sprintf(
-                    'Fuer den Subjekt-Typ "%s" sind zwei Resolver registriert: %s und %s.',
+                    'Two resolvers are registered for the subject type "%s": %s and %s.',
                     $type,
                     $indexed[$type]::class,
                     $resolver::class,

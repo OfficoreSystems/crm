@@ -5,51 +5,51 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Subject;
 
 /**
- * Extension-Point: ein Modul macht seine Datensaetze als Subjekt verweisbar.
+ * Extension point: a module makes its records referenceable as a subject.
  *
- * Damit koennen andere Module - activity heute, document und email spaeter -
- * etwas an einen Kontakt, eine Firma oder eine Verkaufschance haengen, ohne
- * eines dieser Module zu kennen.
+ * This lets other modules - activity today, document and email later - attach
+ * something to a contact, a company or a deal without knowing any of those
+ * modules.
  *
- * Implementierungen werden ueber registerForAutoconfiguration() automatisch
- * mit `crm.subject_resolver` getaggt.
+ * Implementations are tagged with `crm.subject_resolver` automatically through
+ * registerForAutoconfiguration().
  *
- * Zur Signatur von resolve(): sie nimmt eine *Liste* von IDs, nicht eine
- * einzelne. Eine Timeline zeigt dutzende Eintraege, und ein Aufruf je Eintrag
- * waere ein N+1 ueber eine Modulgrenze. Die Registry gruppiert deshalb nach
- * Typ und ruft jeden Resolver genau einmal auf.
+ * On the signature of resolve(): it takes a *list* of IDs, not a single one. A
+ * timeline shows dozens of entries, and one call per entry would be an N+1
+ * across a module boundary. The registry therefore groups by type and calls each
+ * resolver exactly once.
  */
 interface SubjectResolverInterface
 {
     /**
-     * Der Typ, den dieses Modul aufloest - z. B. "contact".
+     * The type this module resolves - "contact", for instance.
      */
     public function type(): string;
 
     /**
-     * Anzeigename des Typs, z. B. "Kontakt".
+     * Display name of the type - a translation key, not a finished text.
      */
     public function typeLabel(): string;
 
     /**
      * @param list<string> $ids
      *
-     * @return array<string, ResolvedSubject> Indiziert nach ID. Unbekannte
-     *                                        IDs fehlen im Ergebnis.
+     * @return array<string, ResolvedSubject> Indexed by ID. Unknown IDs are
+     *                                        missing from the result.
      */
     public function resolve(array $ids): array;
 
     /**
-     * Kandidaten fuer eine Auswahl.
+     * Candidates for a selection.
      *
-     * Aufloesen allein reicht nicht: wer etwas an ein Subjekt haengen will -
-     * eine Aktivitaet, spaeter ein Dokument oder eine E-Mail -, muss vorher
-     * eines auswaehlen koennen. Ohne diese Methode muesste jedes solche Modul
-     * die konkreten Finder von contact, company und deal kennen, und der
-     * Extension-Point waere nur halb.
+     * Resolving alone is not enough: whoever wants to attach something to a
+     * subject - an activity, later a document or an email - has to be able to
+     * pick one first. Without this method every such module would have to know
+     * the concrete finders of contact, company and deal, and the extension point
+     * would only be half of one.
      *
-     * Ein leerer Suchbegriff liefert die ersten Eintraege, nicht keine - das
-     * ist das erwartete Verhalten eines Auswahlfelds beim Oeffnen.
+     * An empty query returns the first entries, not none - that is what a select
+     * field is expected to do when it opens.
      *
      * @return list<ResolvedSubject>
      */

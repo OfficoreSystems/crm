@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Company;
 
 /**
- * Die Sicht anderer Module auf eine Firma.
+ * How other modules see a company.
  *
- * Wie {@see \Crm\SharedKernel\User\UserSummary} bewusst eine flache Kopie:
- * ein Modul, das nur einen Firmennamen anzeigen will, soll nicht am
- * Doctrine-Mapping des company-Moduls haengen.
+ * Like {@see \Crm\SharedKernel\User\UserSummary} deliberately a flat copy: a
+ * module that only wants to display a company name should not depend on the
+ * Doctrine mapping of the company module.
  */
 final readonly class CompanySummary
 {
     /**
-     * @param string      $id       UUID als String - skalar, weil ueber
-     *                              Modulgrenzen keine Association geht.
-     * @param string|null $industry Branche, fuer Auswertungen.
+     * @param string      $id       UUID as a string - scalar, because no
+     *                              association crosses module boundaries.
+     * @param string|null $industry Industry, for reporting.
      */
     public function __construct(
         public string $id,

@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Dashboard;
 
 /**
- * Wie eine Kennzahl zu lesen ist.
+ * How a figure should be read.
  *
- * Bewusst nicht "rot, gelb, gruen": das waere eine Anweisung ans Template und
- * damit eine Designentscheidung im Vertrag. Der Ton sagt, *was* der Wert
- * bedeutet - wie das aussieht, entscheidet die Oberflaeche.
+ * Deliberately not "red, amber, green": that would be an instruction to the
+ * template and thus a design decision inside the contract. The tone says *what*
+ * the value means - what it looks like is up to the interface.
  */
 enum MetricTone: string
 {
     /**
-     * Eine Zahl ohne Wertung - etwa "8 Kontakte".
+     * A number without judgement - "8 contacts", for instance.
      */
     case NEUTRAL = 'neutral';
 
     /**
-     * Etwas laeuft gut und darf auffallen.
+     * Something is going well and may stand out.
      */
     case POSITIVE = 'positive';
 
     /**
-     * Etwas verlangt Aufmerksamkeit - ueberfaellige Aufgaben etwa.
+     * Something demands attention - overdue tasks, for instance.
      */
     case ATTENTION = 'attention';
 

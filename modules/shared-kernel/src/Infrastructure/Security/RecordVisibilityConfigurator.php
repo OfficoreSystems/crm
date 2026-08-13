@@ -16,19 +16,19 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Schaltet den Sichtbarkeitsfilter fuer jeden Request scharf.
+ * Arms the visibility filter for every request.
  *
- * Der Filter selbst kennt weder Symfony noch den angemeldeten Benutzer - er
- * bekommt Parameter. Diese Klasse besorgt sie: Benutzer-ID, Team und den Scope
- * je Modul, das ueberhaupt Besitzverhaeltnisse kennt.
+ * The filter itself knows neither Symfony nor the signed-in user - it receives
+ * parameters. This class obtains them: user ID, team, and the scope for every
+ * module that knows about ownership at all.
  *
- * Ohne angemeldeten Benutzer bleibt der Filter aus. Das ist kein Loch: die
- * Firewall laesst dann ohnehin niemanden auf die Seiten, und Konsolenbefehle
- * und Migrationen muessen ungehindert arbeiten koennen.
+ * Without a signed-in user the filter stays off. That is not a hole: the
+ * firewall lets nobody onto the pages then anyway, and console commands and
+ * migrations have to be able to work unhindered.
  *
- * Diese Klasse muss als Dienst registriert sein - siehe config/services.php.
- * Fehlt sie dort, bleibt der Filter dauerhaft aus, und das faellt beim
- * Ausprobieren nicht auf: die Seiten funktionieren, sie zeigen nur zu viel.
+ * This class has to be registered as a service - see config/services.php. If it
+ * is missing there, the filter stays off permanently, and that does not show up
+ * when trying things out: the pages work, they just show too much.
  */
 #[AsEventListener(event: KernelEvents::REQUEST, priority: 6)]
 final readonly class RecordVisibilityConfigurator
@@ -68,13 +68,12 @@ final readonly class RecordVisibilityConfigurator
         $filter->setParameter('actor_id', $actor->actorId());
         $filter->setParameter('actor_team_id', $actor->actorTeamId() ?? '');
 
-        // Fuer jedes Modul, das Besitzverhaeltnisse kennt, den Lese-Scope
-        // hinterlegen. Der Filter schlaegt dort nach und weiss so, ob er
-        // einschraenken muss - ohne die Matrix selbst zu kennen.
+        // Record the read scope for every module that knows about ownership.
+        // The filter looks it up there and thus knows whether it has to
+        // restrict - without knowing the matrix itself.
         foreach ($this->ownership->knownModules() as $module) {
-            // Kein Eintrag in der Matrix bedeutet den engsten Scope, nicht den
-            // weitesten. Ein vergessenes Modul soll zu wenig zeigen, nicht zu
-            // viel.
+            // No entry in the matrix means the narrowest scope, not the widest.
+            // A forgotten module should show too little, not too much.
             $scope = $this->matrix->scopeFor($actor->actorRoles(), $module, Action::VIEW) ?? AccessScope::OWN;
 
             $filter->setParameter('scope_'.$module, $scope->value);

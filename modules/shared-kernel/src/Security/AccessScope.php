@@ -5,48 +5,51 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Wie weit ein Recht reicht.
+ * How far a right reaches.
  *
- * Nicht "darf/darf nicht", sondern "darf wofuer": ein Vertriebler darf Deals
- * bearbeiten - aber nur seine eigenen. Ohne diese Abstufung braeuchte man fuer
- * jede Kombination eine eigene Rolle.
+ * Not "may / may not" but "may for what": a salesperson may edit deals - but
+ * only their own. Without this gradation every combination would need a role of
+ * its own.
  *
- * Kein Fall fuer "gar nicht": das ist die Abwesenheit eines Eintrags in der
- * Matrix. Ein expliziter NONE-Fall waere eine zweite Art, dasselbe zu sagen -
- * und irgendwann stuenden beide nebeneinander.
+ * There is no case for "not at all": that is the absence of an entry in the
+ * matrix. An explicit NONE case would be a second way of saying the same thing -
+ * and eventually both would sit next to each other.
  */
 enum AccessScope: string
 {
     /**
-     * Nur eigene Datensaetze.
+     * Own records only.
      */
     case OWN = 'own';
 
     /**
-     * Alles aus dem eigenen Team.
+     * Everything from one's own team.
      */
     case TEAM = 'team';
 
     /**
-     * Alles.
+     * Everything.
      */
     case ALL = 'all';
 
+    /**
+     * A translation key, not a finished text - see Stage and ActivityType for
+     * the same pattern.
+     */
     public function label(): string
     {
         return match ($this) {
-            self::OWN => 'nur eigene',
-            self::TEAM => 'eigenes Team',
-            self::ALL => 'alle',
+            self::OWN => 'security.scope.own',
+            self::TEAM => 'security.scope.team',
+            self::ALL => 'security.scope.all',
         };
     }
 
     /**
-     * Je hoeher, desto weiter reichend.
+     * The higher, the further-reaching.
      *
-     * Gebraucht, wenn ein Benutzer mehrere Rollen hat: dann gewinnt die
-     * weiteste. Andernfalls koennte eine zusaetzliche Rolle Rechte *wegnehmen*,
-     * was niemand erwartet.
+     * Needed when a user holds several roles: the widest one wins. Otherwise an
+     * additional role could *take away* rights, which nobody expects.
      */
     public function rank(): int
     {
@@ -63,7 +66,7 @@ enum AccessScope: string
     }
 
     /**
-     * Die weiteste aus einer Menge, oder null wenn die Menge leer ist.
+     * The widest one from a set, or null when the set is empty.
      *
      * @param list<self> $scopes
      */

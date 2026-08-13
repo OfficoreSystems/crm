@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Wem ein Datensatz gehoert.
+ * Who owns a record.
  *
- * Beide Felder duerfen null sein - ein Datensatz ohne Besitzer ist ein
- * normaler Zustand, etwa bei importierten Daten. Er ist dann nur mit
- * ALL-Rechten erreichbar, was die sichere Voreinstellung ist.
+ * Both fields may be null - a record without an owner is a normal state, for
+ * instance with imported data. It is then reachable only with ALL rights, which
+ * is the safe default.
  */
 final readonly class RecordOwnership
 {
@@ -30,10 +30,10 @@ final readonly class RecordOwnership
     }
 
     /**
-     * Gehoert der Datensatz zum Team des Handelnden?
+     * Does the record belong to the actor's team?
      *
-     * Zwei null-Teams gelten nicht als dasselbe Team. Sonst saehe ein
-     * teamloser Benutzer alle Daten anderer teamloser Benutzer.
+     * Two null teams do not count as the same team. Otherwise a user without a
+     * team would see the data of every other user without a team.
      */
     public function belongsToTeamOf(ActorInterface $actor): bool
     {

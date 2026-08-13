@@ -1,0 +1,11 @@
+security:
+    scope:
+        own: 'nur eigene'
+        team: 'eigenes Team'
+        all: 'alle'
+
+    action:
+        view: 'ansehen'
+        create: 'anlegen'
+        edit: 'bearbeiten'
+        delete: 'löschen'

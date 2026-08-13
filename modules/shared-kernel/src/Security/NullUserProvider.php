@@ -10,19 +10,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
- * Vorgabe-Benutzerquelle: kennt niemanden.
+ * Default user source: knows nobody.
  *
- * Sie existiert wegen einer Eigenheit von Symfony: `security.firewalls` ist
- * ein prototypisierter Knoten und muss vollstaendig aus *einer* Konfigurations-
- * datei kommen. Ein Modul kann die Firewall also nicht per prependExtension()
- * ergaenzen - der Container-Build bricht mit "You are not allowed to define new
- * elements for path security.firewalls" ab.
+ * It exists because of a Symfony peculiarity: `security.firewalls` is a
+ * prototyped node and must come in full from *one* configuration file. A module
+ * therefore cannot extend the firewall through prependExtension() - the
+ * container build aborts with "You are not allowed to define new elements for
+ * path security.firewalls".
  *
- * Also definiert der Core die Firewall einmal und verweist auf die feste
- * Service-ID `crm.security.user_provider`. Diese Klasse ist der Vorgabewert
- * dahinter; das user-Modul ueberschreibt den Alias mit seiner eigenen
- * Implementierung. Der Core nennt damit weiterhin kein Modul, und ohne
- * user-Modul startet die Anwendung - es kann sich dann nur niemand anmelden.
+ * So the core defines the firewall once and points at the fixed service ID
+ * `crm.security.user_provider`. This class is the default behind it; the user
+ * module overrides the alias with its own implementation. The core thus still
+ * names no module, and without the user module the application starts - it is
+ * only that nobody can sign in.
  *
  * @implements UserProviderInterface<UserInterface>
  */
@@ -30,12 +30,12 @@ final class NullUserProvider implements UserProviderInterface
 {
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        throw new UserNotFoundException('Es ist kein Modul installiert, das Benutzer bereitstellt.');
+        throw new UserNotFoundException('No module is installed that provides users.');
     }
 
     public function refreshUser(UserInterface $user): UserInterface
     {
-        throw new UnsupportedUserException('Es ist kein Modul installiert, das Benutzer bereitstellt.');
+        throw new UnsupportedUserException('No module is installed that provides users.');
     }
 
     public function supportsClass(string $class): bool

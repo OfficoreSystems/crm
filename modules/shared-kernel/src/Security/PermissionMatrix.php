@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Wer darf was, und wie weit.
+ * Who may do what, and how far.
  *
- * Aufgebaut als Rolle → Modul → Aktion → Scope, mit `*` als Platzhalter auf
- * beiden mittleren Ebenen. Der Platzhalter ist wichtig: ohne ihn muesste die
- * Matrix jedes Modul kennen, und ein neues Modul waere eine Aenderung hier -
- * genau das, was die Modularitaet vermeiden soll. Ein unbekanntes Modul faellt
- * so auf die Vorgabe seiner Rolle zurueck.
+ * Laid out as role → module → action → scope, with `*` as a wildcard on both
+ * middle levels. The wildcard matters: without it the matrix would have to know
+ * every module, and a new module would be a change here - exactly what
+ * modularity is meant to avoid. An unknown module thus falls back to the
+ * default of its role.
  *
- * Fehlt ein Eintrag ueberall, gilt: verboten. Rechte werden vergeben, nicht
- * entzogen.
+ * If an entry is missing everywhere, the answer is: forbidden. Rights are
+ * granted, not revoked.
  */
 final readonly class PermissionMatrix
 {
     public const ANY = '*';
 
     /**
-     * @param array<string, array<string, array<string, AccessScope>>> $matrix Rolle => Modul => Aktion => Scope
+     * @param array<string, array<string, array<string, AccessScope>>> $matrix role => module => action => scope
      */
     private function __construct(
         private array $matrix,
@@ -39,10 +39,10 @@ final readonly class PermissionMatrix
             $normalized[$role] ??= [];
 
             foreach ($modules as $module => $actions) {
-                // Auch dann anlegen, wenn keine Aktion folgt: ein leerer
-                // Eintrag ist die Art, "fuer dieses Modul gar nichts" zu
-                // sagen. Ohne diese Zeile verschwaende er sich lautlos und
-                // der Platzhalter griffe doch.
+                // Create it even when no action follows: an empty entry is how
+                // one says "nothing at all for this module". Without this line
+                // it would vanish silently and the wildcard would apply after
+                // all.
                 $normalized[$role][$module] ??= [];
 
                 foreach ($actions as $action => $scope) {
@@ -57,17 +57,17 @@ final readonly class PermissionMatrix
     }
 
     /**
-     * Die Vorgabe, mit der das System startet.
+     * The default the system starts with.
      *
-     * Bewusst grosszuegig beim Lesen und eng beim Aendern: in einem CRM ist
-     * gemeinsames Wissen der Sinn der Sache, aber niemand soll fremde
-     * Verkaufschancen umschreiben. Stammdaten wie Firmen und Kontakte gehoeren
-     * allen, Verkaufschancen und Aktivitaeten ihrem Besitzer.
+     * Deliberately generous about reading and narrow about changing: in a CRM
+     * shared knowledge is the whole point, but nobody should rewrite someone
+     * else's deals. Master data such as companies and contacts belongs to
+     * everyone; deals and activities belong to their owner.
      */
     public static function default(): self
     {
         return self::fromArray([
-            // Der Administrator darf alles, ueberall.
+            // The administrator may do everything, everywhere.
             'ROLE_ADMIN' => [
                 self::ANY => [
                     Action::VIEW->value => AccessScope::ALL,
@@ -77,16 +77,16 @@ final readonly class PermissionMatrix
                 ],
             ],
             'ROLE_USER' => [
-                // Vorgabe fuer jedes Modul, auch fuer spaeter hinzukommende:
-                // im Team lesen und anlegen, eigene Daten aendern, nichts
-                // loeschen.
+                // Default for every module, including ones added later: read
+                // within the team, create, change your own data, delete
+                // nothing.
                 self::ANY => [
                     Action::VIEW->value => AccessScope::TEAM,
                     Action::CREATE->value => AccessScope::ALL,
                     Action::EDIT->value => AccessScope::OWN,
                 ],
-                // Stammdaten sind gemeinsames Wissen. Genannte Module sind
-                // vollstaendig aufgezaehlt - was hier fehlt, ist verboten.
+                // Master data is shared knowledge. Named modules are listed
+                // exhaustively - whatever is missing here is forbidden.
                 'company' => [
                     Action::VIEW->value => AccessScope::ALL,
                     Action::CREATE->value => AccessScope::ALL,
@@ -97,20 +97,20 @@ final readonly class PermissionMatrix
                     Action::CREATE->value => AccessScope::ALL,
                     Action::EDIT->value => AccessScope::ALL,
                 ],
-                // Uebersicht und Suche zeigen nur, was ohnehin sichtbar ist -
-                // die Einschraenkung passiert eine Ebene tiefer.
+                // Overview and search only show what is visible anyway - the
+                // restriction happens one level down.
                 'dashboard' => [Action::VIEW->value => AccessScope::ALL],
                 'search' => [Action::VIEW->value => AccessScope::ALL],
-                // Die Benutzerverwaltung bleibt dem Administrator
-                // vorbehalten. Der leere Eintrag ist die Aussage: hier gilt
-                // die Vorgabe *nicht*.
+                // User administration stays reserved for the administrator.
+                // The empty entry is the statement: the default does *not*
+                // apply here.
                 'user' => [],
             ],
         ]);
     }
 
     /**
-     * Der weiteste Scope, den diese Rollen fuer Modul und Aktion hergeben.
+     * The widest scope these roles yield for the module and action.
      *
      * @param list<string> $roles
      */
@@ -138,9 +138,9 @@ final readonly class PermissionMatrix
     }
 
     /**
-     * Alles, was eine Rolle darf - fuer eine Uebersicht in der Oberflaeche.
+     * Everything a role may do - for an overview in the interface.
      *
-     * @return array<string, array<string, AccessScope>> Modul => Aktion => Scope
+     * @return array<string, array<string, AccessScope>> module => action => scope
      */
     public function forRole(string $role): array
     {
@@ -155,11 +155,11 @@ final readonly class PermissionMatrix
             return null;
         }
 
-        // Ein genannter Eintrag ist vollstaendig: er faellt *nicht* auf den
-        // Platzhalter zurueck. Sonst liesse sich "fuer dieses Modul gar
-        // nichts" nicht ausdruecken - jeder Versuch landete wieder bei der
-        // Vorgabe. Der Platzhalter ist damit die Regel fuer Module, die hier
-        // nicht vorkommen, also insbesondere fuer spaeter hinzukommende.
+        // A named entry is complete: it does *not* fall back to the wildcard.
+        // Otherwise "nothing at all for this module" could not be expressed -
+        // every attempt would land back at the default. The wildcard is thus
+        // the rule for modules that do not appear here, and in particular for
+        // ones added later.
         if (\array_key_exists($module, $rules)) {
             return $rules[$module][$action->value] ?? $rules[$module][self::ANY] ?? null;
         }

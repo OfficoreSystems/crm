@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Menu;
 
 /**
- * Ein Eintrag in der globalen Navigation.
+ * An entry in the global navigation.
  *
- * Bewusst ein reiner Wert ohne Verhalten: Module erzeugen ihn, der Core
- * rendert ihn. Beide Seiten muessen sich nur auf diese vier Felder einigen.
+ * Deliberately a plain value without behaviour: modules create it, the core
+ * renders it. Both sides only have to agree on these four fields.
  */
 final readonly class MenuItem
 {
     /**
-     * @param string $label    Uebersetzungsschluessel, kein fertiger Text -
-     *                         das Layout ruft ihn durch |trans.
-     * @param string $route    Symfony-Routenname, nicht die URL.
-     * @param string $icon     Icon-Bezeichner, vom Template interpretiert.
-     * @param int    $priority Hoeher = weiter vorne. Gleichstand wird nach Label sortiert.
+     * @param string $label    Translation key, not a finished text - the layout
+     *                         puts it through |trans.
+     * @param string $route    Symfony route name, not the URL.
+     * @param string $icon     Icon identifier, interpreted by the template.
+     * @param int    $priority Higher = further to the front. Ties are sorted by label.
      */
     public function __construct(
         public string $label,

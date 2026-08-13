@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Module;
 
 /**
- * Extension-Point: ein Modul beschreibt sich selbst.
+ * Extension point: a module describes itself.
  *
- * Damit laesst sich zur Laufzeit beantworten, was installiert ist - noetig,
- * sobald Module als Drittanbieter-Plugins nachinstalliert werden koennen.
+ * This makes it possible to answer at runtime what is installed - necessary as
+ * soon as modules can be added as third-party plugins.
  *
- * Implementierungen werden ueber registerForAutoconfiguration() automatisch
- * mit `crm.module` getaggt.
+ * Implementations are tagged with `crm.module` automatically through
+ * registerForAutoconfiguration().
  */
 interface CrmModuleInterface
 {
     /**
-     * Technischer Name, klein und stabil, z. B. "contact".
-     * Wird als Schluessel verwendet - Umbenennen ist ein Breaking Change.
+     * Technical name, lower case and stable, "contact" for instance.
+     * Used as a key - renaming it is a breaking change.
      */
     public function name(): string;
 
     public function version(): string;
 
     /**
-     * Namen der Module, ohne die dieses Modul nicht funktioniert.
+     * Names of the modules without which this module does not work.
      *
      * @return list<string>
      */

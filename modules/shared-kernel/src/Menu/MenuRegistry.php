@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Menu;
 
 /**
- * Sammelt die Menueeintraege aller Module ein.
+ * Collects the menu entries of every module.
  *
- * Der Core kennt hierueber kein einziges Modul namentlich - er bekommt die
- * Provider als getaggten Iterator hereingereicht und fragt sie ab.
+ * Through this the core knows not a single module by name - it receives the
+ * providers as a tagged iterator and asks them.
  */
 final class MenuRegistry
 {
@@ -21,13 +21,12 @@ final class MenuRegistry
     }
 
     /**
-     * Absteigend nach Priority; bei Gleichstand nach dem Label.
+     * Descending by priority; by label on a tie.
      *
-     * Das Label ist ein Uebersetzungsschluessel, die Zweitsortierung also
-     * nicht alphabetisch in der Anzeigesprache. Uebersetzen kann die Registry
-     * nicht - sie liegt in der Vertragsschicht. Der Gegenwert waere ohnehin
-     * gering: Gleichstand ist selten, und eine Reihenfolge, die sich mit der
-     * Sprache aendert, ist auch nicht besser.
+     * The label is a translation key, so the secondary sort is not alphabetical
+     * in the display language. The registry cannot translate - it sits in the
+     * contract layer. The return would be small anyway: ties are rare, and an
+     * order that changes with the language is not better either.
      *
      * @return list<MenuItem>
      */

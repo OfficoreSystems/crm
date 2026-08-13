@@ -7,33 +7,33 @@ namespace Crm\SharedKernel\Dashboard;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
- * Eine Kennzahl fuer die Startseite.
+ * A figure for the home page.
  *
- * Label und Beschreibung sind *Uebersetzungsschluessel*, keine fertigen Texte.
- * Uebersetzt wird im Dashboard-Template. Der Umweg hat einen Grund: die
- * Kennzahlen entstehen in der Infrastructure-Schicht der Module, und die darf
- * Symfony nicht sehen - ein injizierter Uebersetzer waere genau diese
- * Abhaengigkeit.
+ * Label and description are *translation keys*, not finished texts. Translation
+ * happens in the dashboard template. There is a reason for the detour: the
+ * figures are created in the infrastructure layer of the modules, and that layer
+ * must not see Symfony - an injected translator would be exactly that
+ * dependency.
  *
 
- * Der Wert ist eine *Zeichenkette*, keine Zahl. Das ist Absicht: ein
- * Geldbetrag, eine Prozentangabe und eine Anzahl haben nichts gemeinsam ausser
- * dass sie angezeigt werden. Wuerde hier ein int oder float stehen, muesste
- * die Formatierung ins Dashboard wandern - und das muesste dann wissen, dass
- * deal in Cent rechnet.
+ * The value is a *string*, not a number. That is deliberate: an amount of money,
+ * a percentage and a count have nothing in common except that they get
+ * displayed. Were an int or float to stand here, the formatting would have to
+ * move into the dashboard - and that would then have to know that deal counts in
+ * cents.
  *
- * Das liefernde Modul weiss am besten, wie sein Wert zu lesen ist.
+ * The delivering module knows best how its value reads.
  */
 final readonly class Metric
 {
     /**
-     * @param string                    $key             Eindeutig, nach dem Muster "modul.kennzahl".
-     * @param string                    $label           Uebersetzungsschluessel, kein fertiger Text.
-     * @param string                    $value           Bereits formatiert - das liefernde Modul weiss
-     *                                                   am besten, wie sein Wert zu lesen ist.
-     * @param string|null               $description     Uebersetzungsschluessel.
-     * @param array<string, string|int> $parameters      Platzhalter fuer Label und Beschreibung,
-     *                                                   etwa %count%.
+     * @param string                    $key             Unique, following the pattern "module.figure".
+     * @param string                    $label           Translation key, not a finished text.
+     * @param string                    $value           Already formatted - the delivering module
+     *                                                   knows best how its value reads.
+     * @param string|null               $description     Translation key.
+     * @param array<string, string|int> $parameters      Placeholders for label and description,
+     *                                                   %count% for instance.
      * @param array<string, string|int> $routeParameters
      */
     public function __construct(
@@ -47,23 +47,23 @@ final readonly class Metric
         public MetricTone $tone = MetricTone::NEUTRAL,
         public array $parameters = [],
         /**
-         * Waehrungscode, wenn der Wert ein Geldbetrag ist - sonst null.
+         * Currency code when the value is an amount of money - null otherwise.
          *
-         * Nur dann darf das Dashboard den Wert umformatieren. Ohne diese
-         * Angabe muesste es raten, und "50 %" oder "12" nach
-         * Waehrungsregeln zu formatieren waere schlimmer als gar nichts.
+         * Only then may the dashboard reformat the value. Without this hint it
+         * would have to guess, and formatting "50 %" or "12" by currency rules
+         * would be worse than nothing.
          *
-         * Der Grund fuer die Ausnahme: Tausendertrennung und Dezimalzeichen
-         * haengen an der Sprache, die Zahl selbst nicht. Ein vom Modul
-         * fertig formatierter Betrag stuende in jeder Sprache gleich da -
-         * und in mindestens einer falsch.
+         * The reason for the exception: thousands separators and decimal marks
+         * depend on the language, the number itself does not. An amount
+         * formatted by the module would look the same in every language - and
+         * wrong in at least one of them.
          */
         public ?string $currency = null,
     ) {
         self::assertValidKey($key);
 
         if ('' === trim($label)) {
-            throw new \InvalidArgumentException('Metric.label darf nicht leer sein.');
+            throw new \InvalidArgumentException('Metric.label must not be empty.');
         }
     }
 
@@ -73,7 +73,7 @@ final readonly class Metric
     }
 
     /**
-     * Das Modul, aus dem die Kennzahl stammt - der Teil vor dem Punkt.
+     * The module the figure comes from - the part before the dot.
      */
     public function module(): string
     {
@@ -81,15 +81,14 @@ final readonly class Metric
     }
 
     /**
-     * Der Praefix zwingt zur Namensraumtrennung. Ohne ihn heisst die
-     * Kennzahl in drei Modulen "total", und wer zuletzt registriert wird,
-     * gewinnt - lautlos.
+     * The prefix forces namespace separation. Without it the figure is called
+     * "total" in three modules, and whoever registers last wins - silently.
      */
     private static function assertValidKey(string $key): void
     {
         if (1 !== preg_match('/^[a-z][a-z0-9-]{1,39}\.[a-z][a-z0-9_]{1,39}$/', $key)) {
             throw new \InvalidArgumentException(sprintf(
-                'Metric-Schluessel "%s" ist ungueltig: erwartet wird "modul.kennzahl", beides klein geschrieben.',
+                'Metric key "%s" is invalid: expected "module.figure", both lower case.',
                 $key,
             ));
         }

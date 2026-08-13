@@ -8,31 +8,29 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Der eine Voter fuer alles.
+ * The one voter for everything.
  *
- * Er kennt kein Modul. Er liest aus dem Attribut, um welches Modul und welche
- * Aktion es geht, fragt die OwnershipRegistry nach dem Besitzer des
- * Datensatzes, schlaegt in der Rechtematrix nach und vergleicht. Ein neues
- * Modul wird geschuetzt, indem es einen RecordOwnership-Anbieter mitbringt -
- * hier aendert sich nichts.
+ * It knows no module. It reads from the attribute which module and which action
+ * are meant, asks the OwnershipRegistry who owns the record, looks the answer up
+ * in the permission matrix and compares. A new module gets protected by bringing
+ * a RecordOwnership provider along - nothing changes here.
  *
- * Das Attribut hat die Form "modul.aktion":
+ * The attribute has the form "module.action":
  *
- *     #[IsGranted('deal.view')]                    Listenseite: darf er ueberhaupt?
- *     #[IsGranted('deal.edit', subject: 'deal')]   Datensatz: darf er *diesen*?
+ *     #[IsGranted('deal.view')]                    list page: may he at all?
+ *     #[IsGranted('deal.edit', subject: 'deal')]   record: may he have *this* one?
  *
- * Das Modul steckt im Attribut und nicht im Subjekt, weil Symfony ein Subjekt
- * vom Typ String als *Argumentnamen* des Controllers deutet. Fuer eine
- * Listenseite gibt es kein solches Argument - der Umweg ueber einen
- * Expression-Ausdruck waere die Alternative gewesen und haette jede
- * Controller-Zeile unleserlich gemacht.
+ * The module sits in the attribute and not in the subject, because Symfony reads
+ * a subject of type string as the *argument name* of the controller. For a list
+ * page there is no such argument - the detour through an expression would have
+ * been the alternative and would have made every controller line unreadable.
  *
  * @extends Voter<string, object|null>
  */
 final class CrmVoter extends Voter
 {
     /**
-     * modul.aktion, beides klein geschrieben.
+     * module.action, both lower case.
      */
     private const ATTRIBUTE = '/^([a-z][a-z0-9-]{1,39})\.([a-z]+)$/';
 
@@ -59,8 +57,8 @@ final class CrmVoter extends Voter
         $actor = $token->getUser();
 
         if (!$actor instanceof ActorInterface) {
-            // Nicht angemeldet, oder ein Benutzertyp, der sich nicht als
-            // Handelnder ausweist. Beides heisst: nein.
+            // Not signed in, or a user type that does not identify itself as an
+            // actor. Either way the answer is no.
             return false;
         }
 
@@ -74,10 +72,9 @@ final class CrmVoter extends Voter
             return true;
         }
 
-        // Ohne Datensatz laesst sich Besitz nicht pruefen. Die Frage lautet
-        // dann "darf er ueberhaupt" - und ein eingeschraenktes Recht ist ein
-        // Recht. Ob er *diesen* Datensatz darf, entscheidet der Aufruf mit
-        // dem Objekt.
+        // Without a record there is no ownership to check. The question is then
+        // "may he at all" - and a restricted right is still a right. Whether he
+        // may have *this* record is decided by the call that passes the object.
         if (!\is_object($subject)) {
             return true;
         }
@@ -88,7 +85,7 @@ final class CrmVoter extends Voter
             return $ownership->isOwnedBy($actor) || $ownership->belongsToTeamOf($actor);
         }
 
-        // Bleibt OWN - ALL ist oben abgehandelt.
+        // OWN is what is left - ALL was handled above.
         return $ownership->isOwnedBy($actor);
     }
 
