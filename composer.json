@@ -20,6 +20,7 @@
         "crm/contact-module": "^0.1",
         "crm/dashboard-module": "^0.1",
         "crm/deal-module": "^0.1",
+        "crm/document-module": "^0.1",
         "crm/search-module": "^0.1",
         "crm/shared-kernel": "^0.1",
         "crm/user-module": "^0.1",
@@ -66,7 +67,8 @@
             "Crm\\Deal\\Tests\\": "modules/deal/tests/",
             "Crm\\Activity\\Tests\\": "modules/activity/tests/",
             "Crm\\Search\\Tests\\": "modules/search/tests/",
-            "Crm\\Dashboard\\Tests\\": "modules/dashboard/tests/"
+            "Crm\\Dashboard\\Tests\\": "modules/dashboard/tests/",
+            "Crm\\Document\\Tests\\": "modules/document/tests/"
         }
     },
     "replace": {

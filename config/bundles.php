@@ -12,13 +12,7 @@ return [
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
-
-    // --- Vertragsschicht ---
-    // Muss vor den Modulen stehen: die Module ueberschreiben Vorgabedienste
-    // aus dem Shared Kernel, und dabei gewinnt die spaetere Definition.
     Crm\SharedKernel\CrmSharedKernelBundle::class => ['all' => true],
-
-    // --- Module ---
     Crm\User\UserModule::class => ['all' => true],
     Crm\Company\CompanyModule::class => ['all' => true],
     Crm\Contact\ContactModule::class => ['all' => true],
@@ -26,4 +20,6 @@ return [
     Crm\Activity\ActivityModule::class => ['all' => true],
     Crm\Search\SearchModule::class => ['all' => true],
     Crm\Dashboard\DashboardModule::class => ['all' => true],
+    Crm\Document\DocumentModule::class => ['all' => true],
+    League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
 ];

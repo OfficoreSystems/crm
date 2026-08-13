@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dokumente{% endblock %}
+
+{% block body %}
+    <h1>Dokumente</h1>
+
+    {% if documents is empty %}
+        <p class="muted">
+            Noch nichts abgelegt. Dateien haengen an einem Datensatz &mdash;
+            oeffne einen Kontakt, eine Firma oder eine Verkaufschance und lade
+            sie dort hoch.
+        </p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Datei</th>
+                    <th scope="col">Gehoert zu</th>
+                    <th scope="col">Groesse</th>
+                    <th scope="col">Abgelegt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                    {% set label = labels[document.subject.key]|default(null) %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('document_download', {document: document.id}) }}">
+                                {{ document.filename }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if label %}
+                                <a href="{{ path('document_for_subject', {
+                                    type: document.subject.type,
+                                    id: document.subject.id,
+                                }) }}">{{ label.label }}</a>
+                                <span class="muted">({{ label.typeLabel }})</span>
+                            {% else %}
+                                {# Das Modul, das diesen Typ aufloest, ist nicht
+                                   installiert. Die Datei bleibt erreichbar. #}
+                                <span class="muted">Bezug nicht aufloesbar</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ document.size|document_size }}</td>
+                        <td>{{ document.uploadedAt|date('d.m.Y H:i') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

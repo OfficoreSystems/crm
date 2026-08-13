@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dokumente{% if label %} &mdash; {{ label.label }}{% endif %}{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('document_index') }}">&larr; Alle Dokumente</a></p>
+
+    <h1>
+        {% if label %}
+            Dokumente zu {{ label.label }}
+        {% else %}
+            Dokumente
+        {% endif %}
+    </h1>
+
+    {% if not label %}
+        <p class="muted">
+            Der Bezug ist nicht aufloesbar &mdash; das zustaendige Modul ist
+            nicht installiert. Vorhandene Dateien bleiben erreichbar.
+        </p>
+    {% endif %}
+
+    {% for message in app.flashes('success') %}
+        <p class="flash flash--success">{{ message }}</p>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <p class="flash flash--error">{{ message }}</p>
+    {% endfor %}
+
+    {% if is_granted('document.create') %}
+        <form
+            method="post"
+            action="{{ path('document_upload', {type: subject.type, id: subject.id}) }}"
+            enctype="multipart/form-data"
+            class="upload"
+        >
+            <label for="datei">Datei hinzufuegen</label>
+            <input type="file" id="datei" name="datei" required>
+            <button type="submit">Hochladen</button>
+        </form>
+    {% endif %}
+
+    {% if documents is empty %}
+        <p class="muted">Noch keine Datei abgelegt.</p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Datei</th>
+                    <th scope="col">Groesse</th>
+                    <th scope="col">Abgelegt</th>
+                    <th scope="col"><span class="visually-hidden">Aktionen</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('document_download', {document: document.id}) }}">
+                                {{ document.filename }}
+                            </a>
+                        </td>
+                        <td>{{ document.size|document_size }}</td>
+                        <td>{{ document.uploadedAt|date('d.m.Y H:i') }}</td>
+                        <td>
+                            {% if is_granted('document.delete', document) %}
+                                <form
+                                    method="post"
+                                    action="{{ path('document_delete', {document: document.id}) }}"
+                                    onsubmit="return confirm('Datei wirklich loeschen?')"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('document_delete_' ~ document.id) }}"
+                                    >
+                                    <button type="submit" class="link-button">Loeschen</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
