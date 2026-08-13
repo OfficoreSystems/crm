@@ -1,0 +1,42 @@
+deal:
+    menu: 'Pipeline'
+    title: 'Pipeline'
+    subject_type: 'Verkaufschance'
+    subject_description: '%company% · %stage%'
+    subject_description_stage_only: '%stage%'
+
+    stage:
+        lead: 'Lead'
+        qualified: 'Qualifiziert'
+        proposal: 'Angebot'
+        negotiation: 'Verhandlung'
+        won: 'Gewonnen'
+        lost: 'Verloren'
+
+    metric:
+        pipeline: 'Offene Pipeline'
+        pipeline_description: '{0}keine offenen Chancen|{1}1 offene Chance|]1,Inf[ %count% offene Chancen'
+        win_rate: 'Gewinnquote'
+        win_rate_description: '%won% gewonnen, %lost% verloren'
+        win_rate_unknown: 'noch nichts abgeschlossen'
+
+    lede: 'Verkaufschancen nach Stufe. Die Suche greift auf Titel, Firma und Kontakt.'
+
+    board:
+        search_placeholder: 'Nach Titel, Firma oder Kontakt suchen …'
+        search_label: 'Verkaufschancen durchsuchen'
+        open: 'offen'
+        won_share: 'gewonnen'
+        nothing_closed: 'noch nichts abgeschlossen'
+        none_yet: 'Noch keine Verkaufschancen angelegt. Leg welche an mit <code>bin/console deal:seed</code>.'
+        empty_stage: 'leer'
+        total: 'Offene Pipeline'
+        count: '{0}keine Chancen|{1}1 Chance|]1,Inf[ %count% Chancen'
+
+    show:
+        back: 'Pipeline'
+        value: 'Wert'
+        stage: 'Stufe'
+        closed_on: 'abgeschlossen am %date%'
+        expected_close: 'Erwarteter Abschluss'
+        created: 'Angelegt'

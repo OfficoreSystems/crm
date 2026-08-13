@@ -13,7 +13,7 @@ final class DealMenuProvider implements MenuProviderInterface
     {
         // Hoechste Priority: die Pipeline ist der Einstieg im Vertriebsalltag.
         yield new MenuItem(
-            label: 'Pipeline',
+            label: 'deal.menu',
             route: 'deal_index',
             icon: 'trending-up',
             priority: 110,

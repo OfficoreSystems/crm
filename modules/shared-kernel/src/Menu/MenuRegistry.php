@@ -21,7 +21,15 @@ final class MenuRegistry
     }
 
     /**
-     * @return list<MenuItem> Absteigend nach Priority, bei Gleichstand alphabetisch.
+     * Absteigend nach Priority; bei Gleichstand nach dem Label.
+     *
+     * Das Label ist ein Uebersetzungsschluessel, die Zweitsortierung also
+     * nicht alphabetisch in der Anzeigesprache. Uebersetzen kann die Registry
+     * nicht - sie liegt in der Vertragsschicht. Der Gegenwert waere ohnehin
+     * gering: Gleichstand ist selten, und eine Reihenfolge, die sich mit der
+     * Sprache aendert, ist auch nicht besser.
+     *
+     * @return list<MenuItem>
      */
     public function items(): array
     {

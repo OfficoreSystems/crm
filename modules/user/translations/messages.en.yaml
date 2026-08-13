@@ -1,0 +1,31 @@
+user:
+    menu: 'Users'
+    title: 'Users'
+    lede: 'Accounts are created by <code>bin/console user:create</code> — there is deliberately no self-registration.'
+
+    role:
+        admin: 'Administrator'
+        user: 'User'
+
+    login:
+        title: 'Sign in'
+        email: 'Email'
+        password: 'Password'
+        submit: 'Sign in'
+
+    list:
+        search_placeholder: 'Search by name or email …'
+        search_label: 'Search users'
+        filtered_count: '%shown% of %total%'
+        total_count: '{0}no users|{1}%count% user|]1,Inf[ %count% users'
+        no_match: 'No match for <strong>%query%</strong>.'
+        none_yet: 'No users yet.'
+        truncated: 'Showing the first matches only. Narrow the search further.'
+        active: 'active'
+        inactive: 'deactivated'
+        column:
+            name: 'Name'
+            email: 'Email'
+            team: 'Team'
+            roles: 'Roles'
+            status: 'Status'

@@ -1,0 +1,13 @@
+search:
+    menu: 'Suche'
+    title: 'Suche'
+    lede: 'Durchsucht alle Module, die sich als Subjekt anbieten — ohne dass dieses Modul eines davon kennt.'
+
+    placeholder: 'Kontakt, Firma oder Verkaufschance suchen …'
+    label: 'Alles durchsuchen'
+    type_filter_label: 'Auf einen Typ einschränken'
+    everywhere: 'Überall'
+    hit_count: '{0}keine Treffer|{1}1 Treffer|]1,Inf[ %count% Treffer'
+    no_module: 'Kein durchsuchbares Modul installiert.'
+    hint: 'Tipp einen Suchbegriff ein. Durchsucht werden: %types%.'
+    no_results: 'Kein Treffer für <strong>%query%</strong>.'

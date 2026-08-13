@@ -1,13 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Suche{% endblock %}
+{% block title %}{{ 'search.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Suche</h1>
-    <p class="lede">
-        Durchsucht alle Module, die sich als Subjekt anbieten &mdash; ohne dass
-        dieses Modul eines davon kennt.
-    </p>
+    <h1>{{ 'search.title'|trans }}</h1>
+    <p class="lede">{{ 'search.lede'|trans }}</p>
 
     <twig:GlobalSearch />
 {% endblock %}

@@ -5,16 +5,16 @@
             type="search"
             value="{{ this.query }}"
             data-model="debounce(200)|query"
-            placeholder="Nach Name oder E-Mail suchen …"
+            placeholder="{{ 'user.list.search_placeholder'|trans }}"
             autocomplete="off"
-            aria-label="Benutzer durchsuchen"
+            aria-label="{{ 'user.list.search_label'|trans }}"
             class="contact-list__search"
         >
         <span class="contact-list__count" data-loading="addClass(is-busy)">
             {% if this.isFiltered %}
-                {{ this.users|length }} von {{ this.total }}
+                {{ 'user.list.filtered_count'|trans({'%shown%': this.users|length, '%total%': this.total}) }}
             {% else %}
-                {{ this.total }} {{ this.total == 1 ? 'Benutzer' : 'Benutzer' }}
+                {{ 'user.list.total_count'|trans({'%count%': this.total}) }}
             {% endif %}
         </span>
     </div>
@@ -22,20 +22,20 @@
     {% if this.users is empty %}
         <p class="contact-list__empty">
             {% if this.isFiltered %}
-                Kein Treffer für <strong>{{ this.query }}</strong>.
+                {{ 'user.list.no_match'|trans({'%query%': this.query})|raw }}
             {% else %}
-                Noch keine Benutzer angelegt.
+                {{ 'user.list.none_yet'|trans }}
             {% endif %}
         </p>
     {% else %}
         <table class="contact-list__table">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">E-Mail</th>
-                    <th scope="col">Team</th>
-                    <th scope="col">Rollen</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">{{ 'user.list.column.name'|trans }}</th>
+                    <th scope="col">{{ 'user.list.column.email'|trans }}</th>
+                    <th scope="col">{{ 'user.list.column.team'|trans }}</th>
+                    <th scope="col">{{ 'user.list.column.roles'|trans }}</th>
+                    <th scope="col">{{ 'user.list.column.status'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,9 +47,9 @@
                         <td>{{ user.roles|join(', ') }}</td>
                         <td>
                             {% if user.active %}
-                                aktiv
+                                {{ 'user.list.active'|trans }}
                             {% else %}
-                                <span class="muted">deaktiviert</span>
+                                <span class="muted">{{ 'user.list.inactive'|trans }}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -58,9 +58,7 @@
         </table>
 
         {% if this.isTruncated %}
-            <p class="contact-list__note">
-                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
-            </p>
+            <p class="contact-list__note">{{ 'user.list.truncated'|trans }}</p>
         {% endif %}
     {% endif %}
 </div>

@@ -7,28 +7,28 @@
             type="search"
             value="{{ this.query }}"
             data-model="debounce(200)|query"
-            placeholder="Nach Titel, Firma oder Kontakt suchen …"
+            placeholder="{{ 'deal.board.search_placeholder'|trans }}"
             autocomplete="off"
-            aria-label="Verkaufschancen durchsuchen"
+            aria-label="{{ 'deal.board.search_label'|trans }}"
             class="contact-list__search"
         >
         <span class="contact-list__count" data-loading="addClass(is-busy)">
-            {{ this.total }} {{ this.total == 1 ? 'Chance' : 'Chancen' }}
+            {{ 'deal.board.count'|trans({'%count%': this.total}) }}
         </span>
     </div>
 
     <div class="pipeline__summary">
         <span class="pipeline__metric">
-            <strong>{{ this.openValue.asDecimal }} {{ this.openValue.currency }}</strong>
-            <span class="muted">offen</span>
+            <strong>{{ this.openValue.asDecimal|format_currency(this.openValue.currency) }}</strong>
+            <span class="muted">{{ 'deal.board.open'|trans }}</span>
         </span>
         <span class="pipeline__metric">
             {% if this.winRate is null %}
                 <strong>&mdash;</strong>
-                <span class="muted">noch nichts abgeschlossen</span>
+                <span class="muted">{{ 'deal.board.nothing_closed'|trans }}</span>
             {% else %}
                 <strong>{{ this.winRate }} %</strong>
-                <span class="muted">gewonnen</span>
+                <span class="muted">{{ 'deal.board.won_share'|trans }}</span>
             {% endif %}
         </span>
     </div>
@@ -39,20 +39,24 @@
             {% set total = this.valueIn(stage) %}
             <section class="pipeline__column pipeline__column--{{ stage.value }}">
                 <header class="pipeline__column-head">
-                    <span class="pipeline__stage">{{ stage.label }}</span>
+                    <span class="pipeline__stage">{{ stage.label|trans }}</span>
                     <span class="pipeline__stage-count">{{ deals|length }}</span>
                 </header>
 
                 {% if total.isZero %}
                     <p class="pipeline__column-sum muted">&mdash;</p>
                 {% else %}
-                    <p class="pipeline__column-sum">{{ total.asDecimal }} {{ total.currency }}</p>
+                    <p class="pipeline__column-sum">{{ total.asDecimal|format_currency(total.currency) }}</p>
                 {% endif %}
 
                 {% for deal in deals %}
                     <article class="pipeline__card">
-                        <p class="pipeline__card-title">{{ deal.title }}</p>
-                        <p class="pipeline__card-value">{{ deal.value.asDecimal }} {{ deal.value.currency }}</p>
+                        <p class="pipeline__card-title">
+                            <a href="{{ path('deal_show', {id: deal.id}) }}">{{ deal.title }}</a>
+                        </p>
+                        <p class="pipeline__card-value">
+                            {{ deal.value.asDecimal|format_currency(deal.value.currency) }}
+                        </p>
                         {% set company = this.companyNameFor(deal) %}
                         {% set contact = this.contactNameFor(deal) %}
                         {% if company or contact %}
@@ -62,16 +66,13 @@
                         {% endif %}
                     </article>
                 {% else %}
-                    <p class="pipeline__empty muted">leer</p>
+                    <p class="pipeline__empty muted">{{ 'deal.board.empty_stage'|trans }}</p>
                 {% endfor %}
             </section>
         {% endfor %}
     </div>
 
     {% if this.total == 0 %}
-        <p class="contact-list__empty">
-            Noch keine Verkaufschancen angelegt.
-            Leg welche an mit <code>bin/console deal:seed</code>.
-        </p>
+        <p class="contact-list__empty">{{ 'deal.board.none_yet'|trans|raw }}</p>
     {% endif %}
 </div>

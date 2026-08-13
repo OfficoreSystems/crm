@@ -1,13 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Kontakte{% endblock %}
+{% block title %}{{ 'contact.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Kontakte</h1>
-    <p class="lede">
-        Referenzmodul. Die Liste unten ist eine Live-Component &mdash; die Suche
-        filtert ohne Seitenwechsel.
-    </p>
+    <h1>{{ 'contact.title'|trans }}</h1>
+    <p class="lede">{{ 'contact.lede'|trans }}</p>
 
     <twig:ContactList />
 {% endblock %}

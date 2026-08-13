@@ -18,7 +18,7 @@ final class CompanyMenuProviderTest extends TestCase
 
         self::assertCount(1, $items);
         self::assertInstanceOf(MenuItem::class, $items[0]);
-        self::assertSame('Firmen', $items[0]->label);
+        self::assertSame('company.menu', $items[0]->label);
         self::assertSame('company_index', $items[0]->route);
     }
 

@@ -31,9 +31,11 @@ final readonly class DealMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'deal.pipeline_value',
-            label: 'Offene Pipeline',
-            value: $this->openValue($stats)->asDecimal().' EUR',
-            description: sprintf('%d offene Chancen', $this->openCount($stats)),
+            label: 'deal.metric.pipeline',
+            value: $this->openValue($stats)->asDecimal(),
+            currency: $this->openValue($stats)->currency,
+            description: 'deal.metric.pipeline_description',
+            parameters: ['%count%' => $this->openCount($stats)],
             route: 'deal_index',
             priority: 100,
         );
@@ -42,11 +44,15 @@ final readonly class DealMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'deal.win_rate',
-            label: 'Gewinnquote',
+            label: 'deal.metric.win_rate',
             value: null === $winRate ? '—' : $winRate.' %',
             description: null === $winRate
-                ? 'noch nichts abgeschlossen'
-                : sprintf('%d gewonnen, %d verloren', $this->countIn($stats, Stage::WON), $this->countIn($stats, Stage::LOST)),
+                ? 'deal.metric.win_rate_unknown'
+                : 'deal.metric.win_rate_description',
+            parameters: [
+                '%won%' => $this->countIn($stats, Stage::WON),
+                '%lost%' => $this->countIn($stats, Stage::LOST),
+            ],
             route: 'deal_index',
             priority: 90,
             // Erst ab einer Aussage ueberhaupt bewerten - bei zwei

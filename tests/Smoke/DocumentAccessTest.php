@@ -67,7 +67,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'Rahmenvertrag.pdf');
 
         $this->signIn($this->client, $vera);
-        $this->client->request('GET', '/documents/datei/'.$document->id());
+        $this->client->request('GET', '/documents/file/'.$document->id());
 
         self::assertResponseIsSuccessful();
     }
@@ -81,7 +81,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'Rahmenvertrag.pdf');
 
         $this->signIn($this->client, $ingo);
-        $this->client->request('GET', '/documents/datei/'.$document->id());
+        $this->client->request('GET', '/documents/file/'.$document->id());
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -108,7 +108,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'Rahmenvertrag.pdf');
 
         $this->signIn($this->client, $vitali);
-        $this->client->request('GET', '/documents/datei/'.$document->id());
+        $this->client->request('GET', '/documents/file/'.$document->id());
 
         self::assertResponseIsSuccessful();
     }
@@ -123,7 +123,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'Rahmenvertrag.pdf');
 
         $this->signIn($this->client, $vitali);
-        $this->client->request('POST', '/documents/datei/'.$document->id());
+        $this->client->request('POST', '/documents/file/'.$document->id());
 
         self::assertResponseStatusCodeSame(403);
     }
@@ -136,7 +136,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'Rahmenvertrag.pdf');
 
         $this->signIn($this->client, $chefin);
-        $this->client->request('GET', '/documents/datei/'.$document->id());
+        $this->client->request('GET', '/documents/file/'.$document->id());
 
         self::assertResponseIsSuccessful();
     }
@@ -151,7 +151,7 @@ final class DocumentAccessTest extends WebTestCase
         $document = $this->givenDocumentOf($vera, 'boese.html', 'text/html', '<script>alert(1)</script>');
 
         $this->signIn($this->client, $vera);
-        $this->client->request('GET', '/documents/datei/'.$document->id());
+        $this->client->request('GET', '/documents/file/'.$document->id());
 
         $headers = $this->client->getResponse()->headers;
 
@@ -169,7 +169,7 @@ final class DocumentAccessTest extends WebTestCase
         // mitgeprueft, dass auch wirklich eine Datei im Speicher landet -
         // sonst wuerde der Download-Test aus dem falschen Grund fehlschlagen.
         return (static::getContainer()->get(UploadDocument::class))(new UploadDocumentCommand(
-            subject: new SubjectRef('contact', 'kontakt-1'),
+            subject: new SubjectRef('contact', 'contact-1'),
             filename: $filename,
             mimeType: $mimeType,
             size: \strlen($contents),

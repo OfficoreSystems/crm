@@ -14,7 +14,7 @@ final class CompanyMenuProvider implements MenuProviderInterface
         // Knapp unter Kontakte (100): beides taegliche Arbeit, Kontakte sind
         // der haeufigere Einstieg.
         yield new MenuItem(
-            label: 'Firmen',
+            label: 'company.menu',
             route: 'company_index',
             icon: 'building',
             priority: 90,

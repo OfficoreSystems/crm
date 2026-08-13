@@ -1,48 +1,35 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Kalender abonnieren{% endblock %}
+{% block title %}{{ 'calendar.subscription.title'|trans }}{% endblock %}
 
 {% block body %}
-    <p><a href="{{ path('calendar_index') }}">&larr; Kalender</a></p>
+    <p><a href="{{ path('calendar_index') }}">&larr; {{ 'calendar.subscription.back'|trans }}</a></p>
 
-    <h1>Kalender abonnieren</h1>
+    <h1>{{ 'calendar.subscription.title'|trans }}</h1>
 
     {% for message in app.flashes('success') %}
-        <p class="flash flash--success">{{ message }}</p>
+        <p class="flash flash--success">{{ message|trans }}</p>
     {% endfor %}
     {% for message in app.flashes('error') %}
-        <p class="flash flash--error">{{ message }}</p>
+        <p class="flash flash--error">{{ message|trans }}</p>
     {% endfor %}
 
     {% if url %}
-        <p>Diese Adresse in Outlook, Google Kalender oder Apple Kalender als
-           Abonnement eintragen:</p>
+        <p>{{ 'calendar.subscription.intro'|trans }}</p>
 
         <p><code class="feed-url">{{ url }}</code></p>
 
-        <p class="muted">
-            <strong>Jetzt kopieren.</strong> Die Adresse wird nur dieses eine Mal
-            angezeigt &mdash; gespeichert ist nur ihre Prüfsumme, genau wie bei
-            einem Passwort.
-        </p>
+        <p class="muted">{{ 'calendar.subscription.copy_now'|trans|raw }}</p>
     {% else %}
-        <p>Es gibt bereits ein Abonnement für dieses Konto.</p>
-        <p class="muted">
-            Die Adresse lässt sich nicht erneut anzeigen. Wer sie verloren hat,
-            erzeugt eine neue &mdash; die alte hört damit sofort auf zu
-            funktionieren.
-        </p>
+        <p>{{ 'calendar.subscription.already_exists'|trans }}</p>
+        <p class="muted">{{ 'calendar.subscription.cannot_show_again'|trans }}</p>
     {% endif %}
 
-    <p class="muted">
-        Der Feed enthält ausschließlich Termine, die diesem Konto gehören.
-        Wer die Adresse hat, sieht sie &mdash; ohne Anmeldung. Sie gehört
-        deshalb nicht in eine E-Mail und nicht in ein geteiltes Dokument.
-    </p>
+    <p class="muted">{{ 'calendar.subscription.privacy'|trans }}</p>
 
     <form method="post" action="{{ path('calendar_subscription') }}"
-          onsubmit="return confirm('Neue Adresse erzeugen? Die alte funktioniert danach nicht mehr.')">
+          onsubmit="return confirm('{{ 'calendar.subscription.regenerate_confirm'|trans|e('js') }}')">
         <input type="hidden" name="_token" value="{{ csrf_token('calendar_feed_' ~ userId) }}">
-        <button type="submit">Neue Adresse erzeugen</button>
+        <button type="submit">{{ 'calendar.subscription.regenerate'|trans }}</button>
     </form>
 {% endblock %}

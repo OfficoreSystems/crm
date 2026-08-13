@@ -1,13 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Aktivitäten{% endblock %}
+{% block title %}{{ 'activity.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Aktivitäten</h1>
-    <p class="lede">
-        Notizen, Anrufe, Termine und Aufgaben &mdash; unabhängig davon, woran
-        sie hängen.
-    </p>
+    <h1>{{ 'activity.title'|trans }}</h1>
+    <p class="lede">{{ 'activity.lede'|trans }}</p>
 
     <twig:Timeline />
 {% endblock %}

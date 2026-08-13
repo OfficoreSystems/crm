@@ -14,7 +14,7 @@ final class UserMenuProvider implements MenuProviderInterface
         // Niedrige Priority: Verwaltung gehoert ans Ende der Navigation,
         // nicht vor die taegliche Arbeit.
         yield new MenuItem(
-            label: 'Benutzer',
+            label: 'user.menu',
             route: 'user_index',
             icon: 'users-cog',
             priority: 10,

@@ -3,21 +3,21 @@
 {% block title %}{{ deal.title }}{% endblock %}
 
 {% block body %}
-    <p><a href="{{ path('deal_index') }}">&larr; Pipeline</a></p>
+    <p><a href="{{ path('deal_index') }}">&larr; {{ 'deal.show.back'|trans }}</a></p>
 
     <h1>{{ deal.title }}</h1>
 
     <div class="metrics">
         <article class="metric">
-            <p class="metric__label">Wert</p>
-            <p class="metric__value">{{ deal.value.asDecimal }} {{ deal.value.currency }}</p>
+            <p class="metric__label">{{ 'deal.show.value'|trans }}</p>
+            <p class="metric__value">{{ deal.value.asDecimal|format_currency(deal.value.currency) }}</p>
         </article>
         <article class="metric">
-            <p class="metric__label">Stufe</p>
-            <p class="metric__value">{{ deal.stage.label }}</p>
+            <p class="metric__label">{{ 'deal.show.stage'|trans }}</p>
+            <p class="metric__value">{{ deal.stage.label|trans }}</p>
             {% if deal.closedAt %}
                 <p class="metric__description">
-                    abgeschlossen am {{ deal.closedAt|date('d.m.Y') }}
+                    {{ 'deal.show.closed_on'|trans({'%date%': deal.closedAt|format_date('medium')}) }}
                 </p>
             {% endif %}
         </article>
@@ -26,18 +26,18 @@
     <table class="contact-list__table">
         <tbody>
             <tr>
-                <th scope="row">Erwarteter Abschluss</th>
+                <th scope="row">{{ 'deal.show.expected_close'|trans }}</th>
                 <td>
                     {% if deal.expectedCloseDate %}
-                        {{ deal.expectedCloseDate|date('d.m.Y') }}
+                        {{ deal.expectedCloseDate|format_date('medium') }}
                     {% else %}
                         <span class="muted">&mdash;</span>
                     {% endif %}
                 </td>
             </tr>
             <tr>
-                <th scope="row">Angelegt</th>
-                <td>{{ deal.createdAt|date('d.m.Y') }}</td>
+                <th scope="row">{{ 'deal.show.created'|trans }}</th>
+                <td>{{ deal.createdAt|format_date('medium') }}</td>
             </tr>
         </tbody>
     </table>

@@ -18,7 +18,7 @@ final class UserMenuProviderTest extends TestCase
 
         self::assertCount(1, $items);
         self::assertInstanceOf(MenuItem::class, $items[0]);
-        self::assertSame('Benutzer', $items[0]->label);
+        self::assertSame('user.menu', $items[0]->label);
         self::assertSame('user_index', $items[0]->route);
     }
 

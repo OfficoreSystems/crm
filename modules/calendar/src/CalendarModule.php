@@ -22,7 +22,7 @@ final class CalendarModule extends AbstractBundle implements CrmModuleInterface
      * config/packages/security.yaml. Der Praefix dort ist generisch; welches
      * Modul ihn benutzt, steht hier und nur hier.
      */
-    public const FEED_PREFIX = '/oeffentlich/kalender';
+    public const FEED_PREFIX = '/public/calendar';
 
     protected string $extensionAlias = 'crm_calendar';
 

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Anmelden{% endblock %}
+{% block title %}{{ 'user.login.title'|trans }}{% endblock %}
 
 {# Ersetzt das Grundgeruest: auf der Anmeldeseite gibt es keine Navigation. #}
 {% block shell %}
@@ -10,25 +10,27 @@
 
             {% if error %}
                 <p class="auth__error" role="alert">
+                    {# Die Domain "security" bringt Symfony selbst mit - in allen
+                       Sprachen, die es kennt. #}
                     {{ error.messageKey|trans(error.messageData, 'security') }}
                 </p>
             {% endif %}
 
             <label class="auth__field">
-                <span>E-Mail</span>
+                <span>{{ 'user.login.email'|trans }}</span>
                 <input type="email" name="_username" value="{{ lastUsername }}"
                        autocomplete="username" required autofocus>
             </label>
 
             <label class="auth__field">
-                <span>Passwort</span>
+                <span>{{ 'user.login.password'|trans }}</span>
                 <input type="password" name="_password"
                        autocomplete="current-password" required>
             </label>
 
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <button class="auth__submit" type="submit">Anmelden</button>
+            <button class="auth__submit" type="submit">{{ 'user.login.submit'|trans }}</button>
         </form>
     </div>
 {% endblock %}

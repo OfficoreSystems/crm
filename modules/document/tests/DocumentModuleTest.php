@@ -117,7 +117,7 @@ final class DocumentModuleTest extends TestCase
         // ist der Nachschlageweg, nicht der Einstieg.
         $item = iterator_to_array((new DocumentMenuProvider())->getMenuItems())[0];
 
-        self::assertSame('Dokumente', $item->label);
+        self::assertSame('document.menu', $item->label);
         self::assertSame('document_index', $item->route);
         self::assertLessThan(100, $item->priority);
     }

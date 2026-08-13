@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Crm\SharedKernel\Subject;
 
+use Crm\SharedKernel\Localization\TranslatableText;
+use Symfony\Contracts\Translation\TranslatableInterface;
+
 /**
  * Ein aufgeloester Verweis: genug, um ihn anzuzeigen und zu verlinken.
  *
@@ -14,12 +17,17 @@ namespace Crm\SharedKernel\Subject;
 final readonly class ResolvedSubject
 {
     /**
-     * @param array<string, string|int> $routeParameters
-     * @param string|null               $description Zweite Zeile: was diesen
-     *                                               Datensatz von gleichnamigen
-     *                                               unterscheidet. Ohne sie ist
-     *                                               eine Trefferliste mit drei
-     *                                               "Nordwind" nicht benutzbar.
+     * @param string                             $label           Daten, kein Schluessel - der Name
+     *                                                            des Datensatzes.
+     * @param array<string, string|int>          $routeParameters
+     * @param string|TranslatableInterface|null  $typeLabel       Uebersetzungsschluessel.
+     * @param string|TranslatableInterface|null  $description     Zweite Zeile: was diesen Datensatz
+     *                                                            von gleichnamigen unterscheidet.
+     *                                                            Ohne sie ist eine Trefferliste mit
+     *                                                            drei "Nordwind" nicht benutzbar.
+     *                                                            Mischt oft Daten und Uebersetzung -
+     *                                                            dafuer gibt es
+     *                                                            {@see TranslatableText}.
      */
     public function __construct(
         public string $type,
@@ -27,8 +35,8 @@ final readonly class ResolvedSubject
         public string $label,
         public ?string $route = null,
         public array $routeParameters = [],
-        public ?string $typeLabel = null,
-        public ?string $description = null,
+        public string|TranslatableInterface|null $typeLabel = null,
+        public string|TranslatableInterface|null $description = null,
     ) {
     }
 

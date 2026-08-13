@@ -12,7 +12,7 @@ final class ActivityMenuProvider implements MenuProviderInterface
     public function getMenuItems(): iterable
     {
         yield new MenuItem(
-            label: 'Aktivitäten',
+            label: 'activity.menu',
             route: 'activity_index',
             icon: 'clock',
             priority: 95,

@@ -24,7 +24,7 @@ final class DocumentUploadTest extends WebTestCase
 {
     use SignsIn;
 
-    private const SUBJECT = '/documents/an/contact/kontakt-1';
+    private const SUBJECT = '/documents/for/contact/contact-1';
 
     private KernelBrowser $client;
 
@@ -54,10 +54,10 @@ final class DocumentUploadTest extends WebTestCase
     {
         $this->signInAsUploader();
 
-        $this->client->request('POST', self::SUBJECT, files: ['datei' => $this->file('Angebot.pdf')]);
+        $this->client->request('POST', self::SUBJECT, files: ['file' => $this->file('Angebot.pdf')]);
 
         self::assertResponseRedirects(self::SUBJECT);
-        self::assertSame(1, $this->documents()->countForSubject(new SubjectRef('contact', 'kontakt-1')));
+        self::assertSame(1, $this->documents()->countForSubject(new SubjectRef('contact', 'contact-1')));
     }
 
     #[Test]
@@ -68,7 +68,7 @@ final class DocumentUploadTest extends WebTestCase
         $this->signInAsUploader();
 
         $this->client->request('POST', self::SUBJECT, files: [
-            'datei' => $this->file('../../etc/passwd'),
+            'file' => $this->file('../../etc/passwd'),
         ]);
 
         $document = $this->documents()->findRecent(1)[0];
@@ -91,7 +91,7 @@ final class DocumentUploadTest extends WebTestCase
         self::assertSame(0, $this->documents()->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'keine gueltige Datei');
+        self::assertSelectorTextContains('.flash--error', 'No valid file');
     }
 
     #[Test]
@@ -101,14 +101,14 @@ final class DocumentUploadTest extends WebTestCase
         // unauffindbar - der Eintrag taucht in keiner Detailseite auf.
         $this->signInAsUploader();
 
-        $this->client->request('POST', '/documents/an/rechnung/r-1', files: [
-            'datei' => $this->file('Angebot.pdf'),
+        $this->client->request('POST', '/documents/for/invoice/i-1', files: [
+            'file' => $this->file('Angebot.pdf'),
         ]);
 
         self::assertSame(0, $this->documents()->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'Kein Modul loest den Typ');
+        self::assertSelectorTextContains('.flash--error', 'No module resolves the type');
     }
 
     #[Test]
@@ -118,11 +118,11 @@ final class DocumentUploadTest extends WebTestCase
         // um fremde Dateien loeschen zu lassen.
         $admin = $this->givenUser('chefin@example.test', 'Chefin', [Role::ADMIN], 'Vertrieb');
         $this->signIn($this->client, $admin);
-        $this->client->request('POST', self::SUBJECT, files: ['datei' => $this->file('Angebot.pdf')]);
+        $this->client->request('POST', self::SUBJECT, files: ['file' => $this->file('Angebot.pdf')]);
 
         $document = $this->documents()->findRecent(1)[0];
 
-        $this->client->request('POST', '/documents/datei/'.$document->id(), ['_token' => 'falsch']);
+        $this->client->request('POST', '/documents/file/'.$document->id(), ['_token' => 'falsch']);
 
         self::assertSame(1, $this->documents()->countAll(), 'Die Datei muss noch da sein.');
     }
@@ -132,7 +132,7 @@ final class DocumentUploadTest extends WebTestCase
     {
         $admin = $this->givenUser('chefin@example.test', 'Chefin', [Role::ADMIN], 'Vertrieb');
         $this->signIn($this->client, $admin);
-        $this->client->request('POST', self::SUBJECT, files: ['datei' => $this->file('Angebot.pdf')]);
+        $this->client->request('POST', self::SUBJECT, files: ['file' => $this->file('Angebot.pdf')]);
 
         $document = $this->documents()->findRecent(1)[0];
         $key = $document->storageKey();
@@ -140,7 +140,7 @@ final class DocumentUploadTest extends WebTestCase
         // Das Token aus dem gerenderten Formular holen, nicht selbst erzeugen:
         // so wird mitgeprueft, dass das Template ueberhaupt eines ausgibt.
         $crawler = $this->client->request('GET', self::SUBJECT);
-        $form = $crawler->filter('form[action="/documents/datei/'.$document->id().'"]')->form();
+        $form = $crawler->filter('form[action="/documents/file/'.$document->id().'"]')->form();
 
         $this->client->submit($form);
 

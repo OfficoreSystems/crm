@@ -32,7 +32,7 @@ final readonly class ContactSubjectResolver implements SubjectResolverInterface
 
     public function typeLabel(): string
     {
-        return 'Kontakt';
+        return 'contact.subject_type';
     }
 
     public function resolve(array $ids): array
@@ -68,7 +68,7 @@ final readonly class ContactSubjectResolver implements SubjectResolverInterface
             id: (string) $contact->id(),
             label: $contact->fullName(),
             route: 'contact_index',
-            typeLabel: 'Kontakt',
+            typeLabel: 'contact.subject_type',
             // Bewusst nur die E-Mail und nicht der Firmenname: den
             // aufzuloesen hiesse, hier den CompanyFinder zu bemuehen - je
             // Treffer, in einer Schleife. Fuer eine Trefferliste ist das der

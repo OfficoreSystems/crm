@@ -1,0 +1,6 @@
+dashboard:
+    menu: 'Übersicht'
+    title: 'Übersicht'
+    empty: 'Kein Modul liefert Kennzahlen. Sobald eines installiert ist, das <code>MetricProviderInterface</code> implementiert, erscheint es hier von selbst.'
+    summary: '%metrics% Kennzahlen aus %modules% Modulen.'
+    view: 'ansehen'

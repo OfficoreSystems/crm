@@ -6,6 +6,7 @@ namespace Crm\Deal\Infrastructure\SharedKernel;
 
 use Crm\Deal\Domain\Deal;
 use Crm\Deal\Domain\DealRepositoryInterface;
+use Crm\SharedKernel\Localization\TranslatableText;
 use Crm\SharedKernel\Subject\ResolvedSubject;
 use Crm\SharedKernel\Subject\SubjectResolverInterface;
 use Symfony\Component\Uid\Uuid;
@@ -26,7 +27,7 @@ final readonly class DealSubjectResolver implements SubjectResolverInterface
 
     public function typeLabel(): string
     {
-        return 'Verkaufschance';
+        return 'deal.subject_type';
     }
 
     public function resolve(array $ids): array
@@ -62,13 +63,14 @@ final readonly class DealSubjectResolver implements SubjectResolverInterface
             id: (string) $deal->id(),
             label: $deal->title(),
             route: 'deal_index',
-            typeLabel: 'Verkaufschance',
-            description: sprintf(
-                '%s %s · %s',
-                $deal->value()->asDecimal(),
-                $deal->value()->currency,
-                $deal->stage()->label(),
-            ),
+            typeLabel: 'deal.subject_type',
+            // Der Wert ist Daten, die Stufe ist Uebersetzung - deshalb ein
+            // TranslatableText mit verschachteltem Platzhalter statt einer
+            // fertigen Zeichenkette.
+            description: TranslatableText::of('deal.subject_description', [
+                '%company%' => $deal->value()->asDecimal().' '.$deal->value()->currency,
+                '%stage%' => TranslatableText::of($deal->stage()->label()),
+            ]),
         );
     }
 }

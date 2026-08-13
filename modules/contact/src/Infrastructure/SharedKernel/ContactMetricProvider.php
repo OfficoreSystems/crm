@@ -19,7 +19,7 @@ final readonly class ContactMetricProvider implements MetricProviderInterface
     {
         yield new Metric(
             key: 'contact.total',
-            label: 'Kontakte',
+            label: 'contact.menu',
             value: (string) $this->contacts->countAll(),
             route: 'contact_index',
             priority: 60,

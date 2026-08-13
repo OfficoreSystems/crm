@@ -137,12 +137,12 @@ final class RecordVisibilityTest extends WebTestCase
 
         $this->signIn($this->client, $vera);
         $this->client->request('GET', '/dashboard');
-        self::assertSelectorTextContains('.metrics', '84000.00 EUR');
+        self::assertSelectorTextContains('.metrics', '84,000.00');
 
         $this->signIn($this->client, $ingo);
         $this->client->request('GET', '/dashboard');
-        self::assertSelectorTextContains('.metrics', '0.00 EUR');
-        self::assertSelectorTextNotContains('.metrics', '84000.00 EUR');
+        self::assertSelectorTextContains('.metrics', '0.00');
+        self::assertSelectorTextNotContains('.metrics', '84,000.00');
     }
 
     #[Test]

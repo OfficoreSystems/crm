@@ -59,7 +59,7 @@ final class TimeSpanTest extends TestCase
     #[Test]
     public function an_end_before_the_start_is_refused(): void
     {
-        $this->expectExceptionMessage('enden, bevor er beginnt');
+        $this->expectExceptionMessage('cannot end before it begins');
 
         TimeSpan::of(
             new \DateTimeImmutable('2026-08-20 15:00:00', new \DateTimeZone('UTC')),
@@ -127,7 +127,7 @@ final class TimeSpanTest extends TestCase
     #[Test]
     public function zero_days_are_refused(): void
     {
-        $this->expectExceptionMessage('mindestens einen Tag');
+        $this->expectExceptionMessage('at least one day');
 
         TimeSpan::allDay(new \DateTimeImmutable('2026-08-20 00:00:00', new \DateTimeZone('UTC')), 0);
     }

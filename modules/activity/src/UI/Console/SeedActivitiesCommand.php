@@ -35,13 +35,18 @@ final class SeedActivitiesCommand extends Command
     /**
      * Vorlagen je Typ. Der Platzhalter %s wird durch den Namen des Subjekts
      * ersetzt.
+     *
+     * Englisch und nicht uebersetzt: Beispieldaten sind *Daten*. Sie landen so
+     * in der Datenbank, wie sie hier stehen, und aendern sich nicht mehr, wenn
+     * jemand die Sprache umstellt - genauso wie die Firmennamen aus
+     * company:seed.
      */
     private const TEMPLATES = [
-        ['note', 'Gespraechsnotiz zu %s', 'Erstkontakt verlief positiv, Bedarf grundsaetzlich vorhanden.', -14],
-        ['call', 'Rueckruf %s', 'Telefonat zur Terminabstimmung.', -9],
-        ['meeting', 'Vor-Ort-Termin bei %s', 'Vorstellung des Leistungsumfangs.', -5],
-        ['task', 'Angebot fuer %s nachfassen', null, 3],
-        ['task', 'Unterlagen an %s senden', null, -2],
+        ['note', 'Call notes for %s', 'First contact went well, there is genuine interest.', -14],
+        ['call', 'Call back %s', 'Phone call to agree on a date.', -9],
+        ['meeting', 'On-site meeting at %s', 'Presentation of the scope of services.', -5],
+        ['task', 'Follow up on the quote for %s', null, 3],
+        ['task', 'Send documents to %s', null, -2],
     ];
 
     public function __construct(

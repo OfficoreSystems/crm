@@ -1,0 +1,29 @@
+activity:
+    menu: 'Activities'
+    title: 'Activities'
+    lede: 'Notes, calls, meetings and tasks — regardless of what they are attached to.'
+
+    type:
+        note: 'Note'
+        call: 'Call'
+        meeting: 'Meeting'
+        task: 'Task'
+
+    metric:
+        open_tasks: 'Open tasks'
+        overdue: '{0}nothing overdue|{1}1 of them overdue|]1,Inf[ %count% of them overdue'
+        total: 'Activities'
+        total_description: 'recorded in total'
+
+    timeline:
+        filter_subject_label: 'Filter by reference'
+        filter_type_label: 'Filter by kind'
+        all_subjects: 'All references'
+        all_types: 'All kinds'
+        summary: '%total% in total · %open% open tasks'
+        empty_filtered: 'No entry for this selection.'
+        none_yet: 'No activities yet. Create some with <code>bin/console activity:seed</code>.'
+        overdue: 'overdue'
+        done: 'done'
+        unresolved_subject: 'Reference not resolvable'
+

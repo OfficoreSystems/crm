@@ -1,13 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Benutzer{% endblock %}
+{% block title %}{{ 'user.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Benutzer</h1>
-    <p class="lede">
-        Konten legt der Konsolenbefehl <code>bin/console user:create</code> an &mdash;
-        es gibt bewusst keine Selbstregistrierung.
-    </p>
+    <h1>{{ 'user.title'|trans }}</h1>
+    <p class="lede">{{ 'user.lede'|trans|raw }}</p>
 
     <twig:UserList />
 {% endblock %}

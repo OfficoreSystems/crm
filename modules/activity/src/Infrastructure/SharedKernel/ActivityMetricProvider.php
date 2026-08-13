@@ -23,11 +23,12 @@ final readonly class ActivityMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'activity.open_tasks',
-            label: 'Offene Aufgaben',
+            label: 'activity.metric.open_tasks',
             value: (string) $open,
-            description: 0 === $overdue ? 'nichts ueberfaellig' : sprintf('davon %d ueberfaellig', $overdue),
+            description: 'activity.metric.overdue',
             route: 'activity_index',
             routeParameters: ['activityType' => 'task'],
+            parameters: ['%count%' => $overdue],
             priority: 95,
             // Der einzige Wert auf der Startseite, der zum Handeln auffordert.
             tone: $overdue > 0 ? MetricTone::ATTENTION : MetricTone::NEUTRAL,
@@ -35,9 +36,9 @@ final readonly class ActivityMetricProvider implements MetricProviderInterface
 
         yield new Metric(
             key: 'activity.total',
-            label: 'Aktivitäten',
+            label: 'activity.metric.total',
             value: (string) $this->activities->countAll(),
-            description: 'insgesamt erfasst',
+            description: 'activity.metric.total_description',
             route: 'activity_index',
             priority: 40,
         );

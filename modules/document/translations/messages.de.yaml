@@ -1,0 +1,39 @@
+document:
+    menu: 'Dokumente'
+    title: 'Dokumente'
+    title_for: 'Dokumente zu %subject%'
+    back_to_all: 'Alle Dokumente'
+
+    metric:
+        label: 'Dokumente'
+        used: '%size% belegt'
+        none_yet: 'noch nichts abgelegt'
+
+    list:
+        empty: 'Noch nichts abgelegt. Dateien hängen an einem Datensatz — öffne einen Kontakt, eine Firma oder eine Verkaufschance und lade sie dort hoch.'
+        empty_for_subject: 'Noch keine Datei abgelegt.'
+        unresolved_subject: 'Bezug nicht auflösbar'
+        unresolved_hint: 'Der Bezug ist nicht auflösbar — das zuständige Modul ist nicht installiert. Vorhandene Dateien bleiben erreichbar.'
+        column:
+            file: 'Datei'
+            belongs_to: 'Gehört zu'
+            size: 'Größe'
+            uploaded: 'Abgelegt'
+            actions: 'Aktionen'
+
+    upload:
+        label: 'Datei hinzufügen'
+        submit: 'Hochladen'
+        success: 'Datei abgelegt.'
+        no_file: 'Es kam keine gültige Datei an. Vielleicht war sie zu groß für den Server.'
+
+    delete:
+        submit: 'Löschen'
+        confirm: 'Datei wirklich löschen?'
+        success: 'Datei gelöscht.'
+        invalid_token: 'Die Anfrage war nicht gültig. Bitte erneut versuchen.'
+
+    error:
+        too_large: 'Die Datei ist %size% groß, erlaubt sind %limit%.'
+        unresolvable_subject: 'Kein Modul löst den Typ "%type%" auf. Bekannt sind: %known%.'
+        file_gone: 'Zu diesem Eintrag existiert keine Datei mehr.'

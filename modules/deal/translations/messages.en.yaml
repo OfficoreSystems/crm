@@ -1,0 +1,42 @@
+deal:
+    menu: 'Pipeline'
+    title: 'Pipeline'
+    subject_type: 'Deal'
+    subject_description: '%company% · %stage%'
+    subject_description_stage_only: '%stage%'
+
+    stage:
+        lead: 'Lead'
+        qualified: 'Qualified'
+        proposal: 'Proposal'
+        negotiation: 'Negotiation'
+        won: 'Won'
+        lost: 'Lost'
+
+    metric:
+        pipeline: 'Open pipeline'
+        pipeline_description: '{0}no open deals|{1}1 open deal|]1,Inf[ %count% open deals'
+        win_rate: 'Win rate'
+        win_rate_description: '%won% won, %lost% lost'
+        win_rate_unknown: 'nothing closed yet'
+
+    lede: 'Deals by stage. Search covers title, company and contact.'
+
+    board:
+        search_placeholder: 'Search by title, company or contact …'
+        search_label: 'Search deals'
+        open: 'open'
+        won_share: 'won'
+        nothing_closed: 'nothing closed yet'
+        none_yet: 'No deals yet. Create some with <code>bin/console deal:seed</code>.'
+        empty_stage: 'empty'
+        total: 'Open pipeline'
+        count: '{0}no deals|{1}1 deal|]1,Inf[ %count% deals'
+
+    show:
+        back: 'Pipeline'
+        value: 'Value'
+        stage: 'Stage'
+        closed_on: 'closed on %date%'
+        expected_close: 'Expected close'
+        created: 'Created'

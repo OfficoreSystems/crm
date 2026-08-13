@@ -25,8 +25,10 @@ final class DealMetricProviderTest extends TestCase
             Deal::create('verloren', Money::fromDecimal('9000.00'), Stage::LOST),
         ]);
 
-        self::assertSame('1000.00 EUR', $metrics['deal.pipeline_value']->value);
-        self::assertSame('1 offene Chancen', $metrics['deal.pipeline_value']->description);
+        self::assertSame('1000.00', $metrics['deal.pipeline_value']->value);
+        self::assertSame('EUR', $metrics['deal.pipeline_value']->currency, 'Nur mit Waehrungscode darf das Dashboard umformatieren.');
+        self::assertSame('deal.metric.pipeline_description', $metrics['deal.pipeline_value']->description);
+        self::assertSame(['%count%' => 1], $metrics['deal.pipeline_value']->parameters);
     }
 
     #[Test]
@@ -67,7 +69,7 @@ final class DealMetricProviderTest extends TestCase
         $metrics = $this->metricsFor([Deal::create('offen', stage: Stage::LEAD)]);
 
         self::assertSame('—', $metrics['deal.win_rate']->value);
-        self::assertSame('noch nichts abgeschlossen', $metrics['deal.win_rate']->description);
+        self::assertSame('deal.metric.win_rate_unknown', $metrics['deal.win_rate']->description);
         self::assertSame(MetricTone::NEUTRAL, $metrics['deal.win_rate']->tone);
     }
 
@@ -76,7 +78,7 @@ final class DealMetricProviderTest extends TestCase
     {
         $metrics = $this->metricsFor([]);
 
-        self::assertSame('0.00 EUR', $metrics['deal.pipeline_value']->value);
+        self::assertSame('0.00', $metrics['deal.pipeline_value']->value);
         self::assertSame('—', $metrics['deal.win_rate']->value);
     }
 

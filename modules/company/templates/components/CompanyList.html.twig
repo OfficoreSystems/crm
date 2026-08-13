@@ -5,16 +5,16 @@
             type="search"
             value="{{ this.query }}"
             data-model="debounce(200)|query"
-            placeholder="Nach Name, Branche oder Ort suchen …"
+            placeholder="{{ 'company.list.search_placeholder'|trans }}"
             autocomplete="off"
-            aria-label="Firmen durchsuchen"
+            aria-label="{{ 'company.list.search_label'|trans }}"
             class="contact-list__search"
         >
         <span class="contact-list__count" data-loading="addClass(is-busy)">
             {% if this.isFiltered %}
-                {{ this.companies|length }} von {{ this.total }}
+                {{ 'company.list.filtered_count'|trans({'%shown%': this.companies|length, '%total%': this.total}) }}
             {% else %}
-                {{ this.total }} {{ this.total == 1 ? 'Firma' : 'Firmen' }}
+                {{ 'company.list.total_count'|trans({'%count%': this.total}) }}
             {% endif %}
         </span>
     </div>
@@ -22,7 +22,7 @@
     {% set industries = this.topIndustries %}
     {% if industries is not empty and not this.isFiltered %}
         <p class="contact-list__note">
-            Häufigste Branchen:
+            {{ 'company.list.top_industries'|trans }}
             {% for industry, count in industries %}
                 <button type="button" data-model="query" value="{{ industry }}"
                         class="contact-list__chip">{{ industry }} ({{ count }})</button>
@@ -33,20 +33,19 @@
     {% if this.companies is empty %}
         <p class="contact-list__empty">
             {% if this.isFiltered %}
-                Kein Treffer für <strong>{{ this.query }}</strong>.
+                {{ 'company.list.no_match'|trans({'%query%': this.query})|raw }}
             {% else %}
-                Noch keine Firmen angelegt.
-                Leg welche an mit <code>bin/console company:seed</code>.
+                {{ 'company.list.none_yet'|trans|raw }}
             {% endif %}
         </p>
     {% else %}
         <table class="contact-list__table">
             <thead>
                 <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Branche</th>
-                    <th scope="col">Ort</th>
-                    <th scope="col">Kontakt</th>
+                    <th scope="col">{{ 'company.list.column.name'|trans }}</th>
+                    <th scope="col">{{ 'company.list.column.industry'|trans }}</th>
+                    <th scope="col">{{ 'company.list.column.city'|trans }}</th>
+                    <th scope="col">{{ 'company.list.column.contacts'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,9 +79,7 @@
         </table>
 
         {% if this.isTruncated %}
-            <p class="contact-list__note">
-                Anzeige auf die ersten Treffer begrenzt. Grenz die Suche weiter ein.
-            </p>
+            <p class="contact-list__note">{{ 'company.list.truncated'|trans }}</p>
         {% endif %}
     {% endif %}
 </div>

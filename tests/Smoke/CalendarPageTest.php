@@ -42,11 +42,11 @@ final class CalendarPageTest extends WebTestCase
     #[Test]
     public function the_page_renders_and_registers_itself_in_the_navigation(): void
     {
-        $crawler = $this->client->request('GET', '/kalender');
+        $crawler = $this->client->request('GET', '/calendar');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Kalender');
-        self::assertSelectorTextContains('.sidebar__nav', 'Kalender');
+        self::assertSelectorTextContains('h1', 'Calendar');
+        self::assertSelectorTextContains('.sidebar__nav', 'Calendar');
         self::assertCount(1, $crawler->filter('.sidebar__nav a[aria-current="page"]'));
     }
 
@@ -55,7 +55,7 @@ final class CalendarPageTest extends WebTestCase
     {
         // Der eigentliche Punkt dieser Datei. Wer hier eine Stunde daneben
         // liegt, merkt es erst, wenn ein Kunde vor verschlossener Tuer steht.
-        $this->submit(['beginn' => '2026-08-20T14:00', 'ende' => '2026-08-20T15:30']);
+        $this->submit(['start' => '2026-08-20T14:00', 'end' => '2026-08-20T15:30']);
 
         $appointment = $this->appointments()->findRecent();
 
@@ -67,7 +67,7 @@ final class CalendarPageTest extends WebTestCase
     public function the_same_wall_clock_time_in_winter_lands_an_hour_later(): void
     {
         // Eine feste Verschiebung um zwei Stunden waere im Winter falsch.
-        $this->submit(['beginn' => '2026-01-20T14:00', 'ende' => '2026-01-20T15:00']);
+        $this->submit(['start' => '2026-01-20T14:00', 'end' => '2026-01-20T15:00']);
 
         self::assertSame('13:00', $this->appointments()->findRecent()->startsAt()->format('H:i'));
     }
@@ -75,7 +75,7 @@ final class CalendarPageTest extends WebTestCase
     #[Test]
     public function an_all_day_appointment_needs_no_end(): void
     {
-        $this->submit(['beginn' => '2026-08-20T00:00', 'ganztaegig' => '1'], withEnd: false);
+        $this->submit(['start' => '2026-08-20T00:00', 'all_day' => '1'], withEnd: false);
 
         $appointment = $this->appointments()->findRecent();
 
@@ -86,51 +86,51 @@ final class CalendarPageTest extends WebTestCase
     #[Test]
     public function an_end_before_the_start_is_refused_with_a_message(): void
     {
-        $this->submit(['beginn' => '2026-08-20T15:00', 'ende' => '2026-08-20T14:00']);
+        $this->submit(['start' => '2026-08-20T15:00', 'end' => '2026-08-20T14:00']);
 
         self::assertSame(0, $this->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'enden, bevor er beginnt');
+        self::assertSelectorTextContains('.flash--error', 'cannot end before it begins');
     }
 
     #[Test]
     public function a_missing_start_is_refused_with_a_message(): void
     {
-        $this->submit(['beginn' => '', 'ende' => '2026-08-20T14:00']);
+        $this->submit(['start' => '', 'end' => '2026-08-20T14:00']);
 
         self::assertSame(0, $this->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'Ohne Beginn');
+        self::assertSelectorTextContains('.flash--error', 'Without a start');
     }
 
     #[Test]
     public function nonsense_in_the_date_field_does_not_break_the_page(): void
     {
         // Kommt nicht aus dem Formular, aber aus jeder selbstgebauten Anfrage.
-        $this->submit(['beginn' => 'morgen vielleicht', 'ende' => '2026-08-20T14:00']);
+        $this->submit(['start' => 'morgen vielleicht', 'end' => '2026-08-20T14:00']);
 
         self::assertSame(0, $this->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'kein Zeitpunkt');
+        self::assertSelectorTextContains('.flash--error', 'Cannot make a point in time');
     }
 
     #[Test]
     public function an_unresolvable_subject_is_refused(): void
     {
         $this->submit([
-            'beginn' => '2026-08-20T14:00',
-            'ende' => '2026-08-20T15:00',
-            'bezug_typ' => 'rechnung',
-            'bezug_id' => 'r-1',
+            'start' => '2026-08-20T14:00',
+            'end' => '2026-08-20T15:00',
+            'subject_type' => 'rechnung',
+            'subject_id' => 'r-1',
         ]);
 
         self::assertSame(0, $this->countAll());
 
         $this->client->followRedirect();
-        self::assertSelectorTextContains('.flash--error', 'Kein Modul loest den Typ');
+        self::assertSelectorTextContains('.flash--error', 'No module resolves the type');
     }
 
     #[Test]
@@ -138,10 +138,10 @@ final class CalendarPageTest extends WebTestCase
     {
         // Ein Teammeeting gehoert zu keinem Datensatz.
         $this->submit([
-            'beginn' => '2026-08-20T14:00',
-            'ende' => '2026-08-20T15:00',
-            'bezug_typ' => '',
-            'bezug_id' => '',
+            'start' => '2026-08-20T14:00',
+            'end' => '2026-08-20T15:00',
+            'subject_type' => '',
+            'subject_id' => '',
         ]);
 
         self::assertSame(1, $this->countAll());
@@ -153,7 +153,7 @@ final class CalendarPageTest extends WebTestCase
     {
         // Ohne Besitzer waere der Termin fuer den Ersteller selbst unsichtbar,
         // sobald der Sichtbarkeitsfilter greift.
-        $this->submit(['beginn' => '2026-08-20T14:00', 'ende' => '2026-08-20T15:00']);
+        $this->submit(['start' => '2026-08-20T14:00', 'end' => '2026-08-20T15:00']);
 
         self::assertNotNull($this->appointments()->findRecent()->ownerId());
         self::assertNotNull($this->appointments()->findRecent()->ownerTeamId());
@@ -164,11 +164,11 @@ final class CalendarPageTest extends WebTestCase
      */
     private function submit(array $fields, bool $withEnd = true): void
     {
-        $this->client->request('POST', '/kalender/neu', [
-            'titel' => 'Vor-Ort-Termin',
-            'ort' => 'Hamburg',
+        $this->client->request('POST', '/calendar/new', [
+            'title' => 'On-site meeting',
+            'location' => 'Hamburg',
             ...$fields,
-        ] + ($withEnd ? [] : ['ende' => '']));
+        ] + ($withEnd ? [] : ['end' => '']));
     }
 
     private function countAll(): int

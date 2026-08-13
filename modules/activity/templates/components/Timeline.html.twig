@@ -1,36 +1,40 @@
 {# Die Subjekte sind polymorph: dieselbe Timeline zeigt Eintraege an Kontakten,
    Firmen und Verkaufschancen. Aufgeloest werden sie ueber die
    SubjectResolverRegistry, die dieses Modul nach Typ befragt - ohne eines der
-   Module zu kennen. #}
+   Module zu kennen.
+
+   Deren Beschriftungen sind Uebersetzungsschluessel: die Resolver liegen in
+   der Infrastructure-Schicht ihrer Module und duerfen Symfony nicht sehen. #}
 <div {{ attributes }} class="timeline">
 
     <div class="contact-list__toolbar">
-        <select data-model="subjectType" class="timeline__filter" aria-label="Nach Bezug filtern">
-            <option value="">Alle Bezüge</option>
+        <select data-model="subjectType" class="timeline__filter"
+                aria-label="{{ 'activity.timeline.filter_subject_label'|trans }}">
+            <option value="">{{ 'activity.timeline.all_subjects'|trans }}</option>
             {% for type, label in this.subjectTypes %}
-                <option value="{{ type }}">{{ label }}</option>
+                <option value="{{ type }}">{{ label|trans }}</option>
             {% endfor %}
         </select>
 
-        <select data-model="activityType" class="timeline__filter" aria-label="Nach Art filtern">
-            <option value="">Alle Arten</option>
+        <select data-model="activityType" class="timeline__filter"
+                aria-label="{{ 'activity.timeline.filter_type_label'|trans }}">
+            <option value="">{{ 'activity.timeline.all_types'|trans }}</option>
             {% for type in this.activityTypes %}
-                <option value="{{ type.value }}">{{ type.label }}</option>
+                <option value="{{ type.value }}">{{ type.label|trans }}</option>
             {% endfor %}
         </select>
 
         <span class="contact-list__count" data-loading="addClass(is-busy)">
-            {{ this.total }} gesamt · {{ this.openTasks }} offene Aufgaben
+            {{ 'activity.timeline.summary'|trans({'%total%': this.total, '%open%': this.openTasks}) }}
         </span>
     </div>
 
     {% if this.activities is empty %}
         <p class="contact-list__empty">
             {% if this.isFiltered %}
-                Kein Eintrag für diese Auswahl.
+                {{ 'activity.timeline.empty_filtered'|trans }}
             {% else %}
-                Noch keine Aktivitäten.
-                Leg welche an mit <code>bin/console activity:seed</code>.
+                {{ 'activity.timeline.none_yet'|trans|raw }}
             {% endif %}
         </p>
     {% else %}
@@ -40,13 +44,13 @@
                 <li class="timeline__entry timeline__entry--{{ activity.type.value }}">
                     <div class="timeline__meta">
                         <time datetime="{{ activity.occurredAt|date('c') }}">
-                            {{ activity.occurredAt|date('d.m.Y') }}
+                            {{ activity.occurredAt|format_date('medium') }}
                         </time>
-                        <span class="timeline__type">{{ activity.type.label }}</span>
+                        <span class="timeline__type">{{ activity.type.label|trans }}</span>
                         {% if activity.isOverdue %}
-                            <span class="timeline__overdue">überfällig</span>
+                            <span class="timeline__overdue">{{ 'activity.timeline.overdue'|trans }}</span>
                         {% elseif activity.isCompleted %}
-                            <span class="timeline__done">erledigt</span>
+                            <span class="timeline__done">{{ 'activity.timeline.done'|trans }}</span>
                         {% endif %}
                     </div>
 
@@ -60,9 +64,9 @@
                         {% if subject is null %}
                             {# Normalfall, kein Fehler: Datensatz geloescht
                                oder das zustaendige Modul nicht installiert. #}
-                            <span class="muted">Bezug nicht auflösbar</span>
+                            <span class="muted">{{ 'activity.timeline.unresolved_subject'|trans }}</span>
                         {% else %}
-                            <span class="muted">{{ subject.typeLabel }}:</span>
+                            <span class="muted">{{ subject.typeLabel|trans }}:</span>
                             {% if subject.isLinkable %}
                                 <a href="{{ path(subject.route, subject.routeParameters) }}">{{ subject.label }}</a>
                             {% else %}

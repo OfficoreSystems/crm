@@ -26,7 +26,7 @@ final readonly class CompanySubjectResolver implements SubjectResolverInterface
 
     public function typeLabel(): string
     {
-        return 'Firma';
+        return 'company.subject_type';
     }
 
     public function resolve(array $ids): array
@@ -64,7 +64,7 @@ final readonly class CompanySubjectResolver implements SubjectResolverInterface
             id: (string) $company->id(),
             label: $company->name(),
             route: 'company_index',
-            typeLabel: 'Firma',
+            typeLabel: 'company.subject_type',
             description: [] === $parts ? null : implode(' · ', $parts),
         );
     }

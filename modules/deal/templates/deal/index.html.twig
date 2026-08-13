@@ -1,12 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Pipeline{% endblock %}
+{% block title %}{{ 'deal.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Pipeline</h1>
-    <p class="lede">
-        Verkaufschancen nach Stufe. Die Suche greift auf Titel, Firma und Kontakt.
-    </p>
+    <h1>{{ 'deal.title'|trans }}</h1>
+    <p class="lede">{{ 'deal.lede'|trans }}</p>
 
     <twig:PipelineBoard />
 {% endblock %}
