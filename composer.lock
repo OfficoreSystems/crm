@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f50818601032712eb597079787323a53",
+    "content-hash": "263aff4b1a4239010ae005bea3d97125",
     "packages": [
         {
             "name": "async-aws/core",
@@ -261,6 +261,50 @@
                 "proprietary"
             ],
             "description": "Aktivitaeten und Timeline an beliebigen Datensaetzen.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "crm/calendar-module",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/calendar",
+                "reference": "04c0a4d600386335a3329f65f0c64e5e96dd0099"
+            },
+            "require": {
+                "crm/shared-kernel": "^0.1",
+                "doctrine/doctrine-bundle": "^2.19 || ^3.0",
+                "doctrine/orm": "^3.6",
+                "php": ">=8.2",
+                "symfony/config": "^7.4",
+                "symfony/dependency-injection": "^7.4",
+                "symfony/framework-bundle": "^7.4",
+                "symfony/http-foundation": "^7.4",
+                "symfony/http-kernel": "^7.4",
+                "symfony/routing": "^7.4",
+                "symfony/security-http": "^7.4",
+                "symfony/uid": "^7.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Crm\\Calendar\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Crm\\Calendar\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Termine mit ICS-Feed. Alle Zeiten in UTC.",
             "transport-options": {
                 "relative": true
             }

@@ -16,6 +16,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "crm/activity-module": "^0.1",
+        "crm/calendar-module": "^0.1",
         "crm/company-module": "^0.1",
         "crm/contact-module": "^0.1",
         "crm/dashboard-module": "^0.1",
@@ -68,7 +69,8 @@
             "Crm\\Activity\\Tests\\": "modules/activity/tests/",
             "Crm\\Search\\Tests\\": "modules/search/tests/",
             "Crm\\Dashboard\\Tests\\": "modules/dashboard/tests/",
-            "Crm\\Document\\Tests\\": "modules/document/tests/"
+            "Crm\\Document\\Tests\\": "modules/document/tests/",
+            "Crm\\Calendar\\Tests\\": "modules/calendar/tests/"
         }
     },
     "replace": {

@@ -48,6 +48,23 @@ security:
     # sonst gaebe es zwei Orte, an denen Rechte definiert sind.
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
+
+        # Der oeffentliche Bereich.
+        #
+        # Hier liegen Endpunkte, die von aussen aufgerufen werden und keine
+        # Sitzung mitbringen koennen: ICS-Feeds fuer Outlook und Google,
+        # Abmeldelinks in Newslettern, Webhooks fremder Dienste. Sie weisen
+        # sich ueber ein Geheimnis in der URL aus - die Firewall kann ihnen
+        # dabei nicht helfen.
+        #
+        # Der Praefix ist bewusst *generisch*: der Core weiss so nicht, welche
+        # Module ihn benutzen. Er muesste es sonst wissen, denn
+        # security.access_control laesst sich - wie security.firewalls - nicht
+        # aus einem Modul heraus prependen ("cannot be overwritten").
+        #
+        # Wer hier etwas ablegt, uebernimmt die Pruefung selbst.
+        - { path: ^/oeffentlich/, roles: PUBLIC_ACCESS }
+
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

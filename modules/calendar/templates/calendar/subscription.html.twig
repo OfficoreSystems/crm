@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Kalender abonnieren{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('calendar_index') }}">&larr; Kalender</a></p>
+
+    <h1>Kalender abonnieren</h1>
+
+    {% for message in app.flashes('success') %}
+        <p class="flash flash--success">{{ message }}</p>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <p class="flash flash--error">{{ message }}</p>
+    {% endfor %}
+
+    {% if url %}
+        <p>Diese Adresse in Outlook, Google Kalender oder Apple Kalender als
+           Abonnement eintragen:</p>
+
+        <p><code class="feed-url">{{ url }}</code></p>
+
+        <p class="muted">
+            <strong>Jetzt kopieren.</strong> Die Adresse wird nur dieses eine Mal
+            angezeigt &mdash; gespeichert ist nur ihre Prüfsumme, genau wie bei
+            einem Passwort.
+        </p>
+    {% else %}
+        <p>Es gibt bereits ein Abonnement für dieses Konto.</p>
+        <p class="muted">
+            Die Adresse lässt sich nicht erneut anzeigen. Wer sie verloren hat,
+            erzeugt eine neue &mdash; die alte hört damit sofort auf zu
+            funktionieren.
+        </p>
+    {% endif %}
+
+    <p class="muted">
+        Der Feed enthält ausschließlich Termine, die diesem Konto gehören.
+        Wer die Adresse hat, sieht sie &mdash; ohne Anmeldung. Sie gehört
+        deshalb nicht in eine E-Mail und nicht in ein geteiltes Dokument.
+    </p>
+
+    <form method="post" action="{{ path('calendar_subscription') }}"
+          onsubmit="return confirm('Neue Adresse erzeugen? Die alte funktioniert danach nicht mehr.')">
+        <input type="hidden" name="_token" value="{{ csrf_token('calendar_feed_' ~ userId) }}">
+        <button type="submit">Neue Adresse erzeugen</button>
+    </form>
+{% endblock %}

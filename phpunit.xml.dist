@@ -50,6 +50,9 @@
         <testsuite name="dashboard">
             <directory>modules/dashboard/tests</directory>
         </testsuite>
+        <testsuite name="calendar">
+            <directory>modules/calendar/tests</directory>
+        </testsuite>
         <testsuite name="document">
             <directory>modules/document/tests</directory>
         </testsuite>
@@ -71,6 +74,7 @@
             <directory>modules/search/src</directory>
             <directory>modules/dashboard/src</directory>
             <directory>modules/document/src</directory>
+            <directory>modules/calendar/src</directory>
         </include>
 
         <deprecationTrigger>

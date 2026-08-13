@@ -283,6 +283,50 @@ Löschen ist per Vorgabe dem Administrator vorbehalten, wie bei Chancen und
 Aktivitäten. Wer das ändern will, ergänzt in `PermissionMatrix::default()`
 einen `document`-Eintrag — das Modul selbst braucht dafür keine Änderung.
 
+### Termine und der ICS-Feed
+
+**Alle Zeiten sind UTC** — in der Datenbank, im Speicher, im Feed. Die
+Umrechnung passiert an genau zwei Stellen: beim Lesen der Eingabe (der
+Controller nimmt `Europe/Berlin` an) und beim Anzeigen. Dazwischen nie.
+
+Ein `datetime-local`-Feld liefert Ortszeit *ohne* Zeitzone — welche gemeint
+ist, weiß der Browser, sagt es aber nicht. Die Annahme steht deshalb an einer
+Stelle im Controller und ist der Ort, an dem eine Zeitzone je Benutzer
+andocken würde.
+
+**Ganztägige Termine sind Daten, keine Zeitpunkte.** Wer sie erst nach UTC
+umrechnet und dann die Uhrzeit abschneidet, verliert östlich von Greenwich
+einen Tag: aus Mitternacht in Berlin wird 22:00 des Vortags. Im ICS stehen sie
+als `VALUE=DATE` ganz ohne Zeitzone, und `DTEND` ist der **Folgetag** — mit
+23:59:59 zeigt Outlook den Termin über zwei Tage.
+
+#### Der öffentliche Bereich
+
+Outlook, Google und Apple rufen den Feed ohne Sitzung ab und können keine
+bekommen. Ihr einziger Ausweis ist ein Token in der URL. Solche Endpunkte
+liegen unter dem generischen Präfix `/oeffentlich/`, das
+[security.yaml](config/packages/security.yaml) freigibt — generisch, damit der
+Core nicht weiß, welche Module ihn nutzen. Später kommen Abmeldelinks und
+Webhooks dazu.
+
+Der Grund für den Umweg: `security.access_control` lässt sich — wie
+`security.firewalls` — **nicht** aus einem Modul heraus prependen. Symfony
+bricht mit „cannot be overwritten" ab. Ein Test im calendar-Modul hält fest,
+dass wir es gar nicht erst versuchen.
+
+Was daraus für den Feed folgt:
+
+- Gespeichert wird nur der **SHA-256-Hash** des Tokens, gesucht wird danach.
+  Wer die Datenbank liest, kann keinen Feed abrufen.
+- Die URL wird **einmal** angezeigt. Danach nie wieder — sonst wäre der Hash
+  Dekoration. Wer sie verliert, erzeugt eine neue; die alte ist sofort wertlos.
+- Der Feed enthält **nur die Termine seines Besitzers**, ausdrücklich in der
+  Abfrage. Der Doctrine-Sichtbarkeitsfilter hilft hier nicht: ohne
+  angemeldeten Benutzer ist er abgeschaltet. Wer sich auf ihn verließe,
+  lieferte die Termine aller Benutzer aus.
+- Ein unbekanntes Token bekommt **404 ohne Erklärung**. Ein „Token abgelaufen"
+  wäre die Bestätigung, dass es das Token gab.
+
 ### Coverage-Gate
 
 Mindestens **80 % Zeilenabdeckung**, erzwungen in der CI durch

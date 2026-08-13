@@ -21,5 +21,6 @@ return [
     Crm\Search\SearchModule::class => ['all' => true],
     Crm\Dashboard\DashboardModule::class => ['all' => true],
     Crm\Document\DocumentModule::class => ['all' => true],
+    Crm\Calendar\CalendarModule::class => ['all' => true],
     League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
 ];
