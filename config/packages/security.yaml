@@ -42,10 +42,13 @@ security:
                 path: /logout
                 target: /login
 
-    # Noch keine Regeln: die Umstellung aller Controller auf #[IsGranted] und
-    # die Voter kommen im Berechtigungs-Schritt. Bis dahin schuetzt sich nur,
-    # was es selbst deklariert - siehe UserController.
-    access_control: []
+    # Nur die Grundregel: ohne Anmeldung geht nichts ausser der Anmeldung
+    # selbst. Was ein angemeldeter Benutzer dann sehen darf, entscheidet der
+    # Voter ueber die Rechtematrix - hier stehen bewusst keine Modulpfade,
+    # sonst gaebe es zwei Orte, an denen Rechte definiert sind.
+    access_control:
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:

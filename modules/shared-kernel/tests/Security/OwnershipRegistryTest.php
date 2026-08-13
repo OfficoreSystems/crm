@@ -9,6 +9,7 @@ use Crm\SharedKernel\Security\Action;
 use Crm\SharedKernel\Security\OwnershipRegistry;
 use Crm\SharedKernel\Security\RecordOwnership;
 use Crm\SharedKernel\Security\RecordOwnershipInterface;
+use Crm\SharedKernel\Security\RestrictedColumns;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -102,6 +103,43 @@ final class OwnershipRegistryTest extends TestCase
             self::assertNotSame('', $scope->label());
         }
     }
+
+    // --- Was der Sichtbarkeitsfilter aus der Registry zieht ---
+
+    #[Test]
+    public function it_collects_the_columns_the_modules_declare(): void
+    {
+        $registry = new OwnershipRegistry([
+            new CountingOwnership('deal', FakeDeal::class, new RestrictedColumns(FakeDeal::class, 'owner_id', 'owner_team_id')),
+        ]);
+
+        $restrictions = $registry->restrictions();
+
+        self::assertArrayHasKey(FakeDeal::class, $restrictions);
+        self::assertSame('deal', $restrictions[FakeDeal::class]->module);
+        self::assertSame('owner_id', $restrictions[FakeDeal::class]->ownerColumn);
+        self::assertSame('owner_team_id', $restrictions[FakeDeal::class]->teamColumn);
+    }
+
+    #[Test]
+    public function a_module_without_columns_contributes_nothing(): void
+    {
+        // Es gibt Anbieter, die nur den Voter bedienen - etwa fuer Objekte,
+        // die gar nicht aus der Datenbank kommen. Die duerfen den Filter nicht
+        // mit einer leeren Einschraenkung fuettern.
+        $registry = new OwnershipRegistry([new CountingOwnership('deal', FakeDeal::class)]);
+
+        self::assertSame([], $registry->restrictions());
+    }
+
+    #[Test]
+    public function without_any_module_there_is_nothing_to_restrict(): void
+    {
+        // Der Zustand nach dem Abhaengen aller Module: der Filter erzeugt dann
+        // keine Bedingung. Das ist richtig - es gibt auch keine Tabellen mehr,
+        // auf die er sich beziehen koennte.
+        self::assertSame([], (new OwnershipRegistry([]))->restrictions());
+    }
 }
 
 final class CountingOwnership implements RecordOwnershipInterface
@@ -114,6 +152,7 @@ final class CountingOwnership implements RecordOwnershipInterface
     public function __construct(
         private readonly string $module,
         private readonly string $supportedClass,
+        private readonly ?RestrictedColumns $columns = null,
     ) {
     }
 
@@ -134,5 +173,10 @@ final class CountingOwnership implements RecordOwnershipInterface
         \assert($record instanceof FakeDeal);
 
         return new RecordOwnership($record->ownerId, $record->teamId);
+    }
+
+    public function restrictedColumns(): ?RestrictedColumns
+    {
+        return $this->columns;
     }
 }

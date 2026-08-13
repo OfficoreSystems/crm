@@ -41,8 +41,41 @@ final class SeedUsersCommandTest extends TestCase
 
         $tester->execute([]);
 
-        self::assertSame(1, $users->countAll());
+        self::assertSame(3, $users->countAll());
         self::assertStringContainsString('bereits Benutzer vorhanden', $tester->getDisplay());
+    }
+
+    #[Test]
+    public function it_creates_two_teams_so_the_visibility_rules_are_observable(): void
+    {
+        // Mit einem einzigen Team liesse sich nicht erkennen, ob der
+        // Sichtbarkeitsfilter arbeitet: es gaebe niemanden, dem etwas fehlen
+        // duerfte.
+        [$tester, $users] = $this->command('dev');
+        $tester->execute([]);
+
+        $vera = $users->findByEmail(SeedUsersCommand::DEV_SALES_EMAIL);
+        $ingo = $users->findByEmail(SeedUsersCommand::DEV_BACKOFFICE_EMAIL);
+
+        self::assertNotNull($vera);
+        self::assertNotNull($ingo);
+        self::assertNotSame($vera->team()?->name(), $ingo->team()?->name());
+    }
+
+    #[Test]
+    public function only_one_of_the_three_accounts_is_an_administrator(): void
+    {
+        // Waeren alle Administratoren, liefen die Rechte im Alltag nie ins
+        // Leere - und ein Fehler in der Matrix bliebe unbemerkt.
+        [$tester, $users] = $this->command('dev');
+        $tester->execute([]);
+
+        $admins = array_filter(
+            [SeedUsersCommand::DEV_EMAIL, SeedUsersCommand::DEV_SALES_EMAIL, SeedUsersCommand::DEV_BACKOFFICE_EMAIL],
+            static fn (string $email): bool => (bool) $users->findByEmail($email)?->hasRole(Role::ADMIN),
+        );
+
+        self::assertSame([SeedUsersCommand::DEV_EMAIL], array_values($admins));
     }
 
     #[Test]
@@ -63,7 +96,7 @@ final class SeedUsersCommandTest extends TestCase
         [$tester, $users] = $this->command('test');
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertSame(1, $users->countAll());
+        self::assertSame(3, $users->countAll());
     }
 
     /**

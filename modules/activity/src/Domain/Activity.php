@@ -19,6 +19,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'activity_activities')]
 #[ORM\Index(name: 'idx_activity_subject', columns: ['subject_type', 'subject_id'])]
 #[ORM\Index(name: 'idx_activity_occurred', columns: ['occurred_at'])]
+#[ORM\Index(name: 'idx_activity_author_team', columns: ['author_team_id'])]
 class Activity
 {
     #[ORM\Id]
@@ -43,6 +44,17 @@ class Activity
     #[ORM\Column(name: 'author_id', type: 'uuid', nullable: true)]
     private ?Uuid $authorId;
 
+    /**
+     * Das Team des Autors zum Zeitpunkt des Eintrags.
+     *
+     * Am Datensatz gespeichert, nicht ueber den Autor aufgeloest: der
+     * Doctrine-Filter schraenkt Listen in SQL ein und braucht dafuer eine
+     * Spalte. Fachlich passt es ohnehin - ein Gespraechsprotokoll gehoert dem
+     * Team, das es gefuehrt hat.
+     */
+    #[ORM\Column(name: 'author_team_id', type: 'uuid', nullable: true)]
+    private ?Uuid $authorTeamId;
+
     #[ORM\Column(name: 'occurred_at', type: 'datetime_immutable')]
     private \DateTimeImmutable $occurredAt;
 
@@ -59,6 +71,7 @@ class Activity
         string $summary,
         ?string $body,
         ?Uuid $authorId,
+        ?Uuid $authorTeamId,
         \DateTimeImmutable $occurredAt,
         \DateTimeImmutable $createdAt,
     ) {
@@ -69,6 +82,7 @@ class Activity
         $this->summary = self::requireSummary($summary);
         $this->body = self::normalizeBody($body);
         $this->authorId = $authorId;
+        $this->authorTeamId = null === $authorId ? null : $authorTeamId;
         $this->occurredAt = $occurredAt;
         $this->completedAt = null;
         $this->createdAt = $createdAt;
@@ -80,6 +94,7 @@ class Activity
         string $summary,
         ?string $body = null,
         ?Uuid $authorId = null,
+        ?Uuid $authorTeamId = null,
         ?\DateTimeImmutable $occurredAt = null,
         ?\DateTimeImmutable $createdAt = null,
     ): self {
@@ -92,6 +107,7 @@ class Activity
             $summary,
             $body,
             $authorId,
+            $authorTeamId,
             $occurredAt ?? $now,
             $now,
         );
@@ -125,6 +141,11 @@ class Activity
     public function authorId(): ?Uuid
     {
         return $this->authorId;
+    }
+
+    public function authorTeamId(): ?Uuid
+    {
+        return $this->authorTeamId;
     }
 
     public function occurredAt(): \DateTimeImmutable

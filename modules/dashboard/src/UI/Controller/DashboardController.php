@@ -8,6 +8,7 @@ use Crm\SharedKernel\Dashboard\MetricRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Bewusst kein Live-Component: hier gibt es nichts zu tippen und nichts zu
@@ -23,6 +24,7 @@ final class DashboardController extends AbstractController
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
+    #[IsGranted('dashboard.view')]
     public function index(): Response
     {
         return $this->render('@DashboardModule/dashboard/index.html.twig', [

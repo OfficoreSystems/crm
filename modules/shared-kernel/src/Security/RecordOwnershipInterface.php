@@ -33,4 +33,14 @@ interface RecordOwnershipInterface
      * Nur aufgerufen, wenn supports() zugestimmt hat.
      */
     public function ownershipOf(object $record): RecordOwnership;
+
+    /**
+     * Die Spalten, an denen der Sichtbarkeitsfilter einschraenken kann - oder
+     * null, wenn dieses Modul keine eigene Tabelle dafuer hat.
+     *
+     * Null heisst nicht "unbeschraenkt": der Voter prueft weiterhin jeden
+     * einzelnen Datensatz. Es heisst nur, dass die Einschraenkung nicht schon
+     * in SQL passieren kann.
+     */
+    public function restrictedColumns(): ?RestrictedColumns;
 }

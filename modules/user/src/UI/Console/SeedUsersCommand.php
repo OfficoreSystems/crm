@@ -32,6 +32,26 @@ final class SeedUsersCommand extends Command
     public const DEV_PASSWORD = 'officore-dev-passwort';
     public const DEV_TEAM = 'Vertrieb';
 
+    public const DEV_SALES_EMAIL = 'vertrieb@officore.test';
+    public const DEV_BACKOFFICE_EMAIL = 'innendienst@officore.test';
+    public const DEV_BACKOFFICE_TEAM = 'Innendienst';
+
+    /**
+     * Drei Konten, nicht eines.
+     *
+     * Mit einem einzigen Administrator laesst sich nicht erkennen, ob die
+     * Rechte ueberhaupt greifen - er darf ohnehin alles. Erst ein zweites
+     * Team macht sichtbar, dass der Doctrine-Filter fremde Chancen gar nicht
+     * erst laedt.
+     *
+     * @var list<array{string, string, bool, string}> E-Mail, Name, Admin, Team
+     */
+    private const ACCOUNTS = [
+        [self::DEV_EMAIL, 'Entwicklungs-Administrator', true, self::DEV_TEAM],
+        [self::DEV_SALES_EMAIL, 'Vera Vertrieb', false, self::DEV_TEAM],
+        [self::DEV_BACKOFFICE_EMAIL, 'Ingo Innendienst', false, self::DEV_BACKOFFICE_TEAM],
+    ];
+
     public function __construct(
         private readonly CreateUser $createUser,
         private readonly CreateTeam $createTeam,
@@ -60,22 +80,25 @@ final class SeedUsersCommand extends Command
             return Command::SUCCESS;
         }
 
-        $team = ($this->createTeam)(self::DEV_TEAM);
+        $rows = [];
 
-        ($this->createUser)(new CreateUserCommand(
-            email: self::DEV_EMAIL,
-            name: 'Entwicklungs-Administrator',
-            plainPassword: self::DEV_PASSWORD,
-            roles: [Role::ADMIN],
-            teamId: $team->id(),
-        ));
+        foreach (self::ACCOUNTS as [$email, $name, $isAdmin, $teamName]) {
+            $team = ($this->createTeam)($teamName);
 
-        $io->success('Entwicklungs-Administrator angelegt.');
-        $io->table(['Feld', 'Wert'], [
-            ['E-Mail', self::DEV_EMAIL],
-            ['Passwort', self::DEV_PASSWORD],
-            ['Team', $team->name()],
-        ]);
+            ($this->createUser)(new CreateUserCommand(
+                email: $email,
+                name: $name,
+                plainPassword: self::DEV_PASSWORD,
+                roles: $isAdmin ? [Role::ADMIN] : [],
+                teamId: $team->id(),
+            ));
+
+            $rows[] = [$email, $isAdmin ? 'Administrator' : 'Benutzer', $team->name()];
+        }
+
+        $io->success(sprintf('%d Entwicklungskonten angelegt.', \count(self::ACCOUNTS)));
+        $io->table(['E-Mail', 'Rolle', 'Team'], $rows);
+        $io->note(sprintf('Passwort fuer alle: %s', self::DEV_PASSWORD));
 
         return Command::SUCCESS;
     }

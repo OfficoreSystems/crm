@@ -30,6 +30,7 @@ final readonly class CreateDeal
             companyId: $command->companyId,
             contactId: $command->contactId,
             ownerId: $command->ownerId,
+            ownerTeamId: $command->ownerTeamId,
             expectedCloseDate: $command->expectedCloseDate,
         );
 

@@ -12,6 +12,7 @@ use Crm\SharedKernel\Security\OwnershipRegistry;
 use Crm\SharedKernel\Security\PermissionMatrix;
 use Crm\SharedKernel\Security\RecordOwnership;
 use Crm\SharedKernel\Security\RecordOwnershipInterface;
+use Crm\SharedKernel\Security\RestrictedColumns;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -159,29 +160,30 @@ final class CrmVoterTest extends TestCase
     }
 
     #[Test]
-    public function it_abstains_on_attributes_that_are_not_actions(): void
+    public function it_abstains_on_attributes_it_does_not_understand(): void
     {
         // Sonst wuerde er anderen Votern ins Handwerk pfuschen - etwa dem
         // Rollen-Voter bei ROLE_ADMIN.
         $voter = $this->voter();
+        $token = $this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_ADMIN']);
 
-        self::assertSame(
-            VoterInterface::ACCESS_ABSTAIN,
-            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_ADMIN']), 'deal', ['ROLE_ADMIN']),
-        );
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $voter->vote($token, null, ['ROLE_ADMIN']));
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $voter->vote($token, null, ['deal']), 'ohne Aktion');
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $voter->vote($token, null, ['deal.exportieren']), 'unbekannte Aktion');
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $voter->vote($token, null, ['Deal.view']), 'Grossbuchstaben');
     }
 
     // --- Modulweite Pruefung ohne Datensatz, fuer Listenseiten ---
 
     #[Test]
-    public function a_module_name_alone_answers_whether_the_page_may_be_opened(): void
+    public function the_attribute_alone_answers_whether_the_page_may_be_opened(): void
     {
         $voter = $this->voter();
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), 'deal', [Action::VIEW->value]),
-            'Ein eingeschraenktes Recht ist ein Recht - welche Zeilen, entscheidet sich spaeter.',
+            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), null, ['deal.view']),
+            'Ein eingeschraenktes Recht ist ein Recht - welche Zeilen, entscheidet der Filter.',
         );
     }
 
@@ -192,11 +194,11 @@ final class CrmVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
-            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), 'user', [Action::VIEW->value]),
+            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), null, ['user.view']),
         );
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_ADMIN']), 'user', [Action::VIEW->value]),
+            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_ADMIN']), null, ['user.view']),
         );
     }
 
@@ -207,15 +209,30 @@ final class CrmVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), 'deal', [Action::CREATE->value]),
+            $voter->vote($this->tokenFor(self::ANNA, self::VERTRIEB, ['ROLE_USER']), null, ['deal.create']),
         );
+    }
+
+    #[Test]
+    public function the_module_comes_from_the_attribute_not_from_the_record(): void
+    {
+        // Ein Deal-Objekt mit einem contact-Attribut wird nach den
+        // contact-Regeln beurteilt - dort gilt ALL, also darf auch ein
+        // Fremdteam.
+        $vote = $this->voter()->vote(
+            $this->tokenFor(self::BOGDAN, self::INNENDIENST, ['ROLE_USER']),
+            $this->deal(self::ANNA, self::VERTRIEB),
+            ['contact.view'],
+        );
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $vote);
     }
 
     // --- Hilfen ---
 
     private function vote(TokenInterface $token, Action $action, object $subject): int
     {
-        return $this->voter()->vote($token, $subject, [$action->value]);
+        return $this->voter()->vote($token, $subject, ['deal.'.$action->value]);
     }
 
     private function voter(): CrmVoter
@@ -271,6 +288,14 @@ final class FakeDealOwnership implements RecordOwnershipInterface
         \assert($record instanceof FakeDeal);
 
         return new RecordOwnership($record->ownerId, $record->teamId);
+    }
+
+    public function restrictedColumns(): ?RestrictedColumns
+    {
+        // Der Voter braucht keine Spalten - er arbeitet auf geladenen
+        // Objekten. Null ist hier also die richtige Antwort, nicht ein
+        // Platzhalter.
+        return null;
     }
 }
 

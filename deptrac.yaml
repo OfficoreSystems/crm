@@ -40,10 +40,38 @@ deptrac:
           value: '#^App\\#'
 
     # --------------------------------------------------------- Vertragsschicht
+    # Ohne Infrastructure und ohne die Bundle-Klasse: der Vertragsteil soll
+    # frei von Persistenz bleiben und nichts verdrahten.
     - name: SharedKernel
       collectors:
+        - type: bool
+          must:
+            - type: classNameRegex
+              value: '#^Crm\\SharedKernel\\#'
+          must_not:
+            - type: classNameRegex
+              value: '#^Crm\\SharedKernel\\Infrastructure\\#'
+            - type: classNameRegex
+              value: '#^Crm\\SharedKernel\\CrmSharedKernelBundle$#'
+
+    # Der Teil des Shared Kernel, der Doctrine anfassen darf - derzeit nur der
+    # Sichtbarkeitsfilter, der von SQLFilter erbt.
+    #
+    # Diese Trennung ist der Grund, warum "SharedKernel kennt nur Symfony"
+    # weiter gilt. Ohne sie muesste die Vertragsschicht ganz Doctrine sehen,
+    # nur weil eine einzige Klasse davon erbt.
+    - name: SharedKernelInfrastructure
+      collectors:
         - type: classNameRegex
-          value: '#^Crm\\SharedKernel\\#'
+          value: '#^Crm\\SharedKernel\\Infrastructure\\#'
+
+    # Wie bei den Modulen: die Bundle-Klasse ist Verdrahtung und darf deshalb
+    # Schichten verbinden - hier den Vertrag mit seiner eigenen Infrastruktur,
+    # weil sie den Doctrine-Filter beim Framework anmeldet.
+    - name: SharedKernelBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\SharedKernel\\CrmSharedKernelBundle$#'
 
     # ------------------------------------------------------------ Modul: contact
     # Das Bundle selbst. Darf den shared-kernel und Symfony sehen, weil es sich
@@ -262,6 +290,19 @@ deptrac:
 
     # Die Vertragsschicht kennt niemanden ausser dem Framework.
     SharedKernel:
+      - Symfony
+
+    # Darf zusaetzlich Doctrine sehen - und nur in diese Richtung: der Vertrag
+    # kennt seine eigene Infrastruktur nicht.
+    SharedKernelInfrastructure:
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - Symfony
+
+    SharedKernelBundle:
+      - SharedKernel
+      - SharedKernelInfrastructure
       - Symfony
 
     ContactBundle:

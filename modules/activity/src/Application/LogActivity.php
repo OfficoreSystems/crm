@@ -41,6 +41,7 @@ final readonly class LogActivity
             summary: $command->summary,
             body: $command->body,
             authorId: $command->authorId,
+            authorTeamId: $command->authorTeamId,
             occurredAt: $command->occurredAt,
         );
 

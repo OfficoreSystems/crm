@@ -17,6 +17,7 @@ final readonly class CreateDealCommand
         public ?Uuid $companyId = null,
         public ?Uuid $contactId = null,
         public ?Uuid $ownerId = null,
+        public ?Uuid $ownerTeamId = null,
         public ?\DateTimeImmutable $expectedCloseDate = null,
     ) {
     }

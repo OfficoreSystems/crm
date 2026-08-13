@@ -9,11 +9,15 @@ use Crm\Activity\Domain\Activity;
 use Crm\Activity\Tests\Double\InMemoryActivityRepository;
 use Crm\Activity\UI\Console\SeedActivitiesCommand;
 use Crm\SharedKernel\Subject\SubjectResolverRegistry;
+use Crm\SharedKernel\User\NullUserFinder;
+use Crm\SharedKernel\User\UserFinderInterface;
+use Crm\SharedKernel\User\UserSummary;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Uid\Uuid;
 
 final class SeedActivitiesCommandTest extends TestCase
 {
@@ -84,10 +88,63 @@ final class SeedActivitiesCommandTest extends TestCase
         self::assertStringContainsString('Kein aufloesbares Subjekt', $tester->getDisplay());
     }
 
+    // --- Autoren ---
+
+    #[Test]
+    public function the_entries_are_spread_over_several_authors(): void
+    {
+        // Gehoerte die ganze Timeline einem Benutzer, saehe eine kaputte
+        // Filterung genauso aus wie eine funktionierende: alles oder nichts.
+        $vera = new UserSummary((string) Uuid::v7(), 'Vera', 'v@officore.test', (string) Uuid::v7());
+        $ingo = new UserSummary((string) Uuid::v7(), 'Ingo', 'i@officore.test', (string) Uuid::v7());
+
+        [$tester, $activities] = $this->command($this->registry(), new FakeUsers([$vera, $ingo]));
+        $tester->execute([]);
+
+        $authors = [];
+
+        foreach ($activities->findRecent(limit: 100) as $activity) {
+            $authors[(string) $activity->authorId()] = true;
+        }
+
+        self::assertCount(2, $authors, 'Beide Benutzer sollen Eintraege haben.');
+    }
+
+    #[Test]
+    public function an_author_always_brings_their_team_along(): void
+    {
+        // Ohne Team faellt der Eintrag im Filter auf den engsten Scope zurueck
+        // und waere fuer die Kollegen unsichtbar.
+        $vera = new UserSummary((string) Uuid::v7(), 'Vera', 'v@officore.test', (string) Uuid::v7());
+
+        [$tester, $activities] = $this->command($this->registry(), new FakeUsers([$vera]));
+        $tester->execute([]);
+
+        foreach ($activities->findRecent(limit: 100) as $activity) {
+            self::assertSame($vera->id, (string) $activity->authorId());
+            self::assertSame($vera->teamId, (string) $activity->authorTeamId());
+        }
+    }
+
+    #[Test]
+    public function a_user_without_a_team_is_not_used_as_an_author(): void
+    {
+        // Ein teamloser Autor macht seine Eintraege fuer alle anderen
+        // unsichtbar - als Beispieldaten waere das nur verwirrend.
+        $solo = new UserSummary((string) Uuid::v7(), 'Solo', 's@officore.test', null);
+
+        [$tester, $activities] = $this->command($this->registry(), new FakeUsers([$solo]));
+        $tester->execute([]);
+
+        self::assertGreaterThan(0, $activities->countAll());
+        self::assertNull($activities->findRecent(limit: 1)[0]->authorId());
+        self::assertStringContainsString('Kein Autor zugeordnet', $tester->getDisplay());
+    }
+
     /**
      * @return array{0: CommandTester, 1: InMemoryActivityRepository}
      */
-    private function command(SubjectResolverRegistry $registry): array
+    private function command(SubjectResolverRegistry $registry, ?UserFinderInterface $users = null): array
     {
         $activities = new InMemoryActivityRepository();
 
@@ -96,6 +153,7 @@ final class SeedActivitiesCommandTest extends TestCase
             new LogActivity($activities, $registry),
             $activities,
             $registry,
+            $users ?? new NullUserFinder(),
         ));
 
         return [new CommandTester($application->find('activity:seed')), $activities];
@@ -107,5 +165,45 @@ final class SeedActivitiesCommandTest extends TestCase
             new CountingResolver('contact', 'Kontakt', ['a' => 'Anna', 'b' => 'Bogdan', 'c' => 'Clara', 'd' => 'Deniz']),
             new CountingResolver('company', 'Firma', ['x' => 'Nordwind Logistik']),
         ]);
+    }
+}
+
+/**
+ * Ein Ersatz fuer das user-Modul.
+ *
+ * Bewusst eine eigene Klasse und keine aus einem anderen Modul: Testdoubles
+ * ueber Modulgrenzen zu teilen waere genau die Kopplung, die dieses Projekt
+ * vermeiden will.
+ */
+final class FakeUsers implements UserFinderInterface
+{
+    /**
+     * @param list<UserSummary> $users
+     */
+    public function __construct(private readonly array $users)
+    {
+    }
+
+    public function find(string $id): ?UserSummary
+    {
+        return $this->findMany([$id])[$id] ?? null;
+    }
+
+    public function findMany(array $ids): array
+    {
+        $found = [];
+
+        foreach ($this->users as $user) {
+            if (\in_array($user->id, $ids, true)) {
+                $found[$user->id] = $user;
+            }
+        }
+
+        return $found;
+    }
+
+    public function findAllActive(): array
+    {
+        return $this->users;
     }
 }

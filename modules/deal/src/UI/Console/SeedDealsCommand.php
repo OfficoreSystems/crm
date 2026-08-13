@@ -10,6 +10,7 @@ use Crm\Deal\Domain\DealRepositoryInterface;
 use Crm\Deal\Domain\Money;
 use Crm\Deal\Domain\Stage;
 use Crm\SharedKernel\Company\CompanyFinderInterface;
+use Crm\SharedKernel\User\UserFinderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,6 +45,7 @@ final class SeedDealsCommand extends Command
         private readonly CreateDeal $createDeal,
         private readonly DealRepositoryInterface $deals,
         private readonly CompanyFinderInterface $companies,
+        private readonly UserFinderInterface $users,
     ) {
         parent::__construct();
     }
@@ -59,6 +61,7 @@ final class SeedDealsCommand extends Command
         }
 
         $companyIds = $this->resolveCompanyIds();
+        $owner = $this->pickOwner();
         $linked = 0;
 
         foreach (self::SAMPLES as [$title, $value, $stage, $companyName]) {
@@ -73,6 +76,8 @@ final class SeedDealsCommand extends Command
                 value: Money::fromDecimal($value),
                 stage: $stage,
                 companyId: $companyId,
+                ownerId: $owner?->id,
+                ownerTeamId: $owner?->teamId,
             ));
         }
 
@@ -81,7 +86,45 @@ final class SeedDealsCommand extends Command
             ? 'Keine Firma zugeordnet - ist das company-Modul installiert und geseedet?'
             : sprintf('%d davon einer Firma zugeordnet.', $linked));
 
+        if (null === $owner) {
+            $io->warning('Kein Besitzer zugeordnet - ohne user-Modul greifen die Sichtbarkeitsregeln nicht.');
+        } else {
+            $io->note(sprintf('Besitzer: %s.', $owner->name));
+        }
+
         return Command::SUCCESS;
+    }
+
+    /**
+     * Der erste Benutzer, der kein Administrator ist.
+     *
+     * Absicht: gehoerten die Beispieldaten dem Administrator, saehe man von
+     * den Sichtbarkeitsregeln nichts - er darf ohnehin alles. So gehoeren sie
+     * einem Team, und wer in einem anderen ist, bekommt sie nicht zu sehen.
+     */
+    private function pickOwner(): ?SeedOwner
+    {
+        $fallback = null;
+
+        foreach ($this->users->findAllActive() as $user) {
+            $owner = new SeedOwner(
+                Uuid::isValid($user->id) ? Uuid::fromString($user->id) : null,
+                null !== $user->teamId && Uuid::isValid($user->teamId) ? Uuid::fromString($user->teamId) : null,
+                $user->name,
+            );
+
+            if (null === $owner->id) {
+                continue;
+            }
+
+            $fallback ??= $owner;
+
+            if (null !== $owner->teamId && !str_starts_with($user->email, 'admin@')) {
+                return $owner;
+            }
+        }
+
+        return $fallback;
     }
 
     /**

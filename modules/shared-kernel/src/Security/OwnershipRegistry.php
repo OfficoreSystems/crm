@@ -59,6 +59,32 @@ final class OwnershipRegistry
         return array_keys($modules);
     }
 
+    /**
+     * Was der Sichtbarkeitsfilter braucht, je Entity-Klasse.
+     *
+     * @return array<class-string, RecordRestriction>
+     */
+    public function restrictions(): array
+    {
+        $restrictions = [];
+
+        foreach ($this->providers as $provider) {
+            $columns = $provider->restrictedColumns();
+
+            if (null === $columns) {
+                continue;
+            }
+
+            $restrictions[$columns->entityClass] = new RecordRestriction(
+                module: $provider->module(),
+                ownerColumn: $columns->ownerColumn,
+                teamColumn: $columns->teamColumn,
+            );
+        }
+
+        return $restrictions;
+    }
+
     private function providerFor(object $record): ?RecordOwnershipInterface
     {
         // Nach Klassennamen zwischenspeichern: supports() laeuft bei einer

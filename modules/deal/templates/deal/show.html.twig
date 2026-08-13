@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ deal.title }}{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('deal_index') }}">&larr; Pipeline</a></p>
+
+    <h1>{{ deal.title }}</h1>
+
+    <div class="metrics">
+        <article class="metric">
+            <p class="metric__label">Wert</p>
+            <p class="metric__value">{{ deal.value.asDecimal }} {{ deal.value.currency }}</p>
+        </article>
+        <article class="metric">
+            <p class="metric__label">Stufe</p>
+            <p class="metric__value">{{ deal.stage.label }}</p>
+            {% if deal.closedAt %}
+                <p class="metric__description">
+                    abgeschlossen am {{ deal.closedAt|date('d.m.Y') }}
+                </p>
+            {% endif %}
+        </article>
+    </div>
+
+    <table class="contact-list__table">
+        <tbody>
+            <tr>
+                <th scope="row">Erwarteter Abschluss</th>
+                <td>
+                    {% if deal.expectedCloseDate %}
+                        {{ deal.expectedCloseDate|date('d.m.Y') }}
+                    {% else %}
+                        <span class="muted">&mdash;</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Angelegt</th>
+                <td>{{ deal.createdAt|date('d.m.Y') }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

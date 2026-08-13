@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Smoke;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Prueft die Verdrahtung, nicht die Fachlichkeit: Routing-Glob, Twig-Namespace
@@ -14,11 +15,34 @@ use PHPUnit\Framework\Attributes\Test;
  */
 final class ContactPageTest extends WebTestCase
 {
+    use SignsIn;
+
+    private KernelBrowser $client;
+
+    protected function setUp(): void
+    {
+        self::ensureKernelShutdown();
+
+        $this->client = static::createClient();
+        $this->purge();
+
+        // Seit der Firewall fuehrt jeder Pfad ohne Anmeldung auf /login. Die
+        // Seite selbst hat sich nicht geaendert - man kommt nur nicht mehr
+        // ohne Konto hin.
+        $this->signIn($this->client, $this->givenUser('smoke@example.test', 'Smoke Benutzer'));
+    }
+
+    protected function tearDown(): void
+    {
+        $this->purge();
+
+        parent::tearDown();
+    }
+
     #[Test]
     public function the_contact_page_renders(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/contacts');
+        $this->client->request('GET', '/contacts');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Kontakte');
@@ -27,8 +51,7 @@ final class ContactPageTest extends WebTestCase
     #[Test]
     public function it_renders_the_live_component_with_a_search_field(): void
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/contacts');
+        $crawler = $this->client->request('GET', '/contacts');
 
         $search = $crawler->filter('input[type="search"]');
 
@@ -45,8 +68,7 @@ final class ContactPageTest extends WebTestCase
     {
         // Der Core kennt das Modul nicht - der Eintrag kann nur ueber
         // MenuProviderInterface + Tag hierher gekommen sein.
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/contacts');
+        $crawler = $this->client->request('GET', '/contacts');
 
         self::assertSelectorTextContains('.sidebar__nav', 'Kontakte');
         self::assertCount(1, $crawler->filter('.sidebar__nav a[aria-current="page"]'));
