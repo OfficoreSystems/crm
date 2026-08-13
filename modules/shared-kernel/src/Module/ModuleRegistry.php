@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Module;
 
 /**
- * Verzeichnis aller installierten Module.
+ * Directory of all installed modules.
  *
- * Macht den Tag `crm.module` nutzbar: ohne eine Abfragestelle waere die
- * Selbstbeschreibung der Module nur Dekoration.
+ * Makes the tag `crm.module` usable: without somewhere to query it, the modules'
+ * self-description would be decoration.
  */
 final class ModuleRegistry
 {
@@ -26,7 +26,7 @@ final class ModuleRegistry
     }
 
     /**
-     * @return array<string, CrmModuleInterface> Indiziert nach Modulnamen.
+     * @return array<string, CrmModuleInterface> Indexed by module name.
      */
     public function all(): array
     {
@@ -52,9 +52,9 @@ final class ModuleRegistry
     }
 
     /**
-     * Module, deren deklarierte Abhaengigkeiten nicht installiert sind.
+     * Modules whose declared dependencies are not installed.
      *
-     * @return array<string, list<string>> Modulname => fehlende Abhaengigkeiten.
+     * @return array<string, list<string>> module name => missing dependencies.
      */
     public function missingDependencies(): array
     {

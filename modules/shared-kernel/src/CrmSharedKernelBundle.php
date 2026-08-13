@@ -15,10 +15,10 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 /**
- * Registriert die Extension-Points, ueber die Module an den Core andocken.
+ * Registers the extension points through which modules plug into the core.
  *
- * Hier steht bewusst keine Liste von Modulen: der Core erfaehrt erst zur
- * Compile-Zeit des Containers, wer sich an die Tags gehaengt hat.
+ * There is deliberately no list of modules here: the core only learns at
+ * container compile time who has attached themselves to the tags.
  */
 final class CrmSharedKernelBundle extends AbstractBundle
 {
@@ -26,36 +26,35 @@ final class CrmSharedKernelBundle extends AbstractBundle
     {
         parent::build($container);
 
-        // Autoconfiguration statt manueller Tags: ein Modul implementiert nur
-        // das Interface und ist damit angemeldet - kein Eintrag im Core noetig.
+        // Autoconfiguration instead of manual tags: a module only implements the
+        // interface and is registered by that - no entry in the core needed.
         $container->registerForAutoconfiguration(MenuProviderInterface::class)
             ->addTag('crm.menu_provider');
 
         $container->registerForAutoconfiguration(CrmModuleInterface::class)
             ->addTag('crm.module');
 
-        // Macht die Datensaetze eines Moduls als polymorphes Subjekt
-        // verweisbar - fuer Aktivitaeten, spaeter Dokumente und E-Mails.
+        // Makes a module's records referenceable as a polymorphic subject - for
+        // activities, later documents and emails.
         $container->registerForAutoconfiguration(SubjectResolverInterface::class)
             ->addTag('crm.subject_resolver');
 
-        // Kennzahlen fuer die Startseite, fertig aggregiert vom liefernden
-        // Modul.
+        // Figures for the home page, pre-aggregated by the delivering module.
         $container->registerForAutoconfiguration(MetricProviderInterface::class)
             ->addTag('crm.metric_provider');
 
-        // Sagt dem Voter, wem die Datensaetze eines Moduls gehoeren.
+        // Tells the voter who owns a module's records.
         $container->registerForAutoconfiguration(RecordOwnershipInterface::class)
             ->addTag('crm.record_ownership');
     }
 
     /**
-     * Meldet den Sichtbarkeitsfilter bei Doctrine an.
+     * Registers the visibility filter with Doctrine.
      *
-     * Bewusst hier und nicht in der Anwendungskonfiguration: der Filter
-     * gehoert zur Vertragsschicht, und ein Projekt soll ihn nicht vergessen
-     * koennen. Aktiviert wird er trotzdem erst pro Request und nur mit
-     * angemeldetem Benutzer - siehe RecordVisibilityConfigurator.
+     * Deliberately here and not in the application configuration: the filter
+     * belongs to the contract layer, and a project should not be able to forget
+     * it. It is still only enabled per request and only with a signed-in user -
+     * see RecordVisibilityConfigurator.
      */
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
@@ -68,9 +67,9 @@ final class CrmSharedKernelBundle extends AbstractBundle
                 'filters' => [
                     RecordVisibilityFilter::NAME => [
                         'class' => RecordVisibilityFilter::class,
-                        // Standardmaessig aus: ohne Parameter wuerde er nichts
-                        // tun, aber ein eingeschalteter Filter ohne Werte ist
-                        // eine Falle fuer den naechsten Leser.
+                        // Off by default: without parameters it would do
+                        // nothing, but an enabled filter without values is a
+                        // trap for the next reader.
                         'enabled' => false,
                     ],
                 ],

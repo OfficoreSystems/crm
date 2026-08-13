@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\User;
 
 /**
- * Standardimplementierung, solange kein user-Modul installiert ist.
+ * Default implementation for as long as no user module is installed.
  *
- * Der Sinn: ein Modul, das Benutzernamen anzeigen moechte, kann
- * UserFinderInterface bedenkenlos injizieren. Fehlt das user-Modul, bekommt es
- * leere Antworten statt eines "Service not found" beim Container-Build.
+ * The point: a module that wants to display user names can inject
+ * UserFinderInterface without a second thought. If the user module is absent it
+ * gets empty answers instead of a "Service not found" at container build time.
  *
- * Aufrufer muessen also ohnehin damit rechnen, dass ein Benutzer nicht
- * aufloesbar ist - und genau das ist die richtige Erwartung, denn auch mit
- * user-Modul kann eine ID veraltet sein.
+ * Callers therefore have to expect an unresolvable user anyway - and that is
+ * exactly the right expectation, because even with the user module an ID can be
+ * out of date.
  */
 final class NullUserFinder implements UserFinderInterface
 {

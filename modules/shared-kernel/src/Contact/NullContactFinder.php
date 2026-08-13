@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Contact;
 
 /**
- * Standardimplementierung, solange kein contact-Modul installiert ist.
+ * Default implementation for as long as no contact module is installed.
  */
 final class NullContactFinder implements ContactFinderInterface
 {

@@ -5,27 +5,27 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Wo ein Modul Besitzer und Team ablegt.
+ * Where a module stores owner and team.
  *
- * Der Voter entscheidet ueber einzelne Datensaetze. Fuer Listen taugt er nicht:
- * eine Seite mit fuenfzig Zeilen wuerde fuenfzig Mal abstimmen, und schlimmer -
- * die Zeilen waeren zu diesem Zeitpunkt bereits aus der Datenbank geladen. Wer
- * fremde Daten nicht sehen soll, soll sie gar nicht erst bekommen.
+ * The voter decides about individual records. For lists it is no use: a page
+ * with fifty rows would vote fifty times, and worse - by then the rows would
+ * already be loaded from the database. Whoever must not see other people's data
+ * should not receive it in the first place.
  *
- * Dafuer braucht der Sichtbarkeitsfilter Spaltennamen. Sie stehen hier und
- * nicht als Attribut an der Entity: die Domain-Schicht eines Moduls haengt an
- * nichts, und ein Attribut aus dem Shared Kernel waere genau so eine
- * Abhaengigkeit. Sie stehen ausserdem beim Ownership-Anbieter, also an
- * derselben Stelle wie die Antwort "wem gehoert dieser Datensatz" - zwei Orte
- * dafuer waeren zwei Orte, die auseinanderlaufen koennen.
+ * For that the visibility filter needs column names. They live here and not as
+ * an attribute on the entity: a module's domain layer depends on nothing, and an
+ * attribute from the shared kernel would be exactly such a dependency. They also
+ * sit with the ownership provider, that is in the same place as the answer to
+ * "who owns this record" - two places for it would be two places that can drift
+ * apart.
  */
 final readonly class RestrictedColumns
 {
     /**
-     * @param class-string $entityClass Die Entity, an deren Abfragen der
-     *                                  Filter sich haengt.
-     * @param string       $ownerColumn Spaltenname, nicht Feldname - der
-     *                                  Filter schreibt SQL.
+     * @param class-string $entityClass The entity whose queries the filter
+     *                                  attaches itself to.
+     * @param string       $ownerColumn Column name, not field name - the filter
+     *                                  writes SQL.
      */
     public function __construct(
         public string $entityClass,

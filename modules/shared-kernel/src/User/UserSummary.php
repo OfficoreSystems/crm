@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\User;
 
 /**
- * Die Sicht anderer Module auf einen Benutzer.
+ * How other modules see a user.
  *
- * Bewusst eine flache Kopie und nicht die User-Entity: sonst haenge jedes
- * Modul, das nur einen Namen anzeigen will, am Doctrine-Mapping des
- * user-Moduls - und waere ohne dieses nicht mehr lauffaehig.
+ * Deliberately a flat copy and not the User entity: otherwise every module that
+ * only wants to display a name would depend on the Doctrine mapping of the user
+ * module - and would stop working without it.
  */
 final readonly class UserSummary
 {
     /**
-     * @param string      $id     UUID als String. Skalar, weil ueber
-     *                            Modulgrenzen keine Doctrine-Association geht.
-     * @param string|null $teamId UUID des Teams, oder null.
+     * @param string      $id     UUID as a string. Scalar, because no Doctrine
+     *                            association crosses module boundaries.
+     * @param string|null $teamId UUID of the team, or null.
      */
     public function __construct(
         public string $id,

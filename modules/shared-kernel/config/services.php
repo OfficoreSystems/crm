@@ -43,30 +43,30 @@ return static function (ContainerConfigurator $container): void {
     $services->set(OwnershipRegistry::class)
         ->args([tagged_iterator('crm.record_ownership')]);
 
-    // Die Rechtematrix als Vorgabe. Wer sie anpassen will, definiert diesen
-    // Dienst in der Anwendung neu - dann gewinnt die spaetere Definition.
+    // The permission matrix as a default. To adjust it, redefine this service
+    // in the application - the later definition then wins.
     $services->set(PermissionMatrix::class)
         ->factory([PermissionMatrix::class, 'default']);
 
     $services->set(CrmVoter::class)
         ->tag('security.voter');
 
-    // Der Doctrine-Filter selbst wird von der Bundle-Klasse konfiguriert, aber
-    // Doctrine baut ihn ohne Container. Diese Klasse fuettert ihn pro Request
-    // mit Benutzer und Scope - ohne sie ist der Filter dauerhaft aus, und das
-    // faellt nicht auf: die Seiten funktionieren, sie zeigen nur zu viel.
+    // The Doctrine filter itself is configured by the bundle class, but
+    // Doctrine builds it without a container. This class feeds it user and scope
+    // per request - without it the filter is off permanently, and that does not
+    // show: the pages work, they just display too much.
     $services->set(RecordVisibilityConfigurator::class);
 
-    // Dieselbe Bauart wie oben, derselbe Grund: das Attribut #[AsEventListener]
-    // wirkt nur an einer Klasse, die auch ein Dienst ist.
+    // Same construction as above, same reason: the #[AsEventListener] attribute
+    // only takes effect on a class that is also a service.
     $services->set(ActorLocaleListener::class);
 
-    // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
-    // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem
-    // shared-kernel, und die spaetere Definition gewinnt.
+    // Default implementation. The user module overrides this alias with its
+    // Doctrine variant - it sits behind the shared kernel in config/bundles.php,
+    // and the later definition wins.
     //
-    // Ohne diesen Vorgabewert koennte kein Modul UserFinderInterface
-    // injizieren, ohne das user-Modul zur Pflicht zu machen.
+    // Without this default no module could inject UserFinderInterface without
+    // making the user module mandatory.
     $services->set(NullUserFinder::class);
     $services->alias(UserFinderInterface::class, NullUserFinder::class);
 
@@ -76,10 +76,10 @@ return static function (ContainerConfigurator $container): void {
     $services->set(NullContactFinder::class);
     $services->alias(ContactFinderInterface::class, NullContactFinder::class);
 
-    // Feste Service-ID, auf die config/packages/security.yaml verweist.
-    // Der Core kommt so ohne Modulnamen aus; das user-Modul haengt hier seine
-    // eigene Implementierung ein. Siehe NullUserProvider fuer den Grund,
-    // warum die Firewall nicht aus dem Modul heraus konfigurierbar ist.
+    // Fixed service ID that config/packages/security.yaml points at. The core
+    // thereby manages without module names; the user module hooks its own
+    // implementation in here. See NullUserProvider for why the firewall cannot
+    // be configured from the module.
     $services->set(NullUserProvider::class);
     $services->alias('crm.security.user_provider', NullUserProvider::class);
 };

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\User;
 
 /**
- * Extension-Point: Benutzer nachschlagen, ohne das user-Modul zu kennen.
+ * Extension point: look up users without knowing the user module.
  *
- * Nur Lesezugriff. Wer Benutzer anlegen oder aendern will, gehoert ins
- * user-Modul - andere Module bekommen hier absichtlich keinen Schreibweg.
+ * Read access only. Whoever wants to create or change users belongs in the user
+ * module - other modules deliberately get no write path here.
  *
- * Die Standardimplementierung ist {@see NullUserFinder}. Ist das user-Modul
- * installiert, ueberschreibt es den Alias mit seiner eigenen. Dadurch bleibt
- * die Anwendung auch ohne das Modul startfaehig.
+ * The default implementation is {@see NullUserFinder}. Once the user module is
+ * installed it overrides the alias with its own. That keeps the application
+ * bootable without the module too.
  */
 interface UserFinderInterface
 {
@@ -21,8 +21,8 @@ interface UserFinderInterface
     /**
      * @param list<string> $ids
      *
-     * @return array<string, UserSummary> Indiziert nach ID. Unbekannte IDs
-     *                                    fehlen im Ergebnis, statt null zu sein.
+     * @return array<string, UserSummary> Indexed by ID. Unknown IDs are missing
+     *                                    from the result rather than being null.
      */
     public function findMany(array $ids): array;
 

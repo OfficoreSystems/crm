@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Security;
 
 /**
- * Findet zu einem Datensatz das zustaendige Modul und dessen Besitzangaben.
+ * Finds the module responsible for a record and its ownership details.
  */
 final class OwnershipRegistry
 {
     /**
-     * @var array<string, RecordOwnershipInterface>|null Klassenname => Anbieter
+     * @var array<string, RecordOwnershipInterface>|null class name => provider
      */
     private ?array $byClass = null;
 
@@ -28,8 +28,8 @@ final class OwnershipRegistry
     }
 
     /**
-     * Das Modul, zu dem der Datensatz gehoert - oder null, wenn sich niemand
-     * zustaendig fuehlt.
+     * The module the record belongs to - or null when nobody feels
+     * responsible.
      */
     public function moduleOf(object $record): ?string
     {
@@ -37,8 +37,8 @@ final class OwnershipRegistry
     }
 
     /**
-     * Ohne zustaendigen Anbieter gilt der Datensatz als niemandes Eigentum.
-     * Damit ist er nur mit ALL-Rechten erreichbar - die sichere Vorgabe.
+     * Without a responsible provider the record counts as nobody's property.
+     * It is then reachable only with ALL rights - the safe default.
      */
     public function ownershipOf(object $record): RecordOwnership
     {
@@ -60,7 +60,7 @@ final class OwnershipRegistry
     }
 
     /**
-     * Was der Sichtbarkeitsfilter braucht, je Entity-Klasse.
+     * What the visibility filter needs, per entity class.
      *
      * @return array<class-string, RecordRestriction>
      */
@@ -87,8 +87,8 @@ final class OwnershipRegistry
 
     private function providerFor(object $record): ?RecordOwnershipInterface
     {
-        // Nach Klassennamen zwischenspeichern: supports() laeuft bei einer
-        // Liste sonst je Zeile durch alle Anbieter.
+        // Cache by class name: otherwise supports() would run through every
+        // provider for each row of a list.
         $class = $record::class;
 
         if (isset($this->byClass[$class])) {

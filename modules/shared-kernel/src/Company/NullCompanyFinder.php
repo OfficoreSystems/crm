@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Company;
 
 /**
- * Standardimplementierung, solange kein company-Modul installiert ist.
+ * Default implementation for as long as no company module is installed.
  *
- * Liefert leere Antworten statt zu werfen. Aufrufer muessen ohnehin damit
- * rechnen, dass eine Firma nicht aufloesbar ist - auch mit company-Modul kann
- * eine gespeicherte ID veraltet sein.
+ * Returns empty answers rather than throwing. Callers have to expect an
+ * unresolvable company anyway - even with the company module a stored ID can be
+ * out of date.
  */
 final class NullCompanyFinder implements CompanyFinderInterface
 {

@@ -8,26 +8,26 @@ use Crm\SharedKernel\Localization\TranslatableText;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
- * Ein aufgeloester Verweis: genug, um ihn anzuzeigen und zu verlinken.
+ * A resolved reference: enough to display and link it.
  *
- * Bewusst Routenname plus Parameter statt einer fertigen URL. Die URL zu
- * bauen ist Aufgabe des Templates, das den Router kennt - und ein
- * vorgefertigter Pfad waere beim Wechsel des Routings still falsch.
+ * Deliberately a route name plus parameters instead of a finished URL. Building
+ * the URL is the template's job, because the template knows the router - and a
+ * pre-built path would be silently wrong once the routing changes.
  */
 final readonly class ResolvedSubject
 {
     /**
-     * @param string                             $label           Daten, kein Schluessel - der Name
-     *                                                            des Datensatzes.
-     * @param array<string, string|int>          $routeParameters
-     * @param string|TranslatableInterface|null  $typeLabel       Uebersetzungsschluessel.
-     * @param string|TranslatableInterface|null  $description     Zweite Zeile: was diesen Datensatz
-     *                                                            von gleichnamigen unterscheidet.
-     *                                                            Ohne sie ist eine Trefferliste mit
-     *                                                            drei "Nordwind" nicht benutzbar.
-     *                                                            Mischt oft Daten und Uebersetzung -
-     *                                                            dafuer gibt es
-     *                                                            {@see TranslatableText}.
+     * @param string                            $label           Data, not a key - the name of the
+     *                                                           record.
+     * @param array<string, string|int>         $routeParameters
+     * @param string|TranslatableInterface|null $typeLabel       Translation key.
+     * @param string|TranslatableInterface|null $description     Second line: what distinguishes this
+     *                                                           record from ones with the same name.
+     *                                                           Without it a result list with three
+     *                                                           "Nordwind" entries is unusable.
+     *                                                           Often mixes data and translation -
+     *                                                           that is what {@see TranslatableText}
+     *                                                           is for.
      */
     public function __construct(
         public string $type,

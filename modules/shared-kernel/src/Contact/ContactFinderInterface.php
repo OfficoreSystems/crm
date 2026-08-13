@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Crm\SharedKernel\Contact;
 
 /**
- * Extension-Point: Kontakte nachschlagen, ohne das contact-Modul zu kennen.
+ * Extension point: look up contacts without knowing the contact module.
  *
- * Nur Lesezugriff. Standardimplementierung ist {@see NullContactFinder}.
+ * Read access only. The default implementation is {@see NullContactFinder}.
  */
 interface ContactFinderInterface
 {
@@ -16,7 +16,7 @@ interface ContactFinderInterface
     /**
      * @param list<string> $ids
      *
-     * @return array<string, ContactSummary> Indiziert nach ID.
+     * @return array<string, ContactSummary> Indexed by ID.
      */
     public function findMany(array $ids): array;
 

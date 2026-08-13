@@ -1,0 +1,13 @@
+# The shared kernel has few texts of its own - it is a contract layer. What is
+# here describes rights, and those are the same concept in every module.
+security:
+    scope:
+        own: 'own records only'
+        team: 'own team'
+        all: 'everyone'
+
+    action:
+        view: 'view'
+        create: 'create'
+        edit: 'edit'
+        delete: 'delete'
