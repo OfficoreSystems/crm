@@ -205,6 +205,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Activity\\UI\\#'
 
+    # ----------------------------------------------------------- Modul: document
+    - name: DocumentBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Document\\DocumentModule$#'
+
+    - name: DocumentDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Document\\Domain\\#'
+
+    - name: DocumentApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Document\\Application\\#'
+
+    - name: DocumentInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Document\\Infrastructure\\#'
+
+    - name: DocumentUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Document\\UI\\#'
+
     # ------------------------------------------------------------- Modul: search
     - name: SearchBundle
       collectors:
@@ -270,6 +296,12 @@ deptrac:
           must_not:
             - type: classNameRegex
               value: '#^Symfony\\Component\\Uid\\#'
+
+    # Nur das document-Modul darf das sehen, und dort nur eine einzige Klasse.
+    - name: Flysystem
+      collectors:
+        - type: classNameRegex
+          value: '#^League\\Flysystem\\#'
 
     - name: Twig
       collectors:
@@ -467,6 +499,43 @@ deptrac:
     ActivityUI:
       - ActivityDomain
       - ActivityApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    DocumentBundle:
+      - SharedKernel
+      - Symfony
+
+    # SharedKernel wegen SubjectRef - dasselbe Wertobjekt wie bei Aktivitaeten.
+    # Ein Dokument haengt an einem beliebigen Datensatz, und der Verweis ist
+    # Typ plus ID, kein Fremdschluessel.
+    DocumentDomain:
+      - SharedKernel
+      - DoctrineMapping
+      - SymfonyUid
+
+    DocumentApplication:
+      - DocumentDomain
+      - SharedKernel
+      - SymfonyUid
+
+    # Flysystem steht bewusst nur hier: FlysystemDocumentStorage ist die
+    # einzige Klasse im Modul, die die Bibliothek kennt. Alles darueber
+    # arbeitet gegen DocumentStorageInterface.
+    DocumentInfrastructure:
+      - DocumentDomain
+      - DocumentApplication
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - Flysystem
+      - SymfonyUid
+
+    DocumentUI:
+      - DocumentDomain
+      - DocumentApplication
       - SharedKernel
       - Symfony
       - SymfonyUid

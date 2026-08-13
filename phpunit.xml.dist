@@ -50,6 +50,9 @@
         <testsuite name="dashboard">
             <directory>modules/dashboard/tests</directory>
         </testsuite>
+        <testsuite name="document">
+            <directory>modules/document/tests</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
@@ -67,6 +70,7 @@
             <directory>modules/activity/src</directory>
             <directory>modules/search/src</directory>
             <directory>modules/dashboard/src</directory>
+            <directory>modules/document/src</directory>
         </include>
 
         <deprecationTrigger>

@@ -10,7 +10,8 @@ git clone https://github.com/OfficoreSystems/crm.git && cd crm
 make fresh          # startet Container, installiert, migriert, seedet
 ```
 
-Danach: <http://localhost:8080/contacts> · Mails unter <http://localhost:8025>
+Danach: <http://localhost:8080/contacts> · Mails unter <http://localhost:8025> ·
+Objektspeicher unter <http://localhost:9001> (`officore` / `officore-dev-passwort`)
 
 `user:seed` legt **drei** Konten an, alle mit dem Passwort
 `officore-dev-passwort`:
@@ -249,6 +250,38 @@ Zwei Fallen, die Zeit gekostet haben:
   `KernelBrowser` startet den Kernel vor dem *ersten* Request nicht neu; ein
   soeben angelegter Datensatz liegt dann noch im EntityManager und wird ohne
   SQL — also ohne Filter — zurückgegeben. `SignsIn::signIn()` erledigt das.
+
+### Dateien
+
+Dokumente hängen wie Aktivitäten an einem **polymorphen Verweis** — Typ plus
+ID, kein Fremdschlüssel. Das Modul weiß nicht, was ein Kontakt ist.
+
+Die Datei selbst liegt im Objektspeicher, in der Datenbank steht nur, wo.
+Lokal ist das MinIO aus [compose.yaml](compose.yaml), in Produktion S3, R2 oder
+Hetzner — derselbe Adapter, andere Werte aus der Umgebung. In Tests ein
+lokales Verzeichnis, damit die Suite ohne laufenden Container durchläuft.
+
+Drei Entscheidungen, die man kennen sollte:
+
+- **Der Speicherschlüssel hat nichts mit dem Dateinamen zu tun.** Er lautet
+  `<typ>/<jahr>/<monat>/<uuid>`. Aus dem Dateinamen abgeleitet hätte er zwei
+  Probleme, von denen das zweite das schlimmere ist: zwei Benutzer würden sich
+  gegenseitig überschreiben, und wer den Dateinamen kennt, kennt den
+  Speicherort.
+- **Erst die Datei, dann die Datenbankzeile** — und beim Scheitern wird die
+  Datei wieder gelöscht. Es gibt keine gemeinsame Transaktion, also entscheidet
+  die Reihenfolge, welcher Fehlerfall übrig bleibt: eine verwaiste Datei ist
+  aufräumbar, ein Eintrag ohne Datei zeigt dem Benutzer etwas, das beim Klick
+  nicht existiert.
+- **Der Download läuft durch die Anwendung**, nicht über eine Bucket-URL. Eine
+  öffentliche URL wäre billiger, würde aber die Rechte aushebeln: wer den Link
+  hat, hätte die Datei. Ausgeliefert wird immer als `attachment` mit
+  `X-Content-Type-Options: nosniff` — eine hochgeladene HTML- oder SVG-Datei
+  liefe sonst im Ursprung der Anwendung.
+
+Löschen ist per Vorgabe dem Administrator vorbehalten, wie bei Chancen und
+Aktivitäten. Wer das ändern will, ergänzt in `PermissionMatrix::default()`
+einen `document`-Eintrag — das Modul selbst braucht dafür keine Änderung.
 
 ### Coverage-Gate
 
