@@ -10,11 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Die Startseite leitet auf den ersten Menueeintrag weiter.
+ * The home page redirects to the first menu entry.
  *
- * Damit gibt es ein festes Ziel fuer "nach dem Login" und fuer "/", ohne dass
- * der Core oder ein Modul ein bestimmtes anderes Modul benennen muesste. Was
- * installiert ist, entscheidet die Registry.
+ * That gives a fixed target for "after sign-in" and for "/" without the core
+ * or a module having to name a particular other module. What is installed is
+ * decided by the registry.
  */
 final class HomeController extends AbstractController
 {
@@ -29,7 +29,7 @@ final class HomeController extends AbstractController
         $items = $this->menu->items();
 
         if ([] === $items) {
-            // Kein Modul installiert. Kein Fehler - nur nichts zu zeigen.
+            // No module installed. Not an error - just nothing to show.
             return $this->render('home/empty.html.twig');
         }
 

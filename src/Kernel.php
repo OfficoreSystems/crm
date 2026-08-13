@@ -14,47 +14,45 @@ class Kernel extends BaseKernel
     use MicroKernelTrait;
 
     /**
-     * Laedt die Routen des Cores und anschliessend die der *registrierten*
-     * Module.
+     * Loads the core's routes and then those of the *registered* modules.
      *
-     * Vorher stand dafuer ein Glob in config/routes.yaml ueber
-     * modules/[*]/config/routes.php. Der liest das Dateisystem, waehrend die
-     * Registrierung ueber config/bundles.php laeuft - und beides kann
-     * auseinanderlaufen. Nimmt man ein Modul aus bundles.php, verschwinden
-     * seine Services, seine Routen bleiben, und der erste Aufruf endet mit
-     * "has no container set, did you forget to define it as a service
-     * subscriber?" - einem 500 statt eines schlichten 404.
+     * This used to be a glob in config/routes.yaml over
+     * modules/[*]/config/routes.php. That reads the file system while
+     * registration runs through config/bundles.php - and the two can drift
+     * apart. Take a module out of bundles.php and its services disappear while
+     * its routes stay, so the first call ends in "has no container set, did you
+     * forget to define it as a service subscriber?" - a 500 instead of a plain
+     * 404.
      *
-     * Ueber die Bundle-Liste gibt es genau eine Wahrheit: was nicht
-     * registriert ist, hat auch keine Routen.
+     * Going through the bundle list leaves exactly one truth: what is not
+     * registered has no routes either.
      *
-     * Zwei Fallstricke, die hier je einmal zugeschlagen haben:
+     * Two traps, each of which caught us once:
      *
-     * 1. Die Vorlage aus MicroKernelTrait muss vollstaendig mitkopiert werden,
-     *    weil eine eigene configureRoutes() sie komplett ersetzt. Die Klammern
-     *    um "config" sind kein Tippfehler, sondern machen den Pfad fuer den
-     *    Glob-Loader auswertbar.
+     * 1. The template from MicroKernelTrait has to be copied in full, because
+     *    an own configureRoutes() replaces it entirely. The braces around
+     *    "config" are not a typo - they make the path evaluable for the glob
+     *    loader.
      *
-     * 2. Die Schleife darf *nicht* ueber alle Bundles laufen. Fremdbundles
-     *    bringen ebenfalls config/routes.php mit - LiveComponentBundle etwa.
-     *    Die wird von config/routes/ux_live_component.yaml bereits mit dem
-     *    Praefix /_components importiert; ein zweiter Import ohne Praefix
-     *    erzeugt eine Route /{_live_component}/{_live_action}, die jeden Pfad
-     *    gierig schluckt. Das Symptom war ein 404 auf /contacts, obwohl
-     *    debug:router die Route sauber anzeigte - gematcht hat schlicht eine
-     *    andere.
+     * 2. The loop must *not* run over every bundle. Third-party bundles ship
+     *    config/routes.php too - LiveComponentBundle, for one. That file is
+     *    already imported by config/routes/ux_live_component.yaml with the
+     *    prefix /_components; a second import without the prefix produces a
+     *    route /{_live_component}/{_live_action} that greedily swallows every
+     *    path. The symptom was a 404 on /contacts even though debug:router
+     *    displayed the route just fine - a different one was matching.
      *
-     * Der Filter auf CrmModuleInterface loest das: Der Core kennt damit den
-     * Vertrag aus dem Shared Kernel, aber kein einzelnes Modul.
+     * The filter on CrmModuleInterface solves it: the core thereby knows the
+     * contract from the shared kernel, but no individual module.
      */
     /*
-     * Bewusst protected, nicht private.
+     * Deliberately protected, not private.
      *
-     * MicroKernelTrait ruft die Methode ueber Reflection auf
-     * (ReflectionMethod::getClosure), also ohne statisch sichtbaren Aufruf.
-     * PHPStan meldet sie als private Methode deshalb zu Recht als unbenutzt.
-     * Protected ist keine Unterdrueckung der Regel, sondern die ehrlichere
-     * Angabe: der Kernel ist zum Erweitern gedacht.
+     * MicroKernelTrait calls the method through reflection
+     * (ReflectionMethod::getClosure), so there is no statically visible call.
+     * PHPStan is therefore right to report a private method as unused.
+     * Protected is not a way of suppressing the rule but the more honest
+     * statement: the kernel is meant to be extended.
      */
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
