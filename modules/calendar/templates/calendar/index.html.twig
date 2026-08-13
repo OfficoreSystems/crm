@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Kalender{% endblock %}
+
+{% block body %}
+    <h1>Kalender</h1>
+
+    <p><a href="{{ path('calendar_subscription') }}">Abonnement für Outlook, Google &amp; Apple</a></p>
+
+    {% for message in app.flashes('success') %}
+        <p class="flash flash--success">{{ message }}</p>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <p class="flash flash--error">{{ message }}</p>
+    {% endfor %}
+
+    {% if is_granted('calendar.create') %}
+        <form method="post" action="{{ path('calendar_create') }}" class="appointment-form">
+            <label for="titel">Titel</label>
+            <input type="text" id="titel" name="titel" maxlength="200" required>
+
+            <label for="beginn">Beginn</label>
+            <input type="datetime-local" id="beginn" name="beginn" required>
+
+            <label for="ende">Ende</label>
+            <input type="datetime-local" id="ende" name="ende">
+
+            <label>
+                <input type="checkbox" name="ganztaegig" value="1"> Ganztägig
+            </label>
+
+            <label for="ort">Ort</label>
+            <input type="text" id="ort" name="ort" maxlength="200">
+
+            {% if types is not empty %}
+                <label for="bezug_typ">Bezug</label>
+                <select id="bezug_typ" name="bezug_typ">
+                    <option value="">— ohne —</option>
+                    {% for type, label in types %}
+                        <option value="{{ type }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="bezug_id" placeholder="ID des Datensatzes">
+            {% endif %}
+
+            <button type="submit">Eintragen</button>
+        </form>
+    {% endif %}
+
+    {% if appointments is empty %}
+        <p class="muted">Nichts geplant.</p>
+    {% else %}
+        <table class="contact-list__table">
+            <thead>
+                <tr>
+                    <th scope="col">Wann</th>
+                    <th scope="col">Titel</th>
+                    <th scope="col">Ort</th>
+                    <th scope="col">Bezug</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>
+                            {% if appointment.allDay %}
+                                {{ appointment.startsAt|date('d.m.Y') }}
+                                <span class="muted">ganztägig</span>
+                            {% else %}
+                                {# Anzeige in Ortszeit, gespeichert ist UTC. #}
+                                {{ appointment.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                                &ndash;
+                                {{ appointment.endsAt|date('H:i', 'Europe/Berlin') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ appointment.title }}
+                            {% if appointment.description %}
+                                <br><span class="muted">{{ appointment.description }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ appointment.location ?? '—' }}</td>
+                        <td>
+                            {% if appointment.subject %}
+                                {% set label = labels[appointment.subject.key]|default(null) %}
+                                {% if label %}
+                                    {{ label.label }} <span class="muted">({{ label.typeLabel }})</span>
+                                {% else %}
+                                    <span class="muted">Bezug nicht auflösbar</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

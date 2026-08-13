@@ -205,6 +205,32 @@ deptrac:
         - type: classNameRegex
           value: '#^Crm\\Activity\\UI\\#'
 
+    # ----------------------------------------------------------- Modul: calendar
+    - name: CalendarBundle
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Calendar\\CalendarModule$#'
+
+    - name: CalendarDomain
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Calendar\\Domain\\#'
+
+    - name: CalendarApplication
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Calendar\\Application\\#'
+
+    - name: CalendarInfrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Calendar\\Infrastructure\\#'
+
+    - name: CalendarUI
+      collectors:
+        - type: classNameRegex
+          value: '#^Crm\\Calendar\\UI\\#'
+
     # ----------------------------------------------------------- Modul: document
     - name: DocumentBundle
       collectors:
@@ -499,6 +525,42 @@ deptrac:
     ActivityUI:
       - ActivityDomain
       - ActivityApplication
+      - SharedKernel
+      - Symfony
+      - SymfonyUid
+      - Twig
+
+    CalendarBundle:
+      - SharedKernel
+      - Symfony
+
+    # SharedKernel wegen SubjectRef - ein Termin kann an einem Datensatz
+    # haengen, muss aber nicht.
+    CalendarDomain:
+      - SharedKernel
+      - DoctrineMapping
+      - SymfonyUid
+
+    CalendarApplication:
+      - CalendarDomain
+      - SharedKernel
+      - SymfonyUid
+
+    CalendarInfrastructure:
+      - CalendarDomain
+      - CalendarApplication
+      - SharedKernel
+      - Doctrine
+      - DoctrineMapping
+      - SymfonyUid
+
+    # CalendarBundle: der Feed-Controller nimmt den Pfadpraefix aus der
+    # Bundle-Klasse, damit Route und Firewall-Ausnahme nicht auseinanderlaufen.
+    CalendarUI:
+      - CalendarBundle
+      - CalendarDomain
+      - CalendarApplication
+      - CalendarInfrastructure
       - SharedKernel
       - Symfony
       - SymfonyUid
