@@ -12,8 +12,21 @@ make fresh          # startet Container, installiert, migriert, seedet
 
 Danach: <http://localhost:8080/contacts> · Mails unter <http://localhost:8025>
 
-Anmeldung mit `admin@officore.test` / `officore-dev-passwort`. Das Konto legt
-`user:seed` an — der Befehl **verweigert die Arbeit in Produktion**. Dort legt
+`user:seed` legt **drei** Konten an, alle mit dem Passwort
+`officore-dev-passwort`:
+
+| Konto | Rolle | Team |
+| --- | --- | --- |
+| `admin@officore.test` | Administrator | Vertrieb |
+| `vertrieb@officore.test` | Benutzer | Vertrieb |
+| `innendienst@officore.test` | Benutzer | Innendienst |
+
+Drei und nicht eines, weil sich mit einem einzigen Administrator nicht
+erkennen lässt, ob die Rechte überhaupt greifen — er darf ohnehin alles.
+Melde dich nacheinander als `vertrieb@` und `innendienst@` an: dieselbe
+Pipeline, unterschiedliche Zeilen. Siehe [Rechte](#rechte).
+
+Der Befehl **verweigert die Arbeit in Produktion**. Dort legt
 `bin/console user:create` das erste Konto an und gibt ein erzeugtes Passwort
 einmalig aus.
 
@@ -142,7 +155,7 @@ Verträge eine **Null-Implementierung als Vorgabe**, die das jeweilige Modul
 | `CompanyFinderInterface` | `NullCompanyFinder` (findet nichts) | `company` |
 | `ContactFinderInterface` | `NullContactFinder` (findet nichts) | `contact` |
 
-### Die vier Extension-Points
+### Die fünf Extension-Points
 
 Ein Modul dockt an, indem es ein Interface implementiert — mehr nicht. Die
 Autoconfiguration im `CrmSharedKernelBundle` übernimmt die Registrierung, und
@@ -154,9 +167,10 @@ kein bestehendes Modul erfährt davon.
 | `CrmModuleInterface` | Selbstbeschreibung (Name, Version, Abhängigkeiten) | `ModuleRegistry` |
 | `SubjectResolverInterface` | Datensätze als polymorphes Ziel verweisbar machen | `SubjectResolverRegistry` |
 | `MetricProviderInterface` | Kennzahlen für die Übersicht | `MetricRegistry` |
+| `RecordOwnershipInterface` | Wem ein Datensatz gehört, und in welchen Spalten | `OwnershipRegistry` |
 
 Ein Test in `CrmSharedKernelBundleTest` prüft diese Liste **abschließend** —
-ein fünfter Extension-Point lässt ihn rot werden. Das ist Absicht: die
+ein sechster Extension-Point lässt ihn rot werden. Das ist Absicht: die
 öffentliche Schnittstelle soll nicht nebenbei wachsen.
 
 **Kennzahlen kommen fertig aggregiert.** Das Dashboard rechnet nichts und
@@ -185,6 +199,56 @@ make arch     # deptrac analyse --report-uncovered --fail-on-uncovered
 Der Lauf muss **0 Violations und 0 Uncovered** melden. `--fail-on-uncovered`
 ist der wichtigere Schalter: er fängt auch den Fall ab, dass jemand ein neues
 Modul anlegt und vergisst, es in `deptrac.yaml` einzutragen.
+
+### Rechte
+
+Zwei Mechanismen, die verschiedene Fragen beantworten. Beide werden gebraucht
+— wer einen weglässt, hat ein Loch.
+
+| | Frage | Wo |
+| --- | --- | --- |
+| **Voter** | Darf dieser Benutzer *diesen* Datensatz? | `#[IsGranted]` am Controller |
+| **Doctrine-Filter** | Welche Zeilen bekommt er überhaupt geladen? | `RecordVisibilityFilter`, in SQL |
+
+Der Voter allein reicht für Listen nicht: eine Seite mit fünfzig Zeilen würde
+fünfzig Mal abstimmen, und die Zeilen wären zu dem Zeitpunkt längst geladen.
+Der Filter allein reicht nicht, weil er nur Abfragen einschränkt.
+
+**Das Attribut heißt `modul.aktion`**, kleingeschrieben:
+
+```php
+#[IsGranted('deal.view')]                  // Listenseite: darf er das Modul?
+#[IsGranted('deal.view', subject: 'deal')] // Detailseite: darf er den Datensatz?
+```
+
+Ein einzelnes Wort als `subject:` wäre von Symfony als *Controller-Argument*
+gelesen worden — daher das zusammengesetzte Attribut statt zweier Parameter.
+
+**Die Rechtematrix** (`PermissionMatrix::default()`) ordnet Rolle → Modul →
+Aktion einen Scope zu: `all`, `team` oder `own`. Ein benannter Moduleintrag
+fällt **nicht** auf den Platzhalter `*` zurück — sonst ließe sich „dieses Modul
+darf niemand" gar nicht ausdrücken, und die Benutzerverwaltung war für alle
+sichtbar.
+
+**Ein Modul macht mit**, indem es `RecordOwnershipInterface` implementiert:
+Modulname, Besitzer und Team eines Objekts — plus die Spaltennamen für den
+Filter. Die Spalten stehen dort und **nicht als Attribut an der Entity**: die
+Domain-Schicht hängt an nichts, und ein Attribut aus dem Shared Kernel wäre
+genau so eine Abhängigkeit. Ein Modul ohne Implementierung hat keine
+Besitzverhältnisse — seine Daten gehören allen, was für Stammdaten wie Firmen
+und Kontakte richtig ist.
+
+Zwei Fallen, die Zeit gekostet haben:
+
+- **Der Filter ist ohne seinen Configurator wirkungslos.** Er wird pro Request
+  von `RecordVisibilityConfigurator` scharfgeschaltet und parametrisiert. Fehlt
+  der als Service-Definition, sieht die Anwendung völlig normal aus — sie zeigt
+  nur zu viel. Deshalb prüft `RecordVisibilityTest` mit echten Requests, dass
+  zwei Benutzer denselben Datensatz **unterschiedlich** zu sehen bekommen.
+- **In Funktionstests muss die Identity Map geleert werden.** Der
+  `KernelBrowser` startet den Kernel vor dem *ersten* Request nicht neu; ein
+  soeben angelegter Datensatz liegt dann noch im EntityManager und wird ohne
+  SQL — also ohne Filter — zurückgegeben. `SignsIn::signIn()` erledigt das.
 
 ### Coverage-Gate
 

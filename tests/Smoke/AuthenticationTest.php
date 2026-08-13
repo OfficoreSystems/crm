@@ -175,6 +175,10 @@ final class AuthenticationTest extends WebTestCase
 
         $expected = static::getContainer()->get(RouterInterface::class)->generate($menu[0]->route);
 
+        // Angemeldet, sonst faengt die Firewall den Aufruf vorher ab und der
+        // Test wuerde nur noch die Weiterleitung auf /login pruefen.
+        $this->client->loginUser($this->securityUserFor($this->givenUser()));
+
         $this->client->request('GET', '/');
 
         self::assertResponseRedirects($expected);

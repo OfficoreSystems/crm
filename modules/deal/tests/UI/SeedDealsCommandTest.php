@@ -11,6 +11,9 @@ use Crm\Deal\UI\Console\SeedDealsCommand;
 use Crm\SharedKernel\Company\CompanyFinderInterface;
 use Crm\SharedKernel\Company\CompanySummary;
 use Crm\SharedKernel\Company\NullCompanyFinder;
+use Crm\SharedKernel\User\NullUserFinder;
+use Crm\SharedKernel\User\UserFinderInterface;
+use Crm\SharedKernel\User\UserSummary;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
@@ -82,10 +85,64 @@ final class SeedDealsCommandTest extends TestCase
         self::assertStringContainsString('Keine Firma zugeordnet', $tester->getDisplay());
     }
 
+    // --- Besitzverhaeltnisse ---
+
+    #[Test]
+    public function it_prefers_an_ordinary_user_over_the_administrator(): void
+    {
+        // Sonst gehoerten die Beispieldaten dem Administrator - und der sieht
+        // ohnehin alles. Von den Sichtbarkeitsregeln waere dann nichts zu
+        // bemerken, und das faellt beim Ausprobieren niemandem auf.
+        $admin = new UserSummary((string) Uuid::v7(), 'Chefin', 'admin@officore.test', (string) Uuid::v7());
+        $vera = new UserSummary((string) Uuid::v7(), 'Vera', 'vertrieb@officore.test', (string) Uuid::v7());
+
+        [$tester, $deals] = $this->command(users: new FakeUsers([$admin, $vera]));
+        $tester->execute([]);
+
+        foreach ($deals->search('') as $deal) {
+            self::assertSame($vera->id, (string) $deal->ownerId());
+            self::assertSame($vera->teamId, (string) $deal->ownerTeamId());
+        }
+
+        self::assertStringContainsString('Vera', $tester->getDisplay());
+    }
+
+    #[Test]
+    public function without_a_user_module_the_deals_stay_ownerless_and_it_says_so(): void
+    {
+        // Der Zustand nach dem Abhaengen des user-Moduls: die Chancen
+        // entstehen trotzdem, aber ohne Besitzer greift kein Filter. Eine
+        // stille Null waere hier die schlechtere Antwort.
+        [$tester, $deals] = $this->command(users: new NullUserFinder());
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertSame(9, $deals->countAll());
+
+        foreach ($deals->search('') as $deal) {
+            self::assertNull($deal->ownerId());
+        }
+
+        self::assertStringContainsString('Kein Besitzer zugeordnet', $tester->getDisplay());
+    }
+
+    #[Test]
+    public function a_user_without_a_team_is_still_better_than_nobody(): void
+    {
+        $einzelkaempfer = new UserSummary((string) Uuid::v7(), 'Solo', 'solo@officore.test', null);
+
+        [$tester, $deals] = $this->command(users: new FakeUsers([$einzelkaempfer]));
+        $tester->execute([]);
+
+        $deal = $deals->search('')[0];
+
+        self::assertSame($einzelkaempfer->id, (string) $deal->ownerId());
+        self::assertNull($deal->ownerTeamId());
+    }
+
     /**
      * @return array{0: CommandTester, 1: InMemoryDealRepository}
      */
-    private function command(?CompanyFinderInterface $companies = null): array
+    private function command(?CompanyFinderInterface $companies = null, ?UserFinderInterface $users = null): array
     {
         $deals = new InMemoryDealRepository();
 
@@ -94,8 +151,46 @@ final class SeedDealsCommandTest extends TestCase
             new CreateDeal($deals),
             $deals,
             $companies ?? new FakeCompanies([]),
+            $users ?? new NullUserFinder(),
         ));
 
         return [new CommandTester($application->find('deal:seed')), $deals];
+    }
+}
+
+/**
+ * Ein Ersatz fuer das user-Modul. Liefert genau das, was der Finder-Vertrag
+ * verspricht - mehr braucht der Seed nicht zu wissen.
+ */
+final class FakeUsers implements UserFinderInterface
+{
+    /**
+     * @param list<UserSummary> $users
+     */
+    public function __construct(private readonly array $users)
+    {
+    }
+
+    public function find(string $id): ?UserSummary
+    {
+        return $this->findMany([$id])[$id] ?? null;
+    }
+
+    public function findMany(array $ids): array
+    {
+        $found = [];
+
+        foreach ($this->users as $user) {
+            if (\in_array($user->id, $ids, true)) {
+                $found[$user->id] = $user;
+            }
+        }
+
+        return $found;
+    }
+
+    public function findAllActive(): array
+    {
+        return $this->users;
     }
 }

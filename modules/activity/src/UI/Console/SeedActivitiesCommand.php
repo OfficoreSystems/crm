@@ -11,11 +11,13 @@ use Crm\Activity\Domain\ActivityType;
 use Crm\SharedKernel\Subject\ResolvedSubject;
 use Crm\SharedKernel\Subject\SubjectRef;
 use Crm\SharedKernel\Subject\SubjectResolverRegistry;
+use Crm\SharedKernel\User\UserFinderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Beispieleintraege, verteilt auf die Subjekte, die es gerade gibt.
@@ -46,6 +48,7 @@ final class SeedActivitiesCommand extends Command
         private readonly LogActivity $logActivity,
         private readonly ActivityRepositoryInterface $activities,
         private readonly SubjectResolverRegistry $subjects,
+        private readonly UserFinderInterface $users,
     ) {
         parent::__construct();
     }
@@ -69,16 +72,20 @@ final class SeedActivitiesCommand extends Command
         }
 
         $now = new \DateTimeImmutable();
+        $authors = $this->collectAuthors();
         $created = 0;
 
         foreach ($subjects as $index => $subject) {
             [$type, $summary, $body, $offsetDays] = self::TEMPLATES[$index % \count(self::TEMPLATES)];
+            $author = [] === $authors ? null : $authors[$index % \count($authors)];
 
             ($this->logActivity)(new LogActivityCommand(
                 type: ActivityType::from($type),
                 subject: new SubjectRef($subject->type, $subject->id),
                 summary: sprintf($summary, $subject->label),
                 body: $body,
+                authorId: $author?->id,
+                authorTeamId: $author?->teamId,
                 occurredAt: $now->modify(sprintf('%+d days', $offsetDays)),
             ));
 
@@ -88,7 +95,44 @@ final class SeedActivitiesCommand extends Command
         $io->success(sprintf('%d Beispielaktivitaeten angelegt.', $created));
         $io->note(sprintf('Verteilt auf: %s.', implode(', ', array_keys($this->subjects->supportedTypes()))));
 
+        if ([] === $authors) {
+            $io->warning('Kein Autor zugeordnet - ohne user-Modul greifen die Sichtbarkeitsregeln nicht.');
+        } else {
+            $io->note(sprintf(
+                'Autoren im Wechsel: %s.',
+                implode(', ', array_map(static fn (SeedAuthor $a): string => $a->name, $authors)),
+            ));
+        }
+
         return Command::SUCCESS;
+    }
+
+    /**
+     * Alle Benutzer mit Team, im Wechsel als Autor.
+     *
+     * Absicht: die Eintraege sollen sich auf mehrere Teams verteilen. Gehoerte
+     * die ganze Timeline einem einzigen Benutzer, waere nicht zu erkennen, ob
+     * der Sichtbarkeitsfilter arbeitet oder nur zufaellig nichts wegnimmt.
+     *
+     * @return list<SeedAuthor>
+     */
+    private function collectAuthors(): array
+    {
+        $authors = [];
+
+        foreach ($this->users->findAllActive() as $user) {
+            if (!Uuid::isValid($user->id) || null === $user->teamId || !Uuid::isValid($user->teamId)) {
+                continue;
+            }
+
+            $authors[] = new SeedAuthor(
+                Uuid::fromString($user->id),
+                Uuid::fromString($user->teamId),
+                $user->name,
+            );
+        }
+
+        return $authors;
     }
 
     /**

@@ -10,24 +10,32 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * Der eine Voter fuer alles.
  *
- * Er kennt kein Modul. Er fragt die OwnershipRegistry, zu welchem Modul ein
- * Datensatz gehoert und wem er gehoert, schlaegt in der Rechtematrix nach, was
- * die Rollen des Benutzers dort duerfen, und vergleicht beides. Ein neues
+ * Er kennt kein Modul. Er liest aus dem Attribut, um welches Modul und welche
+ * Aktion es geht, fragt die OwnershipRegistry nach dem Besitzer des
+ * Datensatzes, schlaegt in der Rechtematrix nach und vergleicht. Ein neues
  * Modul wird geschuetzt, indem es einen RecordOwnership-Anbieter mitbringt -
  * hier aendert sich nichts.
  *
- * Er versteht zwei Formen von Subjekt:
+ * Das Attribut hat die Form "modul.aktion":
  *
- *   #[IsGranted('view', 'deal')]     - darf der Benutzer Deals ueberhaupt sehen?
- *   #[IsGranted('edit', subject: 'deal')] mit einem Deal-Objekt - darf er *diesen*?
+ *     #[IsGranted('deal.view')]                    Listenseite: darf er ueberhaupt?
+ *     #[IsGranted('deal.edit', subject: 'deal')]   Datensatz: darf er *diesen*?
  *
- * Die erste Form ist fuer Listenseiten gedacht, die zweite fuer Datensaetze.
- * Beide gehen ueber dieselbe Matrix, damit es keine zweite Wahrheit gibt.
+ * Das Modul steckt im Attribut und nicht im Subjekt, weil Symfony ein Subjekt
+ * vom Typ String als *Argumentnamen* des Controllers deutet. Fuer eine
+ * Listenseite gibt es kein solches Argument - der Umweg ueber einen
+ * Expression-Ausdruck waere die Alternative gewesen und haette jede
+ * Controller-Zeile unleserlich gemacht.
  *
- * @extends Voter<string, object|string|null>
+ * @extends Voter<string, object|null>
  */
 final class CrmVoter extends Voter
 {
+    /**
+     * modul.aktion, beides klein geschrieben.
+     */
+    private const ATTRIBUTE = '/^([a-z][a-z0-9-]{1,39})\.([a-z]+)$/';
+
     public function __construct(
         private readonly PermissionMatrix $matrix,
         private readonly OwnershipRegistry $ownership,
@@ -36,17 +44,18 @@ final class CrmVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (null === Action::tryFrom($attribute)) {
-            return false;
-        }
-
-        // Modulname als Zeichenkette, oder ein Datensatz, fuer den sich ein
-        // Modul zustaendig fuehlt.
-        return \is_string($subject) || (\is_object($subject) && $this->ownership->supports($subject));
+        return null !== self::parse($attribute);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
+        $parsed = self::parse($attribute);
+
+        if (null === $parsed) {
+            return false;
+        }
+
+        [$module, $action] = $parsed;
         $actor = $token->getUser();
 
         if (!$actor instanceof ActorInterface) {
@@ -55,21 +64,7 @@ final class CrmVoter extends Voter
             return false;
         }
 
-        if (\is_string($subject)) {
-            $module = $subject;
-            $record = null;
-        } elseif (\is_object($subject)) {
-            $module = $this->ownership->moduleOf($subject);
-            $record = $subject;
-        } else {
-            return false;
-        }
-
-        if (null === $module) {
-            return false;
-        }
-
-        $scope = $this->matrix->scopeFor($actor->actorRoles(), $module, Action::from($attribute));
+        $scope = $this->matrix->scopeFor($actor->actorRoles(), $module, $action);
 
         if (null === $scope) {
             return false;
@@ -81,13 +76,13 @@ final class CrmVoter extends Voter
 
         // Ohne Datensatz laesst sich Besitz nicht pruefen. Die Frage lautet
         // dann "darf er ueberhaupt" - und ein eingeschraenktes Recht ist ein
-        // Recht. Ob er *diesen* Datensatz darf, entscheidet der zweite Aufruf
-        // mit dem Objekt.
-        if (null === $record) {
+        // Recht. Ob er *diesen* Datensatz darf, entscheidet der Aufruf mit
+        // dem Objekt.
+        if (!\is_object($subject)) {
             return true;
         }
 
-        $ownership = $this->ownership->ownershipOf($record);
+        $ownership = $this->ownership->ownershipOf($subject);
 
         if (AccessScope::TEAM === $scope) {
             return $ownership->isOwnedBy($actor) || $ownership->belongsToTeamOf($actor);
@@ -95,5 +90,19 @@ final class CrmVoter extends Voter
 
         // Bleibt OWN - ALL ist oben abgehandelt.
         return $ownership->isOwnedBy($actor);
+    }
+
+    /**
+     * @return array{0: string, 1: Action}|null
+     */
+    private static function parse(string $attribute): ?array
+    {
+        if (1 !== preg_match(self::ATTRIBUTE, $attribute, $matches)) {
+            return null;
+        }
+
+        $action = Action::tryFrom($matches[2]);
+
+        return null === $action ? null : [$matches[1], $action];
     }
 }

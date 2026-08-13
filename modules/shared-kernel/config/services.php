@@ -13,6 +13,7 @@ use Crm\SharedKernel\Security\CrmVoter;
 use Crm\SharedKernel\Security\NullUserProvider;
 use Crm\SharedKernel\Security\OwnershipRegistry;
 use Crm\SharedKernel\Security\PermissionMatrix;
+use Crm\SharedKernel\Infrastructure\Security\RecordVisibilityConfigurator;
 use Crm\SharedKernel\Subject\SubjectResolverRegistry;
 use Crm\SharedKernel\User\NullUserFinder;
 use Crm\SharedKernel\User\UserFinderInterface;
@@ -48,6 +49,12 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(CrmVoter::class)
         ->tag('security.voter');
+
+    // Der Doctrine-Filter selbst wird von der Bundle-Klasse konfiguriert, aber
+    // Doctrine baut ihn ohne Container. Diese Klasse fuettert ihn pro Request
+    // mit Benutzer und Scope - ohne sie ist der Filter dauerhaft aus, und das
+    // faellt nicht auf: die Seiten funktionieren, sie zeigen nur zu viel.
+    $services->set(RecordVisibilityConfigurator::class);
 
     // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
     // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem

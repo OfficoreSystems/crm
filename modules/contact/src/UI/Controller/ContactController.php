@@ -7,6 +7,7 @@ namespace Crm\Contact\UI\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/contacts', name: 'contact_')]
 final class ContactController extends AbstractController
@@ -16,6 +17,7 @@ final class ContactController extends AbstractController
      * Live-Component, damit sie ohne Controller-Roundtrip aktualisiert.
      */
     #[Route('', name: 'index', methods: ['GET'])]
+    #[IsGranted('contact.view')]
     public function index(): Response
     {
         return $this->render('@ContactModule/contact/index.html.twig');

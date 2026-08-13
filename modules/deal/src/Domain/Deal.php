@@ -20,6 +20,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Index(name: 'idx_deal_stage', columns: ['stage'])]
 #[ORM\Index(name: 'idx_deal_company', columns: ['company_id'])]
 #[ORM\Index(name: 'idx_deal_owner', columns: ['owner_id'])]
+#[ORM\Index(name: 'idx_deal_owner_team', columns: ['owner_team_id'])]
 class Deal
 {
     #[ORM\Id]
@@ -44,6 +45,18 @@ class Deal
     #[ORM\Column(name: 'owner_id', type: 'uuid', nullable: true)]
     private ?Uuid $ownerId;
 
+    /**
+     * Das Team des Besitzers zum Zeitpunkt der Zuweisung.
+     *
+     * Bewusst am Datensatz gespeichert und nicht ueber den Besitzer
+     * aufgeloest. Zwei Gruende: der Doctrine-Filter schraenkt Listen direkt in
+     * SQL ein und kann dabei keinen Finder aufrufen - er braucht eine Spalte.
+     * Und fachlich ist es richtiger: eine Chance bleibt bei dem Team, das sie
+     * bearbeitet hat, auch wenn der Besitzer spaeter wechselt.
+     */
+    #[ORM\Column(name: 'owner_team_id', type: 'uuid', nullable: true)]
+    private ?Uuid $ownerTeamId;
+
     #[ORM\Column(name: 'expected_close_date', type: 'date_immutable', nullable: true)]
     private ?\DateTimeImmutable $expectedCloseDate;
 
@@ -66,6 +79,7 @@ class Deal
         ?Uuid $companyId,
         ?Uuid $contactId,
         ?Uuid $ownerId,
+        ?Uuid $ownerTeamId,
         ?\DateTimeImmutable $expectedCloseDate,
         \DateTimeImmutable $createdAt,
     ) {
@@ -76,6 +90,7 @@ class Deal
         $this->companyId = $companyId;
         $this->contactId = $contactId;
         $this->ownerId = $ownerId;
+        $this->ownerTeamId = null === $ownerId ? null : $ownerTeamId;
         $this->expectedCloseDate = $expectedCloseDate;
         $this->closedAt = $stage->isClosed() ? $createdAt : null;
         $this->createdAt = $createdAt;
@@ -88,6 +103,7 @@ class Deal
         ?Uuid $companyId = null,
         ?Uuid $contactId = null,
         ?Uuid $ownerId = null,
+        ?Uuid $ownerTeamId = null,
         ?\DateTimeImmutable $expectedCloseDate = null,
         ?\DateTimeImmutable $createdAt = null,
     ): self {
@@ -99,6 +115,7 @@ class Deal
             $companyId,
             $contactId,
             $ownerId,
+            $ownerTeamId,
             $expectedCloseDate,
             $createdAt ?? new \DateTimeImmutable(),
         );
@@ -137,6 +154,11 @@ class Deal
     public function ownerId(): ?Uuid
     {
         return $this->ownerId;
+    }
+
+    public function ownerTeamId(): ?Uuid
+    {
+        return $this->ownerTeamId;
     }
 
     public function expectedCloseDate(): ?\DateTimeImmutable
@@ -202,9 +224,17 @@ class Deal
         $this->contactId = $contactId;
     }
 
-    public function assignToOwner(?Uuid $ownerId): void
+    /**
+     * Besitzer und dessen Team zusammen setzen.
+     *
+     * Bewusst ein Aufruf statt zweier Setter: ein Besitzer ohne Team oder ein
+     * Team ohne Besitzer waere ein halber Zustand, und die Rechtepruefung
+     * haengt an beidem.
+     */
+    public function assignToOwner(?Uuid $ownerId, ?Uuid $ownerTeamId = null): void
     {
         $this->ownerId = $ownerId;
+        $this->ownerTeamId = null === $ownerId ? null : $ownerTeamId;
     }
 
     public function expectToCloseOn(?\DateTimeImmutable $date): void

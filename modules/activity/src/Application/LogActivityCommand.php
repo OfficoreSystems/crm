@@ -16,6 +16,7 @@ final readonly class LogActivityCommand
         public string $summary,
         public ?string $body = null,
         public ?Uuid $authorId = null,
+        public ?Uuid $authorTeamId = null,
         public ?\DateTimeImmutable $occurredAt = null,
     ) {
     }
