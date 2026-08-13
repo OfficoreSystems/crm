@@ -405,12 +405,19 @@ deptrac:
       - SharedKernel
       - Symfony
 
+    # SharedKernel aus demselben Grund wie bei ActivityDomain: ein reines
+    # Wertobjekt, hier die Sprachliste. Kein Dienst, keine Infrastruktur - die
+    # Alternative waere eine zweite, identische Aufzaehlung im Modul plus
+    # Umwandlung an jeder Grenze.
     UserDomain:
+      - SharedKernel
       - DoctrineMapping
       - SymfonyUid
 
+    # SharedKernel wie bei UserDomain: nur wegen der Sprachliste.
     UserApplication:
       - UserDomain
+      - SharedKernel
       - SymfonyUid
 
     # Darf zusaetzlich SharedKernel sehen: hier liegt die Implementierung von

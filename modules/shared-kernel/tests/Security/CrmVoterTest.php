@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crm\SharedKernel\Tests\Security;
 
+use Crm\SharedKernel\Localization\Locale;
 use Crm\SharedKernel\Security\AccessScope;
 use Crm\SharedKernel\Security\Action;
 use Crm\SharedKernel\Security\ActorInterface;
@@ -324,6 +325,13 @@ final class FakeActor implements ActorInterface, \Symfony\Component\Security\Cor
     public function actorRoles(): array
     {
         return $this->roles;
+    }
+
+    public function actorLocale(): ?Locale
+    {
+        // Der Voter interessiert sich nicht fuer die Sprache. Null heisst
+        // "nie gewaehlt" und ist hier die ehrlichste Antwort.
+        return null;
     }
 
     public function getRoles(): array

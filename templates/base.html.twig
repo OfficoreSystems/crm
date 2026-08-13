@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ app.request.locale|default('en') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -228,14 +228,14 @@
            entscheidet sich dadurch, welche Bundles installiert sind. #}
         {% set menu = crm_menu() %}
         {% if menu is empty %}
-            <p class="sidebar__empty">Kein Modul installiert.</p>
+            <p class="sidebar__empty">{{ 'app.no_modules'|trans }}</p>
         {% else %}
             <ul class="sidebar__nav">
                 {% for item in menu %}
                     <li>
                         <a href="{{ path(item.route) }}"
                            {% if app.request and app.request.attributes.get('_route') == item.route %}aria-current="page"{% endif %}>
-                            {{ item.label }}
+                            {{ item.label|trans }}
                         </a>
                     </li>
                 {% endfor %}
@@ -250,7 +250,33 @@
         {% if app.user %}
             <div class="sidebar__account">
                 <span class="sidebar__account-name">{{ app.user.name|default(app.user.userIdentifier) }}</span>
-                <a href="/logout" class="sidebar__account-logout">Abmelden</a>
+                <a href="/logout" class="sidebar__account-logout">{{ 'app.logout'|trans }}</a>
+
+                {# Der Umschalter steht hier und nicht auf einer eigenen
+                   Einstellungsseite: wer die Oberflaeche gerade nicht versteht,
+                   findet keine Einstellungsseite.
+
+                   crm_locales() kommt aus dem Core und kennt kein Modul - die
+                   Route dagegen bringt das user-Modul mit, deshalb die
+                   Pruefung. Ohne dieses Modul gibt es kein Konto, an dem sich
+                   etwas speichern liesse. #}
+                {% if crm_locales()|length > 1 and crm_route_exists('user_language_switch') %}
+                    <form method="post" action="{{ path('user_language_switch') }}" class="sidebar__language">
+                        <input type="hidden" name="_token"
+                               value="{{ csrf_token('user_language_' ~ app.user.actorId) }}">
+                        <input type="hidden" name="_back" value="{{ app.request.requestUri }}">
+                        <label class="visually-hidden" for="locale">{{ 'app.language'|trans }}</label>
+                        <select id="locale" name="locale" onchange="this.form.submit()">
+                            {% for locale in crm_locales() %}
+                                <option value="{{ locale.value }}"
+                                        {% if locale.value == app.request.locale %}selected{% endif %}>
+                                    {{ locale.label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <noscript><button type="submit">{{ 'app.apply'|trans }}</button></noscript>
+                    </form>
+                {% endif %}
             </div>
         {% endif %}
     </aside>

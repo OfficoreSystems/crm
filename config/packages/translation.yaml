@@ -1,0 +1,22 @@
+# Absichtlich frei von Modulwissen.
+#
+# Hier steht nur, welche Sprachen es gibt und welche gilt, wenn niemand etwas
+# anderes sagt. Die Texte selbst bringt jedes Modul mit - siehe
+# translations/ im jeweiligen Modul und prependExtension() in dessen
+# Bundle-Klasse.
+framework:
+    default_locale: en
+
+    # Die Liste ist geschlossen: enabled_locales laesst Symfony den
+    # Uebersetzungscache nur fuer diese Sprachen bauen und weist andere in der
+    # Routen-/Locale-Aufloesung zurueck. Ohne sie waere "?locale=xx" ein
+    # gueltiger Zustand mit leeren Texten.
+    enabled_locales: ['en', 'de']
+
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+
+        # Faellt auf Englisch zurueck, wenn ein deutscher Text fehlt. Lieber
+        # ein englischer Satz als ein Uebersetzungsschluessel - "menu.contacts"
+        # in der Navigation sieht nach einem Fehler aus, weil es einer ist.
+        fallbacks: ['en']

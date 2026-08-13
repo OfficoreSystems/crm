@@ -13,6 +13,7 @@ use Crm\SharedKernel\Security\CrmVoter;
 use Crm\SharedKernel\Security\NullUserProvider;
 use Crm\SharedKernel\Security\OwnershipRegistry;
 use Crm\SharedKernel\Security\PermissionMatrix;
+use Crm\SharedKernel\Infrastructure\Localization\ActorLocaleListener;
 use Crm\SharedKernel\Infrastructure\Security\RecordVisibilityConfigurator;
 use Crm\SharedKernel\Subject\SubjectResolverRegistry;
 use Crm\SharedKernel\User\NullUserFinder;
@@ -55,6 +56,10 @@ return static function (ContainerConfigurator $container): void {
     // mit Benutzer und Scope - ohne sie ist der Filter dauerhaft aus, und das
     // faellt nicht auf: die Seiten funktionieren, sie zeigen nur zu viel.
     $services->set(RecordVisibilityConfigurator::class);
+
+    // Dieselbe Bauart wie oben, derselbe Grund: das Attribut #[AsEventListener]
+    // wirkt nur an einer Klasse, die auch ein Dienst ist.
+    $services->set(ActorLocaleListener::class);
 
     // Standardimplementierung. Das user-Modul ueberschreibt diesen Alias mit
     // seiner Doctrine-Variante - es steht in config/bundles.php hinter dem

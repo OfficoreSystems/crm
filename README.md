@@ -327,6 +327,38 @@ Was daraus für den Feed folgt:
 - Ein unbekanntes Token bekommt **404 ohne Erklärung**. Ein „Token abgelaufen"
   wäre die Bestätigung, dass es das Token gab.
 
+### Sprachen
+
+**Englisch ist die Standardsprache**, Deutsch die zweite. Die Liste steht an
+zwei Orten, die zusammenpassen müssen — `enabled_locales` in
+[translation.yaml](config/packages/translation.yaml) und die Aufzählung
+`Crm\SharedKernel\Localization\Locale`. Ein Test hält beide zusammen, denn
+laufen sie auseinander, zeigt die Anwendung eine andere Sprache an, als der
+Umschalter behauptet.
+
+Die Wahl hängt **am Konto**, nicht an der Sitzung: sie soll auch nach dem
+nächsten Anmelden gelten und später für Mails, bei denen es keine Sitzung
+gibt. `null` in der Spalte heißt „nie gewählt" — der Unterschied zu `'en'`
+zählt, wenn sich die Standardsprache einmal ändert.
+
+Die Kette ist länger, als sie aussieht:
+
+```
+Konto → SecurityUser → ActorInterface → ActorLocaleListener
+                                          ├→ Request
+                                          └→ LocaleSwitcher → Übersetzer
+```
+
+Der Listener läuft bei **Priority 5**, also *nach* der Firewall (8) — vorher
+gibt es keinen angemeldeten Benutzer. Damit kommt er zu spät für Symfonys
+`LocaleAwareListener` (15) und setzt deshalb beides selbst. Nur eines von
+beidem zu setzen ergibt eine Anwendung, die halb übersetzt ist, und zwar je
+nach Stelle unterschiedlich.
+
+**Texte gehören zum Modul.** Jedes Modul bringt sein eigenes `translations/`
+mit und meldet es in seiner Bundle-Klasse an — genauso wie Twig-Pfad und
+Doctrine-Mapping. Der Core hat nur den Katalog für das Grundlayout.
+
 ### Coverage-Gate
 
 Mindestens **80 % Zeilenabdeckung**, erzwungen in der CI durch
